@@ -21,4 +21,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Codemations.Asn1\Codemations.Asn1.csproj" />
+  </ItemGroup>
+
 </Project>
