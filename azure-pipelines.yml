@@ -60,11 +60,11 @@ steps:
     publishVstsFeed: '73ab56f3-41d3-43aa-b445-6c2591ea0149/39973489-c2cb-4fdf-97f7-17ca9ef2c262'
   condition: eq(variables.isMain, 'false')
 
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet push external'
+- task: NuGetCommand@2
+  displayName: 'nuget push external'
   inputs:
     command: 'push'
-    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
     nuGetFeedType: 'external'
     publishFeedCredentials: 'NugetApiKey'
   condition: eq(variables.isMain, 'true')
