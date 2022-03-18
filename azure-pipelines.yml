@@ -10,8 +10,16 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  isMain: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
 
 steps:
+- task: GitVersion@5
+  inputs:
+    versionSpec: '5.x'
+    includePrerelease: true
+    useConfigFile: true
+    configFilePath: '$(System.DefaultWorkingDirectory)/GitVersion.yml'
+
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
@@ -26,5 +34,37 @@ steps:
 
 - task: VSTest@2
   inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: |
+      **\*.Tests.dll
+      !**\*TestAdapter.dll
+      !**\obj\**
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+    codeCoverageEnabled: true
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet pack'
+  inputs:
+    command: 'pack'
+    packagesToPack: 'src/**/*.csproj'
+    nobuild: true
+    versioningScheme: 'byEnvVar'
+    versionEnvVar: 'GitVersion.SemVer'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet push internal'
+  inputs:
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    nuGetFeedType: 'internal'
+    publishVstsFeed: '73ab56f3-41d3-43aa-b445-6c2591ea0149/39973489-c2cb-4fdf-97f7-17ca9ef2c262'
+  condition: eq(variables.isMain, 'false')
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet push external'
+  inputs:
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    nuGetFeedType: 'external'
+    publishFeedCredentials: 'NugetApiKey'
+  condition: eq(variables.isMain, 'true')
