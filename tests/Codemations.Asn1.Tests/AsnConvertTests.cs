@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Formats.Asn1;
 using System.Linq;
 using Xunit;
@@ -12,22 +11,17 @@ namespace Codemations.Asn1.Tests
         {
             get
             {
-                var cafeNode = new AsnNode { Tag = 0x81.ToAsn1Tag(), Value = new byte[] { 0xCA, 0xFE } };
-                var deadBeefNode = new AsnNode { Tag = 0x82.ToAsn1Tag(), Value = new byte[] { 0xDE, 0xAD, 0xBE, 0xEF } };
+                var cafeElement = new AsnPrimitiveElement(0x81.ToAsn1Tag()) { Value = new byte[] { 0xCA, 0xFE } };
+                var deadBeefElement = new AsnPrimitiveElement(0x82.ToAsn1Tag()) { Value = new byte[] { 0xDE, 0xAD, 0xBE, 0xEF } };
+                var constructedElement = new AsnConstructedElement(0xA0.ToAsn1Tag(), new AsnElement[] {cafeElement, deadBeefElement}.ToList());
 
                 yield return new object[] {
-                    new []{ cafeNode,  deadBeefNode },
+                    new AsnElement[]{ cafeElement,  deadBeefElement },
                     new byte[] { 0x81, 0x02, 0xCA, 0xFE, 0x82, 0x04, 0xDE, 0xAD, 0xBE, 0xEF }
                 };
 
                 yield return new object[] {
-                    new AsnNode[]{
-                        new() {
-                            Tag = 0xA0.ToAsn1Tag(),
-                            Value = new byte[]{ 0x81, 0x02, 0xCA, 0xFE, 0x82, 0x04, 0xDE, 0xAD, 0xBE, 0xEF },
-                            Nodes = new []{ cafeNode,  deadBeefNode }.ToList()
-                        }
-                    },
+                    new AsnElement[]{ constructedElement }, 
                     new byte[] { 0xA0, 0x0A, 0x81, 0x02, 0xCA, 0xFE, 0x82, 0x04, 0xDE, 0xAD, 0xBE, 0xEF }
                 };
             }
@@ -35,42 +29,44 @@ namespace Codemations.Asn1.Tests
 
         [Theory]
         [MemberData(nameof(Data))]
-        public void ShouldSerializeData(ICollection<AsnNode> asnNodes, byte[] expectedData)
+        public void ShouldSerializeData(ICollection<AsnElement> asnElements, byte[] expectedData)
         {
             // Act
-            var actualData = AsnConvert.Serialize(asnNodes, AsnEncodingRules.DER).ToList();
+            var actualData = AsnConvert.Serialize(asnElements, AsnEncodingRules.DER);
 
             // Assert
-            Assert.Equal(expectedData, actualData);
+            Assert.Equal(expectedData, actualData.ToList());
         }
 
         [Theory]
         [MemberData(nameof(Data))]
-        public void ShouldDeserializeData(ICollection<AsnNode> expectedAsnNodes, byte[] data)
+        public void ShouldDeserializeData(ICollection<AsnElement> expectedAsnElements, byte[] data)
         {
             // Act
-            var actualAsnNodes = AsnConvert.Deserialize(data, AsnEncodingRules.DER).ToList();
+            var actualAsnElements = AsnConvert.Deserialize(data, AsnEncodingRules.DER);
 
             // Assert
-            AssertAsnNodes(expectedAsnNodes, actualAsnNodes);
+            AssertAsnElements(expectedAsnElements, actualAsnElements.ToList());
         }
 
-        private static void AssertAsnNodes(ICollection<AsnNode> expectedSequence, ICollection<AsnNode> actualSequence)
+        private static void AssertAsnElements(ICollection<AsnElement> expectedSequence, ICollection<AsnElement> actualSequence)
         {
             Assert.Equal(expectedSequence.Count, actualSequence.Count);
             foreach(var (expected, actual) in expectedSequence.Zip(actualSequence, (x, y) => (x, y)))
             {
-                Assert.Equal(expected.Tag,actual.Tag);
-                Assert.Equal(expected.Value, actual.Value);
-                if (expected.Nodes is not null && actual.Nodes is not null)
+                Assert.Equal(expected.Tag ,actual.Tag);
+                if (expected.Tag.IsConstructed)
                 {
-                    AssertAsnNodes(expected.Nodes, actual.Nodes);
+                    AssertAsnElements(
+                        ((AsnConstructedElement)expected).Elements, 
+                        ((AsnConstructedElement)actual).Elements);
                 }
                 else
                 {
-                    Assert.Null(expected.Nodes);
-                    Assert.Null(actual.Nodes);
+                    Assert.Equal(((AsnPrimitiveElement)expected).Value, ((AsnPrimitiveElement)actual).Value);
                 }
+                
+
             }
         }
     }
