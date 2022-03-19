@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Formats.Asn1;
+using System.Linq;
 
 namespace Codemations.Asn1
 {
@@ -32,9 +33,9 @@ namespace Codemations.Asn1
         /// <param name="elements">
         ///   A list of child elements.
         /// </param>
-        public AsnConstructedElement(Asn1Tag tag, IList<AsnElement> elements) : base(tag)
+        public AsnConstructedElement(Asn1Tag tag, IEnumerable<AsnElement> elements) : base(tag)
         {
-            this.Elements = elements;
+            this.Elements = elements.ToList();
         }
     }
 }
