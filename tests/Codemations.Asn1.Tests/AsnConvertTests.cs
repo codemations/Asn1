@@ -1,4 +1,6 @@
-﻿using System.Formats.Asn1;
+﻿using System;
+using System.Collections.Generic;
+using System.Formats.Asn1;
 using System.Linq;
 using Xunit;
 
@@ -6,46 +8,70 @@ namespace Codemations.Asn1.Tests
 {
     public class AsnConvertTests
     {
-        [Fact]
-        public void ShouldDeserializeDataToSingleAsnNode()
+        public static IEnumerable<object[]> Data
         {
-            // Arrange
-            const byte tag0 = 0xA0;
-            const byte tag1 = 0x81;
-            const byte tag2 = 0x82;
-            const byte value1 = 0xCA;
-            const byte value2 = 0xFE;
-            var data = new byte[] { tag0, 0x06, tag1, 0x01, value1, tag2, 0x01, value2 };
+            get
+            {
+                var cafeNode = new AsnNode { Tag = 0x81.ToAsn1Tag(), Value = new byte[] { 0xCA, 0xFE } };
+                var deadBeefNode = new AsnNode { Tag = 0x82.ToAsn1Tag(), Value = new byte[] { 0xDE, 0xAD, 0xBE, 0xEF } };
 
-            // Act
-            var asnNode = AsnConvert.Deserialize(data, AsnEncodingRules.DER).Single();
+                yield return new object[] {
+                    new []{ cafeNode,  deadBeefNode },
+                    new byte[] { 0x81, 0x02, 0xCA, 0xFE, 0x82, 0x04, 0xDE, 0xAD, 0xBE, 0xEF }
+                };
 
-            // Assert
-            Assert.Equal(tag0, asnNode.Tag.AsByte());
-            Assert.Equal(tag1, asnNode.Nodes![0].Tag.AsByte());
-            Assert.Equal(new [] { value1 }, asnNode.Nodes![0].Value.ToArray());
-            Assert.Equal(tag2, asnNode.Nodes![1].Tag.AsByte());
-            Assert.Equal(new [] { value2 }, asnNode.Nodes![1].Value.ToArray());
+                yield return new object[] {
+                    new AsnNode[]{
+                        new() {
+                            Tag = 0xA0.ToAsn1Tag(),
+                            Value = new byte[]{ 0x81, 0x02, 0xCA, 0xFE, 0x82, 0x04, 0xDE, 0xAD, 0xBE, 0xEF },
+                            Nodes = new []{ cafeNode,  deadBeefNode }.ToList()
+                        }
+                    },
+                    new byte[] { 0xA0, 0x0A, 0x81, 0x02, 0xCA, 0xFE, 0x82, 0x04, 0xDE, 0xAD, 0xBE, 0xEF }
+                };
+            }
         }
 
-        [Fact]
-        public void ShouldDeserializeDataToMultipleAsnNodes()
+        [Theory]
+        [MemberData(nameof(Data))]
+        public void ShouldSerializeData(ICollection<AsnNode> asnNodes, byte[] expectedData)
         {
-            // Arrange
-            const byte tag1 = 0x81;
-            const byte tag2 = 0x82;
-            const byte value1 = 0xCA;
-            const byte value2 = 0xFE;
-            var data = new byte[] { tag1, 0x01, value1, tag2, 0x01, value2 };
-
             // Act
-            var asnNodes = AsnConvert.Deserialize(data, AsnEncodingRules.DER).ToList();
+            var actualData = AsnConvert.Serialize(asnNodes, AsnEncodingRules.DER).ToList();
 
             // Assert
-            Assert.Equal(tag1, asnNodes[0].Tag.AsByte());
-            Assert.Equal(new[] { value1 }, asnNodes[0].Value.ToArray());
-            Assert.Equal(tag2, asnNodes[1].Tag.AsByte());
-            Assert.Equal(new[] { value2 }, asnNodes[1].Value.ToArray());
+            Assert.Equal(expectedData, actualData);
+        }
+
+        [Theory]
+        [MemberData(nameof(Data))]
+        public void ShouldDeserializeData(ICollection<AsnNode> expectedAsnNodes, byte[] data)
+        {
+            // Act
+            var actualAsnNodes = AsnConvert.Deserialize(data, AsnEncodingRules.DER).ToList();
+
+            // Assert
+            AssertAsnNodes(expectedAsnNodes, actualAsnNodes);
+        }
+
+        private static void AssertAsnNodes(ICollection<AsnNode> expectedSequence, ICollection<AsnNode> actualSequence)
+        {
+            Assert.Equal(expectedSequence.Count, actualSequence.Count);
+            foreach(var (expected, actual) in expectedSequence.Zip(actualSequence, (x, y) => (x, y)))
+            {
+                Assert.Equal(expected.Tag,actual.Tag);
+                Assert.Equal(expected.Value, actual.Value);
+                if (expected.Nodes is not null && actual.Nodes is not null)
+                {
+                    AssertAsnNodes(expected.Nodes, actual.Nodes);
+                }
+                else
+                {
+                    Assert.Null(expected.Nodes);
+                    Assert.Null(actual.Nodes);
+                }
+            }
         }
     }
 }

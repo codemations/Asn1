@@ -25,7 +25,7 @@ namespace Codemations.Asn1
             var reader = new AsnReader(data, ruleSet, options);
             while (reader.HasData)
             {
-                var asnNode = new AsnNode { Tag = reader.PeekTag(), Value = reader.PeekContentBytes() };
+                var asnNode = new AsnNode { Tag = reader.PeekTag(), Value = reader.PeekContentBytes().ToArray() };
 
                 if (asnNode.Tag.IsConstructed)
                 {
@@ -35,6 +35,49 @@ namespace Codemations.Asn1
                 yield return asnNode;
 
                 reader.ReadEncodedValue();
+            }
+        }
+
+        /// <summary>
+        ///   Serializes <paramref name="nodes"/> with a given <paramref name="ruleSet"/>.
+        /// </summary>
+        /// <param name="nodes">Nodes to serialize.</param>
+        /// <param name="ruleSet">The encoding constraints for the reader.</param>
+        /// <returns>Encoded data.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///   <paramref name="ruleSet"/> is not defined.
+        /// </exception>
+        public static byte[] Serialize(IEnumerable<AsnNode> nodes, AsnEncodingRules ruleSet)
+        {
+            var writer = new AsnWriter(ruleSet);
+            Serialize(writer, nodes);
+            return writer.Encode();
+        }
+
+        private static void Serialize(AsnWriter writer, IEnumerable<AsnNode> nodes)
+        {
+            foreach (var node in nodes)
+            {
+                if (node.Tag.IsConstructed)
+                {
+                    writer.PushSequence(node.Tag);
+                    if (node.Nodes is not null)
+                    {
+                        Serialize(writer, node.Nodes);
+                    }
+                    writer.PopSequence(node.Tag);
+                }
+                else
+                {
+                    if (node.Value is null)
+                    {
+                        writer.WriteNull(node.Tag);
+                    }
+                    else
+                    {
+                        writer.WriteOctetString(node.Value?.ToArray(), node.Tag);
+                    }
+                }
             }
         }
     }
