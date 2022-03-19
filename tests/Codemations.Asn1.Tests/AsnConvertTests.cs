@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Formats.Asn1;
 using System.Linq;
+using System.Numerics;
 using Xunit;
 
 namespace Codemations.Asn1.Tests
@@ -77,17 +78,17 @@ namespace Codemations.Asn1.Tests
 
         public class ChoiceElement
         {
-            [Asn1Tag(TagClass.ContextSpecific, 0x00, true)]
+            [AsnElement(TagClass.ContextSpecific, 0x00, true)]
             public SequenceElement? SequenceElement { get; set; }
         }
 
         public class SequenceElement
         {
-            [Asn1Tag(TagClass.ContextSpecific, 0x01)]
+            [AsnElement(TagClass.ContextSpecific, 0x01)]
             public byte[]? OctetString { get; set; }
 
-            [Asn1Tag(TagClass.ContextSpecific, 0x02)]
-            public long? Integer { get; set; }
+            [AsnElement(TagClass.ContextSpecific, 0x02)]
+            public BigInteger? Integer { get; set; }
         }
 
         public static IEnumerable<object[]> ModelData
