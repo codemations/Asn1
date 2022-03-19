@@ -16,67 +16,70 @@ namespace Codemations.Asn1
         /// <param name="data">The data to read.</param>
         /// <param name="ruleSet">The encoding constraints for the reader.</param>
         /// <param name="options">Additional options for the reader.</param>
-        /// <returns>An iterator with AsnNode objects.</returns>
+        /// <returns>An iterator with AsnElement objects.</returns>
         /// <exception cref="ArgumentOutOfRangeException">
         ///   <paramref name="ruleSet"/> is not defined.
         /// </exception>
-        public static IEnumerable<AsnNode> Deserialize(ReadOnlyMemory<byte> data, AsnEncodingRules ruleSet, AsnReaderOptions options = default)
+        public static IEnumerable<AsnElement> Deserialize(ReadOnlyMemory<byte> data, AsnEncodingRules ruleSet, AsnReaderOptions options = default)
         {
             var reader = new AsnReader(data, ruleSet, options);
             while (reader.HasData)
             {
-                var asnNode = new AsnNode { Tag = reader.PeekTag(), Value = reader.PeekContentBytes().ToArray() };
+                AsnElement asnElement;
+                var tag = reader.PeekTag();
+                var value = reader.PeekContentBytes();
 
-                if (asnNode.Tag.IsConstructed)
+                if (tag.IsConstructed)
                 {
-                    asnNode.Nodes = Deserialize(asnNode.Value, ruleSet, options).ToList();
+                    var elements = Deserialize(value, ruleSet, options).ToList();
+                    asnElement = new AsnConstructedElement(tag, elements);
+                }
+                else
+                {
+                    asnElement = new AsnPrimitiveElement(tag) {Value = value.ToArray()};
                 }
 
-                yield return asnNode;
+                yield return asnElement;
 
                 reader.ReadEncodedValue();
             }
         }
 
         /// <summary>
-        ///   Serializes <paramref name="nodes"/> with a given <paramref name="ruleSet"/>.
+        ///   Serializes <paramref name="elements"/> with a given <paramref name="ruleSet"/>.
         /// </summary>
-        /// <param name="nodes">Nodes to serialize.</param>
+        /// <param name="elements">Elements to serialize.</param>
         /// <param name="ruleSet">The encoding constraints for the reader.</param>
         /// <returns>Encoded data.</returns>
         /// <exception cref="ArgumentOutOfRangeException">
         ///   <paramref name="ruleSet"/> is not defined.
         /// </exception>
-        public static byte[] Serialize(IEnumerable<AsnNode> nodes, AsnEncodingRules ruleSet)
+        public static byte[] Serialize(IEnumerable<AsnElement> elements, AsnEncodingRules ruleSet)
         {
             var writer = new AsnWriter(ruleSet);
-            Serialize(writer, nodes);
+            Serialize(writer, elements);
             return writer.Encode();
         }
 
-        private static void Serialize(AsnWriter writer, IEnumerable<AsnNode> nodes)
+        private static void Serialize(AsnWriter writer, IEnumerable<AsnElement> elements)
         {
-            foreach (var node in nodes)
+            foreach (var element in elements)
             {
-                if (node.Tag.IsConstructed)
+                switch (element)
                 {
-                    writer.PushSequence(node.Tag);
-                    if (node.Nodes is not null)
-                    {
-                        Serialize(writer, node.Nodes);
-                    }
-                    writer.PopSequence(node.Tag);
-                }
-                else
-                {
-                    if (node.Value is null)
-                    {
-                        writer.WriteNull(node.Tag);
-                    }
-                    else
-                    {
-                        writer.WriteOctetString(node.Value?.ToArray(), node.Tag);
-                    }
+                    case AsnConstructedElement constructedElement:
+                        writer.PushSequence(constructedElement.Tag);
+                        Serialize(writer, constructedElement.Elements);
+                        writer.PopSequence(constructedElement.Tag);
+                        break;
+
+                    case AsnPrimitiveElement {Value: null}:
+                        writer.WriteNull(element.Tag);
+                        break;
+
+                    case AsnPrimitiveElement primitiveElement:
+                        writer.WriteOctetString(primitiveElement.Value?.ToArray(), primitiveElement.Tag);
+                        break;
                 }
             }
         }
