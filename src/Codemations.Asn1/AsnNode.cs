@@ -17,7 +17,7 @@ namespace Codemations.Asn1
         /// <summary>
         /// Gets or sets the content encoded value.
         /// </summary>
-        public ReadOnlyMemory<byte> Value { get; set; }
+        public byte[]? Value { get; set; }
 
         /// <summary>
         /// Gets or sets the list of child nodes.
