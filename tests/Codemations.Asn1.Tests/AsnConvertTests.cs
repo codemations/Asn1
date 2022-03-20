@@ -64,8 +64,8 @@ namespace Codemations.Asn1.Tests
                 if (expected.Tag.IsConstructed)
                 {
                     AssertAsnElements(
-                        ((AsnConstructedElement) expected).Elements,
-                        ((AsnConstructedElement) actual).Elements);
+                        ((AsnConstructedElement) expected).Elements.ToList(),
+                        ((AsnConstructedElement) actual).Elements.ToList());
                 }
                 else
                 {

@@ -12,7 +12,7 @@ namespace Codemations.Asn1
         /// <summary>
         /// Gets or sets the list of child elements.
         /// </summary>
-        public IList<AsnElement> Elements { get; set; }
+        public IEnumerable<AsnElement> Elements { get; set; }
 
         /// <summary>
         ///   Create an <see cref="AsnConstructedElement"/> for a given <paramref name="tag"/>.
@@ -31,11 +31,11 @@ namespace Codemations.Asn1
         ///   The tag identifying the <see cref="AsnConstructedElement"/>.
         /// </param>
         /// <param name="elements">
-        ///   A list of child elements.
+        ///   An enumerable of child elements.
         /// </param>
         public AsnConstructedElement(Asn1Tag tag, IEnumerable<AsnElement> elements) : base(tag)
         {
-            this.Elements = elements.ToList();
+            this.Elements = elements;
         }
     }
 }
