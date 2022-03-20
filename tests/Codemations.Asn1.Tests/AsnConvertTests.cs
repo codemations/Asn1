@@ -80,6 +80,9 @@ namespace Codemations.Asn1.Tests
         {
             [AsnElement(TagClass.ContextSpecific, 0x00, true)]
             public SequenceElement? SequenceElement { get; set; }
+
+            [AsnElement(TagClass.ContextSpecific, 0x01, false)]
+            public bool? BooleanElement { get; set; }
         }
 
         public class SequenceElement
@@ -107,6 +110,25 @@ namespace Codemations.Asn1.Tests
                     },
                     new byte[] {0xA0, 0x07, 0x81, 0x02, 0xCA, 0xFE, 0x82, 0x01, 0x0A}
                 };
+                yield return new object[]
+                {
+                    new ChoiceElement
+                    {
+                        SequenceElement = new SequenceElement
+                        {
+                            Integer = 10
+                        }
+                    },
+                    new byte[] {0xA0, 0x03, 0x82, 0x01, 0x0A}
+                };
+                yield return new object[]
+                {
+                    new ChoiceElement
+                    {
+                        BooleanElement = true
+                    },
+                    new byte[] {0x81, 0x01, 0xFF}
+                };
             }
         }
 
@@ -124,9 +146,9 @@ namespace Codemations.Asn1.Tests
         public void ShouldDeserializeToModel(ChoiceElement expectedElement, byte[] data)
         {
             var element = AsnConvert.Deserialize<ChoiceElement>(data, AsnEncodingRules.DER);
-
-            Assert.Equal(expectedElement.SequenceElement!.Integer, element.SequenceElement!.Integer);
-            Assert.Equal(expectedElement.SequenceElement!.OctetString, element.SequenceElement!.OctetString);
+            Assert.Equal(expectedElement.SequenceElement?.Integer, element.SequenceElement?.Integer);
+            Assert.Equal(expectedElement.SequenceElement?.OctetString, element.SequenceElement?.OctetString);
+            Assert.Equal(expectedElement.BooleanElement, element.BooleanElement);
         }
     }
 }
