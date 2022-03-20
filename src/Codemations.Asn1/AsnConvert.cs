@@ -121,27 +121,30 @@ namespace Codemations.Asn1
 
         private static void Deserialize(AsnReader reader, object item)
         {
-            while (reader.HasData)
+            foreach (var property in item.GetType().GetProperties())
             {
-                foreach (var property in item.GetType().GetProperties())
+                if (!reader.HasData)
                 {
-                    var asn1Tag = reader.PeekTag();
-                    if (property.GetCustomAttribute(typeof(AsnElementAttribute)) is AsnElementAttribute element &&
-                        asn1Tag.ToByte() == element.Tag.ToByte())
+                    return;
+                }
+
+                var asn1Tag = reader.PeekTag();
+                if (property.GetCustomAttribute(typeof(AsnElementAttribute)) is AsnElementAttribute element &&
+                    asn1Tag.ToByte() == element.Tag.ToByte())
+                {
+                    if (asn1Tag.IsConstructed)
                     {
-                        if (asn1Tag.IsConstructed)
-                        {
-                            var value = Activator.CreateInstance(property.PropertyType)!;
-                            property.SetValue(item, value);
-                            Deserialize(reader.ReadSequence(asn1Tag), value);
-                        }
-                        else
-                        {
-                            var value = element.Converter.Read(reader, asn1Tag, property.PropertyType);
-                            property.SetValue(item, value);
-                        }
+                        var value = Activator.CreateInstance(property.PropertyType)!;
+                        property.SetValue(item, value);
+                        Deserialize(reader.ReadSequence(asn1Tag), value);
+                    }
+                    else
+                    {
+                        var value = element.Converter.Read(reader, asn1Tag, property.PropertyType);
+                        property.SetValue(item, value);
                     }
                 }
+
             }
         }
     }
