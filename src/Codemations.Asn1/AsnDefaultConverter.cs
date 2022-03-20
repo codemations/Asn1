@@ -13,7 +13,7 @@ namespace Codemations.Asn1
             new AsnEnumeratedValueConverter(),
             new AsnIntegerConverter(),
             new AsnOctetStringConverter(),
-            new AsnObjectIdentifierConverter()
+            new AsnCharacterStringConverter()
         };
 
         private IAsnConverter GetTypeConverter(Type type)

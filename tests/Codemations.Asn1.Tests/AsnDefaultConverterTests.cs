@@ -24,7 +24,7 @@ public class AsnDefaultConverterTests
             yield return new object[] { new byte[] { 0xCA, 0xFE }, 0x84, new byte[] { 0x84, 0x02, 0xCA, 0xFE } };
             yield return new object[] { TestEnum.Success, 0x85, new byte[] { 0x85, 0x01, 0x7F } };
             yield return new object[] { TestEnum.Failure, 0x86, new byte[] { 0x86, 0x02, 0x00, 0x80 } };
-            yield return new object[] { "1.2.840.113583", 0x87, new byte[] { 0x87, 0x06, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x2F } };
+            yield return new object[] { @"Arek", 0x87, new byte[] { 0x87, 0x04, 0x41, 0x72, 0x65, 0x6B } };
         }
     }
 
@@ -53,7 +53,6 @@ public class AsnDefaultConverterTests
         var converter = new AsnDefaultConverter();
 
         // Act
-        
         var actualValue = converter.Read(reader, tag.ToAsn1Tag(), expectedValue.GetType());
 
         // Assert

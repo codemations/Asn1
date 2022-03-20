@@ -5,12 +5,21 @@
     <Nullable>enable</Nullable>
     <Authors>Arkadiusz Prochwicz</Authors>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>ASN.1;ASN1;ASN;Codemations</PackageTags>
+    <RepositoryUrl>https://github.com/codemations/Asn1</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/codemations/Asn1</PackageProjectUrl>
+    <Description>Provides serialization/deserialization capabilities between .NET objects and ASN.1 encoded values.</Description>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\..\LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 
