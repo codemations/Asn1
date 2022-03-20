@@ -78,7 +78,7 @@ namespace Codemations.Asn1.Tests
 
         public class ChoiceElement
         {
-            [AsnElement(TagClass.ContextSpecific, 0x00, true)]
+            [AsnElement(0xA0)]
             public SequenceElement? SequenceElement { get; set; }
 
             [AsnElement(TagClass.ContextSpecific, 0x01, false)]
