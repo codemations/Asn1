@@ -12,21 +12,21 @@ namespace Codemations.Asn1.Tests
         {
             get
             {
-                var cafeElement = new AsnPrimitiveElement(0x81.ToAsn1Tag()) {Value = new byte[] {0xCA, 0xFE}};
-                var deadBeefElement = new AsnPrimitiveElement(0x82.ToAsn1Tag())
+                var cafeElement = new AsnElement(0x81.ToAsn1Tag()) {Value = new byte[] {0xCA, 0xFE}};
+                var deadBeefElement = new AsnElement(0x82.ToAsn1Tag())
                     {Value = new byte[] {0xDE, 0xAD, 0xBE, 0xEF}};
-                var constructedElement = new AsnConstructedElement(0xA0.ToAsn1Tag(),
-                    new AsnElement[] {cafeElement, deadBeefElement}.ToList());
+                var constructedElement = new AsnElement(0xA0.ToAsn1Tag(),
+                    new [] { cafeElement, deadBeefElement }.ToList());
 
                 yield return new object[]
                 {
-                    new AsnElement[] {cafeElement, deadBeefElement},
+                    new [] { cafeElement, deadBeefElement },
                     new byte[] {0x81, 0x02, 0xCA, 0xFE, 0x82, 0x04, 0xDE, 0xAD, 0xBE, 0xEF}
                 };
 
                 yield return new object[]
                 {
-                    new AsnElement[] {constructedElement},
+                    new [] { constructedElement },
                     new byte[] {0xA0, 0x0A, 0x81, 0x02, 0xCA, 0xFE, 0x82, 0x04, 0xDE, 0xAD, 0xBE, 0xEF}
                 };
             }
@@ -63,16 +63,12 @@ namespace Codemations.Asn1.Tests
                 Assert.Equal(expected.Tag, actual.Tag);
                 if (expected.Tag.IsConstructed)
                 {
-                    AssertAsnElements(
-                        ((AsnConstructedElement) expected).Elements.ToList(),
-                        ((AsnConstructedElement) actual).Elements.ToList());
+                    AssertAsnElements(expected.Elements.ToList(), actual.Elements.ToList());
                 }
                 else
                 {
-                    Assert.Equal(((AsnPrimitiveElement) expected).Value, ((AsnPrimitiveElement) actual).Value);
+                    Assert.Equal(expected.Value, actual.Value);
                 }
-
-
             }
         }
 
