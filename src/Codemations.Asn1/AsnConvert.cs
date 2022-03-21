@@ -32,11 +32,11 @@ namespace Codemations.Asn1
                 if (tag.IsConstructed)
                 {
                     var elements = Deserialize(value, ruleSet, options).ToList();
-                    yield return new AsnConstructedElement(tag, elements);
+                    yield return new AsnElement(tag, elements);
                 }
                 else
                 {
-                    yield return new AsnPrimitiveElement(tag) { Value = value.ToArray() };
+                    yield return new AsnElement(tag) { Value = value.ToArray() };
                 }
 
                 reader.ReadEncodedValue();
@@ -63,20 +63,20 @@ namespace Codemations.Asn1
         {
             foreach (var element in items)
             {
-                switch (element)
+                switch (element.Tag.IsConstructed)
                 {
-                    case AsnConstructedElement constructed:
-                        writer.PushSequence(constructed.Tag);
-                        Serialize(writer, constructed.Elements);
-                        writer.PopSequence(constructed.Tag);
+                    case true:
+                        writer.PushSequence(element.Tag);
+                        Serialize(writer, element.Elements);
+                        writer.PopSequence(element.Tag);
                         break;
 
-                    case AsnPrimitiveElement {Value: null}:
+                    case false when element.Value is null:
                         writer.WriteNull(element.Tag);
                         break;
 
-                    case AsnPrimitiveElement primitive:
-                        writer.WriteOctetString(primitive.Value.ToArray(), primitive.Tag);
+                    case false:
+                        writer.WriteOctetString(element.Value.ToArray(), element.Tag);
                         break;
                 }
             }
