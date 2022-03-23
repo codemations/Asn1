@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Formats.Asn1;
+using System.Linq;
+using System.Reflection;
 
 namespace Codemations.Asn1
 {
@@ -42,6 +45,13 @@ namespace Codemations.Asn1
                     "Given value is greater than 0xFF which is the highest valid ASN.1 tag value");
             }
             return ToAsn1Tag((byte)tag);
+        }
+
+        internal static IEnumerable<PropertyInfo> GetPropertyInfos<T>(this object value, bool canBeNull = false) where T: Attribute
+        {
+            return value.GetType().GetProperties()
+                .Where(x => x.GetCustomAttribute<T>() is not null)
+                .Where(x => canBeNull || x.GetValue(value) is not null);
         }
     }
 }

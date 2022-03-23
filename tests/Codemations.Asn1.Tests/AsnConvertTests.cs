@@ -72,21 +72,23 @@ namespace Codemations.Asn1.Tests
             }
         }
 
+        [AsnChoice]
         public class ChoiceElement
         {
             [AsnElement(0xA0)]
             public SequenceElement? SequenceElement { get; set; }
 
-            [AsnElement(TagClass.ContextSpecific, 0x01, false)]
+            [AsnElement(0x81)]
             public bool? BooleanElement { get; set; }
         }
 
+        [AsnSequence]
         public class SequenceElement
         {
-            [AsnElement(TagClass.ContextSpecific, 0x01)]
+            [AsnElement(0x81, Optional = true)]
             public byte[]? OctetString { get; set; }
 
-            [AsnElement(TagClass.ContextSpecific, 0x02)]
+            [AsnElement(0x82)]
             public BigInteger? Integer { get; set; }
         }
 
@@ -145,6 +147,16 @@ namespace Codemations.Asn1.Tests
             Assert.Equal(expectedElement.SequenceElement?.Integer, element.SequenceElement?.Integer);
             Assert.Equal(expectedElement.SequenceElement?.OctetString, element.SequenceElement?.OctetString);
             Assert.Equal(expectedElement.BooleanElement, element.BooleanElement);
+        }
+
+        [Fact]
+        public void ShouldThrowWhenDeserializing()
+        {
+            // Arrange
+            var data = new byte[] {0xA0, 0x03, 0x82, 0x01, 0x0A, 0x81, 0x01, 0x00};
+
+            // Act & Assert
+            Assert.Throws<AsnConversionException>(() => AsnConvert.Deserialize<ChoiceElement>(data, AsnEncodingRules.DER));
         }
     }
 }
