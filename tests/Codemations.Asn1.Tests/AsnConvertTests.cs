@@ -92,7 +92,14 @@ namespace Codemations.Asn1.Tests
             public BigInteger? Integer { get; set; }
         }
 
-        public static IEnumerable<object[]> ModelData
+        [AsnSequence]
+        public class SequenceOf
+        {
+            [AsnElement(0xA4)]
+            public IEnumerable<bool>? BoolSequence { get; set; }
+        }
+
+        public static IEnumerable<object[]> ChoiceModelData
         {
             get
             {
@@ -129,24 +136,56 @@ namespace Codemations.Asn1.Tests
                 };
             }
         }
+        public static IEnumerable<object[]> SequenceOfModelData
+        {
+            get
+            {
+
+                yield return new object[]
+                {
+                    new SequenceOf
+                    {
+                        BoolSequence = new []{ true, false }
+                    },
+                    new byte[] {0xA4, 0x06, 0x01, 0x01, 0xFF, 0x01, 0x01, 0x00 }
+                };
+            }
+        }
 
         [Theory]
-        [MemberData(nameof(ModelData))]
-        public void ShouldSerializeModel(ChoiceElement element, byte[] expectedData)
+        [MemberData(nameof(ChoiceModelData))]
+        [MemberData(nameof(SequenceOfModelData))]
+        public void ShouldSerializeModel(object element, byte[] expectedData)
         {
+            // Act
             var data = AsnConvert.Serialize(element, AsnEncodingRules.DER);
 
+            // Assert
             Assert.Equal(expectedData, data);
         }
 
         [Theory]
-        [MemberData(nameof(ModelData))]
-        public void ShouldDeserializeToModel(ChoiceElement expectedElement, byte[] data)
+        [MemberData(nameof(ChoiceModelData))]
+        public void ShouldDeserializeToChoiceModel(ChoiceElement expectedElement, byte[] data)
         {
+            // Act
             var element = AsnConvert.Deserialize<ChoiceElement>(data, AsnEncodingRules.DER);
+            
+            // Assert
             Assert.Equal(expectedElement.SequenceElement?.Integer, element.SequenceElement?.Integer);
             Assert.Equal(expectedElement.SequenceElement?.OctetString, element.SequenceElement?.OctetString);
             Assert.Equal(expectedElement.BooleanElement, element.BooleanElement);
+        }
+
+        [Theory]
+        [MemberData(nameof(SequenceOfModelData))]
+        public void ShouldDeserializeToSequenceOfModel(SequenceOf expectedElement, byte[] data)
+        {
+            // Act
+            var element = AsnConvert.Deserialize<SequenceOf>(data, AsnEncodingRules.DER);
+
+            // Assert
+            Assert.Equal(expectedElement.BoolSequence, element.BoolSequence);
         }
 
         [Fact]
@@ -158,5 +197,20 @@ namespace Codemations.Asn1.Tests
             // Act & Assert
             Assert.Throws<AsnConversionException>(() => AsnConvert.Deserialize<ChoiceElement>(data, AsnEncodingRules.DER));
         }
+
+        [Fact]
+        public void ShouldThrowWhenSerializing()
+        {
+            // Arrange
+            var model = new ChoiceElement()
+            {
+                SequenceElement = new SequenceElement(){Integer = 6},
+                BooleanElement = true
+            };
+
+            // Act & Assert
+            Assert.Throws<AsnConversionException>(() => AsnConvert.Serialize(model, AsnEncodingRules.DER));
+        }
+
     }
 }

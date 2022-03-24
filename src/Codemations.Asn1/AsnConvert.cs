@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Formats.Asn1;
 using System.Linq;
@@ -89,25 +90,79 @@ namespace Codemations.Asn1
             return writer.Encode();
         }
 
-        private static void Serialize(AsnWriter writer, object item)
+        internal static void Serialize(AsnWriter writer, object item)
         {
-            foreach (var property in item.GetPropertyInfos<AsnElementAttribute>(false))
+            if (item.GetType().GetCustomAttribute<AsnChoiceAttribute>() is not null)
             {
-                var asnElementAttribute = property.GetCustomAttribute<AsnElementAttribute>()!;
-                var value = property.GetValue(item)!;
-                var tag = asnElementAttribute.Tag;
-
-                if (tag.IsConstructed)
-                {
-                    writer.PushSequence(tag);
-                    Serialize(writer, value);
-                    writer.PopSequence(tag);
-                }
-                else
-                {
-                    asnElementAttribute.Converter.Write(writer, tag, value);
-                }
+                SerializeChoice(writer, item);
             }
+            else
+            {
+                SerializeSequence(writer, item);
+            }
+        }
+
+        private static void SerializeChoice(AsnWriter writer, object item)
+        {
+            var propertyInfos = item.GetPropertyInfos<AsnElementAttribute>().ToArray();
+
+            switch (propertyInfos.Length)
+            {
+                case 0:
+                    throw new AsnConversionException("No choice element to serialize.");
+
+                case 1:
+                    SerializeElement(writer, item, propertyInfos.Single());
+                    break;
+
+                default:
+                    throw new AsnConversionException("Multiple non-null choice elements.");
+            }
+        }
+
+        private static void SerializeSequence(AsnWriter writer, object item)
+        {
+            foreach (var propertyInfo in item.GetPropertyInfos<AsnElementAttribute>())
+            {
+                SerializeElement(writer, item, propertyInfo);
+            }
+        }
+
+        private static void SerializeElement(AsnWriter writer, object item, PropertyInfo propertyInfo)
+        {
+            var asnElementAttribute = propertyInfo.GetCustomAttribute<AsnElementAttribute>()!;
+            var value = propertyInfo.GetValue(item)!;
+            var tag = asnElementAttribute.Tag;
+
+            if (IsEnumerable(value))
+            {
+                writer.PushSequence(tag);
+                foreach (var element in (value as IEnumerable)!)
+                {
+                    SerializeElement(writer, null, element, asnElementAttribute.Converter);
+                }
+                writer.PopSequence(tag);
+            }
+            else
+            {
+                SerializeElement(writer, tag, value, asnElementAttribute.Converter);
+            }
+        }
+
+        private static bool IsEnumerable(object value)
+        {
+            return IsEnumerable(value.GetType());
+        }
+
+
+        private static bool IsEnumerable(Type type)
+        {
+            return type != typeof(string) && type != typeof(byte[]) && typeof(IEnumerable).IsAssignableFrom(type);
+        }
+
+        private static void SerializeElement(AsnWriter writer, Asn1Tag? tag, object value, IAsnConverter converter)
+        {
+            converter.Write(writer, tag, value);
         }
 
         public static T Deserialize<T>(ReadOnlyMemory<byte> data, AsnEncodingRules ruleSet, AsnReaderOptions options = default) where T : class, new()
@@ -115,10 +170,16 @@ namespace Codemations.Asn1
             var reader = new AsnReader(data, ruleSet, options);
             var deserialized = new T();
             Deserialize(reader, deserialized);
+
+            if (reader.HasData)
+            {
+                throw new AsnConversionException("Not read data left.");
+            }
+
             return deserialized;
         }
 
-        private static void Deserialize(AsnReader reader, object item)
+        internal static void Deserialize(AsnReader reader, object item)
         {
             if (item.GetType().GetCustomAttribute<AsnChoiceAttribute>() is not null)
             {
@@ -133,75 +194,75 @@ namespace Codemations.Asn1
         private static void DeserializeChoice(AsnReader reader, object item)
         {
             var tag = reader.PeekTag();
-            var property = item.GetPropertyInfos<AsnElementAttribute>(true)
+            var propertyInfos = item.GetPropertyInfos<AsnElementAttribute>(true)
                 .Where(x => x.GetCustomAttribute<AsnElementAttribute>()!.Tag == tag).ToArray();
 
-            switch (property.Length)
+            switch (propertyInfos.Length)
             {
                 case 0:
-                    throw new AsnConversionException("");
+                    throw new AsnConversionException("No choice element with given tag.", tag);
 
                 case 1:
-                    var asnElementAttribute = property.Single().GetCustomAttribute<AsnElementAttribute>()!;
-                    DeserializeElement(reader, item, property.Single(), asnElementAttribute.Converter);
+                    DeserializeElement(reader, item, propertyInfos.Single());
                     break;
 
                 default:
-                    throw new AsnConversionException("");
-            }
-
-            if (reader.HasData)
-            {
-                throw new AsnConversionException("");
+                    throw new AsnConversionException("Multiple choice elements with given tag.", tag);
             }
         }
 
         private static void DeserializeSequence(AsnReader reader, object item)
         {
-            foreach (var property in item.GetPropertyInfos<AsnElementAttribute>(true))
+            foreach (var propertyInfo in item.GetPropertyInfos<AsnElementAttribute>(true))
             {
-                var asnElementAttribute = property.GetCustomAttribute<AsnElementAttribute>()!;
+                var asnElementAttribute = propertyInfo.GetCustomAttribute<AsnElementAttribute>()!;
 
-                if (!TryDeserializeElement(reader, item, property) && !asnElementAttribute.Optional)
+                try
                 {
-                    throw new AsnConversionException("Value for required element is missing.", asnElementAttribute.Tag);
+                    DeserializeElement(reader, item, propertyInfo);
+                }
+                catch (Exception e)
+                {
+                    if (!asnElementAttribute.Optional)
+                    {
+                        throw new AsnConversionException("Value for required element is missing.", asnElementAttribute.Tag, e);
+                    }
                 }
             }
         }
 
-        private static bool TryDeserializeElement(AsnReader reader, object item, PropertyInfo propertyInfo)
+        private static void DeserializeElement(AsnReader reader, object item, PropertyInfo propertyInfo)
         {
-            if (!reader.HasData)
-            {
-                return false;
-            }
-
             var asnElementAttribute = propertyInfo.GetCustomAttribute<AsnElementAttribute>()!;
-            if (reader.PeekTag().ToByte() != asnElementAttribute.Tag.ToByte())
+            object value;
+
+            if (IsEnumerable(propertyInfo.PropertyType))
             {
-                return false;
-            }
-
-            DeserializeElement(reader, item, propertyInfo, asnElementAttribute.Converter);
-
-            return true;
-        }
-
-        private static void DeserializeElement(AsnReader reader, object item, PropertyInfo propertyInfo, IAsnConverter converter)
-        {
-            var tag = reader.PeekTag();
-
-            if (tag.IsConstructed)
-            {
-                var value = Activator.CreateInstance(propertyInfo.PropertyType)!;
-                propertyInfo.SetValue(item, value);
-                Deserialize(reader.ReadSequence(tag), value);
+                var type = propertyInfo.PropertyType.GetGenericArguments().Single();
+                value = DeserializeElements(reader, asnElementAttribute.Tag, type, asnElementAttribute.Converter);
             }
             else
             {
-                var value = converter.Read(reader, tag, propertyInfo.PropertyType);
-                propertyInfo.SetValue(item, value);
+                value = DeserializeElement(reader, asnElementAttribute.Tag, propertyInfo.PropertyType, asnElementAttribute.Converter);
             }
+
+            propertyInfo.SetValue(item, value);
+        }
+
+        private static IList DeserializeElements(AsnReader reader, Asn1Tag tag, Type type, IAsnConverter converter)
+        {
+            var sequenceReader = reader.ReadSequence(tag);
+            var sequence = (Activator.CreateInstance(typeof(List<>).MakeGenericType(type)) as IList)!;
+            while (sequenceReader.HasData)
+            {
+                sequence.Add(DeserializeElement(sequenceReader, null, type, converter));
+            }
+            return sequence;
+        }
+
+        private static object DeserializeElement(AsnReader reader, Asn1Tag? tag, Type type, IAsnConverter converter)
+        {
+            return converter.Read(reader, tag, type);
         }
     }
 }
