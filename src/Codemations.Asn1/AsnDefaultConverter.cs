@@ -13,14 +13,15 @@ namespace Codemations.Asn1
             new AsnEnumeratedValueConverter(),
             new AsnIntegerConverter(),
             new AsnOctetStringConverter(),
-            new AsnCharacterStringConverter()
+            new AsnCharacterStringConverter(),
+            new AsnSequenceConverter()
         };
 
         private IAsnConverter GetTypeConverter(Type type)
         {
             try
             {
-                return this.typeConverters.Single(x => x.IsAccepted(type));
+                return this.typeConverters.First(x => x.IsAccepted(type));
             }
             catch (InvalidOperationException e)
             {
@@ -28,12 +29,12 @@ namespace Codemations.Asn1
             }
         }
 
-        public object Read(AsnReader reader, Asn1Tag tag, Type type)
+        public object Read(AsnReader reader, Asn1Tag? tag, Type type)
         {
             return GetTypeConverter(type).Read(reader, tag, type);
         }
 
-        public void Write(AsnWriter writer, Asn1Tag tag, object value)
+        public void Write(AsnWriter writer, Asn1Tag? tag, object value)
         {
             GetTypeConverter(value.GetType()).Write(writer, tag, value);
         }

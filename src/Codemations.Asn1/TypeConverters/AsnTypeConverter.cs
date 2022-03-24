@@ -11,7 +11,7 @@ namespace Codemations.Asn1.TypeConverters
         {
             return this.AcceptedTypes.Contains(type);
         }
-        public abstract object Read(AsnReader reader, Asn1Tag tag, Type type);
-        public abstract void Write(AsnWriter writer, Asn1Tag tag, object value);
+        public abstract object Read(AsnReader reader, Asn1Tag? tag, Type type);
+        public abstract void Write(AsnWriter writer, Asn1Tag? tag, object value);
     }
 }

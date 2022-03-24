@@ -3,21 +3,25 @@ using System.Formats.Asn1;
 
 namespace Codemations.Asn1.TypeConverters
 {
-    internal class AsnEnumeratedValueConverter : AsnTypeConverter
+    internal class AsnSequenceConverter : AsnTypeConverter
     {
         internal override bool IsAccepted(Type type)
         {
-            return type.IsEnum;
+            return type.IsClass;
         }
 
         public override object Read(AsnReader reader, Asn1Tag? tag, Type type)
         {
-            return reader.ReadEnumeratedValue(type, tag);
+            var value = Activator.CreateInstance(type)!;
+            AsnConvert.Deserialize(reader.ReadSequence(tag), value);
+            return value;
         }
 
         public override void Write(AsnWriter writer, Asn1Tag? tag, object value)
         {
-            writer.WriteEnumeratedValue((Enum)value, tag);
+            writer.PushSequence(tag);
+            AsnConvert.Serialize(writer, value);
+            writer.PopSequence(tag);
         }
     }
 }

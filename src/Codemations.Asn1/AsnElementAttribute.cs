@@ -8,6 +8,8 @@ namespace Codemations.Asn1
     {
         public Asn1Tag Tag { get; }
 
+        public bool Optional { get; set; }
+
         public IAsnConverter Converter { get; set; } = new AsnDefaultConverter();
 
         public AsnElementAttribute(byte tag)

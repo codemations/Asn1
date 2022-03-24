@@ -19,12 +19,12 @@ namespace Codemations.Asn1.TypeConverters
             typeof(BigInteger), typeof(BigInteger?)
         };
 
-        public override object Read(AsnReader reader, Asn1Tag tag, Type type)
+        public override object Read(AsnReader reader, Asn1Tag? tag, Type type)
         {
             return reader.ReadInteger(tag);
         }
 
-        public override void Write(AsnWriter writer, Asn1Tag tag, object value)
+        public override void Write(AsnWriter writer, Asn1Tag? tag, object value)
         {
             writer.WriteInteger((BigInteger)value, tag);
         }
