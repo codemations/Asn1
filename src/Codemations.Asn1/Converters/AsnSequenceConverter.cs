@@ -26,7 +26,7 @@ namespace Codemations.Asn1.Converters
 
                 try
                 {
-                    var converter = asnElementAttribute.Converter ?? this.ConverterFactory.CreateElementConverter(propertyInfo.PropertyType);
+                    var converter = GetConverter(asnElementAttribute, propertyInfo.PropertyType);
                     var value = converter.Read(reader, asnElementAttribute.Tag, propertyInfo.PropertyType);
                     propertyInfo.SetValue(item, value);
                 }
@@ -49,9 +49,8 @@ namespace Codemations.Asn1.Converters
             {
                 var asnElementAttribute = propertyInfo.GetCustomAttribute<AsnElementAttribute>()!;
                 var value = propertyInfo.GetValue(item)!;
-                var tag = asnElementAttribute.Tag;
-                var converter = asnElementAttribute.Converter ?? this.ConverterFactory.CreateElementConverter(propertyInfo.PropertyType);
-                converter.Write(writer, tag, value);
+                var converter = GetConverter(asnElementAttribute, propertyInfo.PropertyType);
+                converter.Write(writer, asnElementAttribute.Tag, value);
             }
         }
     }

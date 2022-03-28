@@ -22,5 +22,15 @@ namespace Codemations.Asn1.Converters
 
         public abstract object Read(AsnReader reader, Asn1Tag? tag, Type type);
         public abstract void Write(AsnWriter writer, Asn1Tag? tag, object value);
+
+        protected IAsnConverter GetConverter(AsnElementAttribute asnElementAttribute, Type type)
+        {
+            if (asnElementAttribute.ConverterType is not null)
+            {
+                return (Activator.CreateInstance(asnElementAttribute.ConverterType) as IAsnConverter)!;
+            }
+
+            return this.ConverterFactory.CreateElementConverter(type);
+        }
     }
 }
