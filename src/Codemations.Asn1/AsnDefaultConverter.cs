@@ -1,27 +1,15 @@
 ﻿using System;
 using System.Formats.Asn1;
-using System.Linq;
-using Codemations.Asn1.TypeConverters;
 
 namespace Codemations.Asn1
 {
     internal class AsnDefaultConverter: IAsnConverter
     {
-        private readonly AsnTypeConverter[] typeConverters =
-        {
-            new AsnBooleanConverter(),
-            new AsnEnumeratedValueConverter(),
-            new AsnIntegerConverter(),
-            new AsnOctetStringConverter(),
-            new AsnCharacterStringConverter(),
-            new AsnSequenceConverter()
-        };
-
-        private IAsnConverter GetTypeConverter(Type type)
+        private static IAsnConverter GetTypeConverter(Type type)
         {
             try
             {
-                return this.typeConverters.First(x => x.IsAccepted(type));
+                return new AsnTypeConverterFactory().CreateTypeConverter(type);
             }
             catch (InvalidOperationException e)
             {

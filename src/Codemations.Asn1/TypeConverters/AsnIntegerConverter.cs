@@ -6,7 +6,7 @@ namespace Codemations.Asn1.TypeConverters
 {
     internal class AsnIntegerConverter : AsnTypeConverter
     {
-        internal override Type[] AcceptedTypes => new []
+        protected override Type[] AcceptedTypes => new []
         {
             typeof(long), typeof(long?),
             typeof(ulong), typeof(ulong?),

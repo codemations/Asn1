@@ -5,7 +5,7 @@ namespace Codemations.Asn1.TypeConverters
 {
     internal class AsnOctetStringConverter : AsnTypeConverter
     {
-        internal override Type[] AcceptedTypes => new []
+        protected override Type[] AcceptedTypes => new []
         {
             typeof(byte[])
         };

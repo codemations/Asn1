@@ -13,6 +13,19 @@ public class AsnDefaultConverterTests
         Failure = 0x80
     }
 
+    private class TestSequenceOf
+    {
+    }
+
+    [AsnSequence]
+    public class TestSequenceOfElement
+    {
+        [AsnElement(0x80)]
+        public bool Boolean { get; set; }
+        [AsnElement(0x81)]
+        public BigInteger Integer { get; set; }
+    }
+
     public static IEnumerable<object[]> Data
     {
         get
@@ -25,6 +38,24 @@ public class AsnDefaultConverterTests
             yield return new object[] { TestEnum.Success, 0x85, new byte[] { 0x85, 0x01, 0x7F } };
             yield return new object[] { TestEnum.Failure, 0x86, new byte[] { 0x86, 0x02, 0x00, 0x80 } };
             yield return new object[] { @"Arek", 0x87, new byte[] { 0x87, 0x04, 0x41, 0x72, 0x65, 0x6B } };
+            //yield return new object[]
+            //{
+            //    new List<TestSequenceOfElement>
+            //    {
+            //        new () { Boolean = false, Integer = 10 },
+            //        new () { Boolean = true, Integer = 20 }
+            //    }, 
+            //    0xA8, 
+            //    new byte[] { 
+            //        0xA8, 0x10, 
+            //            0x30, 0x06, 
+            //                0x80, 0x01, 0x00, 
+            //                0x81, 0x01, 0x0A,
+            //            0x30, 0x06,
+            //                0x80, 0x01, 0xFF,
+            //                0x81, 0x01, 0x14
+            //    }
+            //};
         }
     }
 

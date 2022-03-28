@@ -5,7 +5,7 @@ namespace Codemations.Asn1.TypeConverters
 {
     internal class AsnEnumeratedValueConverter : AsnTypeConverter
     {
-        internal override bool IsAccepted(Type type)
+        public override bool IsAccepted(Type type)
         {
             return type.IsEnum;
         }
