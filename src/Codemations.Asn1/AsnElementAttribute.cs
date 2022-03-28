@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Formats.Asn1;
 
 namespace Codemations.Asn1
