@@ -3,10 +3,14 @@ using System.Formats.Asn1;
 using System.Linq;
 using System.Reflection;
 
-namespace Codemations.Asn1.TypeConverters
+namespace Codemations.Asn1.Converters
 {
     internal class AsnChoiceConverter : AsnRootConverter
     {
+        public AsnChoiceConverter(AsnConverterFactory converterFactory) : base(converterFactory)
+        {
+        }
+
         public override bool IsAccepted(Type type)
         {
             return type.GetCustomAttribute<AsnChoiceAttribute>() is not null;
@@ -14,9 +18,8 @@ namespace Codemations.Asn1.TypeConverters
 
         public override object Read(AsnReader reader, Type type)
         {
-            var item = Activator.CreateInstance(type)!;
             var tag = reader.PeekTag();
-            var propertyInfos = GetPropertyInfos(item, true)
+            var propertyInfos = GetPropertyInfos(type)
                 .Where(x => x.GetCustomAttribute<AsnElementAttribute>()!.Tag == tag).ToArray();
 
             switch (propertyInfos.Length)
@@ -25,9 +28,11 @@ namespace Codemations.Asn1.TypeConverters
                     throw new AsnConversionException("No choice element with given tag.", tag);
 
                 case 1:
+                    var item = Activator.CreateInstance(type)!;
                     var propertyInfo = propertyInfos.Single();
                     var asnElementAttribute = propertyInfo.GetCustomAttribute<AsnElementAttribute>()!;
-                    var value = asnElementAttribute.Converter.Read(reader, asnElementAttribute.Tag, propertyInfo.PropertyType);
+                    var converter = asnElementAttribute.Converter ?? this.ConverterFactory.CreateElementConverter(propertyInfo.PropertyType);
+                    var value = converter.Read(reader, asnElementAttribute.Tag, propertyInfo.PropertyType);
                     propertyInfo.SetValue(item, value);
                     return item;
 
@@ -38,7 +43,8 @@ namespace Codemations.Asn1.TypeConverters
 
         public override void Write(AsnWriter writer, object item)
         {
-            var propertyInfos = GetPropertyInfos(item).ToArray();
+            var propertyInfos = GetPropertyInfos(item.GetType())
+                .Where(propertyInfo => propertyInfo.GetValue(item) is not null).ToArray();
 
             switch (propertyInfos.Length)
             {
@@ -49,7 +55,8 @@ namespace Codemations.Asn1.TypeConverters
                     var propertyInfo = propertyInfos.Single();
                     var asnElementAttribute = propertyInfo.GetCustomAttribute<AsnElementAttribute>()!;
                     var value = propertyInfo.GetValue(item)!;
-                    asnElementAttribute.Converter.Write(writer, asnElementAttribute.Tag, value);
+                    var converter = asnElementAttribute.Converter ?? this.ConverterFactory.CreateElementConverter(propertyInfo.PropertyType);
+                    converter.Write(writer, asnElementAttribute.Tag, value);
                     break;
 
                 default:

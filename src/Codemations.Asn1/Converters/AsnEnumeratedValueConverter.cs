@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Formats.Asn1;
 
-namespace Codemations.Asn1.TypeConverters
+namespace Codemations.Asn1.Converters
 {
-    internal class AsnEnumeratedValueConverter : AsnTypeConverter
+    internal class AsnEnumeratedValueConverter : AsnElementConverter
     {
+        public AsnEnumeratedValueConverter(AsnConverterFactory converterFactory) : base(converterFactory)
+        {
+        }
+
         public override bool IsAccepted(Type type)
         {
             return type.IsEnum;

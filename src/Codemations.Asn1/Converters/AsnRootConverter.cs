@@ -4,10 +4,14 @@ using System.Formats.Asn1;
 using System.Linq;
 using System.Reflection;
 
-namespace Codemations.Asn1.TypeConverters
+namespace Codemations.Asn1.Converters
 {
-    internal abstract class AsnRootConverter : AsnTypeConverter
+    internal abstract class AsnRootConverter : AsnElementConverter
     {
+        protected AsnRootConverter(AsnConverterFactory converterFactory) : base(converterFactory)
+        {
+        }
+
         public abstract object Read(AsnReader reader, Type type);
 
         public abstract void Write(AsnWriter writer, object item);
@@ -24,11 +28,9 @@ namespace Codemations.Asn1.TypeConverters
             writer.PopSequence(tag);
         }
 
-        public static IEnumerable<PropertyInfo> GetPropertyInfos(object item, bool canBeNull = false)
+        protected static IEnumerable<PropertyInfo> GetPropertyInfos(Type type)
         {
-            return item.GetType().GetProperties()
-                .Where(x => x.GetCustomAttribute<AsnElementAttribute>() is not null)
-                .Where(x => canBeNull || x.GetValue(item) is not null);
+            return type.GetProperties().Where(x => x.GetCustomAttribute<AsnElementAttribute>() is not null);
         }
     }
 }

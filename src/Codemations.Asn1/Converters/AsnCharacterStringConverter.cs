@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Formats.Asn1;
 
-namespace Codemations.Asn1.TypeConverters
+namespace Codemations.Asn1.Converters
 {
-    internal class AsnCharacterStringConverter : AsnTypeConverter
+    internal class AsnCharacterStringConverter : AsnElementConverter
     {
+        public AsnCharacterStringConverter(AsnConverterFactory converterFactory) : base(converterFactory)
+        {
+        }
+
         protected override Type[] AcceptedTypes => new []
         {
             typeof(string)

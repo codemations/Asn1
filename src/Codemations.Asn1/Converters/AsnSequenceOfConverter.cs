@@ -4,10 +4,14 @@ using System.Collections.Generic;
 using System.Formats.Asn1;
 using System.Linq;
 
-namespace Codemations.Asn1.TypeConverters
+namespace Codemations.Asn1.Converters
 {
-    internal class AsnSequenceOfConverter : AsnTypeConverter
+    internal class AsnSequenceOfConverter : AsnElementConverter
     {
+        public AsnSequenceOfConverter(AsnConverterFactory converterFactory) : base(converterFactory)
+        {
+        }
+
         public override bool IsAccepted(Type type)
         {
             return type != typeof(string) && type != typeof(byte[]) && typeof(IEnumerable).IsAssignableFrom(type);
@@ -20,7 +24,7 @@ namespace Codemations.Asn1.TypeConverters
             var sequence = (Activator.CreateInstance(typeof(List<>).MakeGenericType(genericArgType)) as IList)!;
             while (sequenceReader.HasData)
             {
-                var converter = new AsnTypeConverterFactory().CreateTypeConverter(genericArgType);
+                var converter = new AsnConverterFactory().CreateElementConverter(genericArgType);
                 sequence.Add(converter.Read(sequenceReader, null, genericArgType));
             }
             return sequence;
@@ -31,7 +35,7 @@ namespace Codemations.Asn1.TypeConverters
             writer.PushSequence(tag);
             foreach (var element in (value as IEnumerable)!)
             {
-                var converter = new AsnTypeConverterFactory().CreateTypeConverter(element.GetType());
+                var converter = new AsnConverterFactory().CreateElementConverter(element.GetType());
                 converter.Write(writer, null, element);
             }
             writer.PopSequence(tag);

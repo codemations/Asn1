@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Formats.Asn1;
 
-namespace Codemations.Asn1.TypeConverters
+namespace Codemations.Asn1.Converters
 {
-    internal class AsnOctetStringConverter : AsnTypeConverter
+    internal class AsnOctetStringConverter : AsnElementConverter
     {
+        public AsnOctetStringConverter(AsnConverterFactory converterFactory) : base(converterFactory)
+        {
+        }
+
         protected override Type[] AcceptedTypes => new []
         {
             typeof(byte[])

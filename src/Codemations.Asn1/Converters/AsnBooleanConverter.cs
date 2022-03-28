@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Formats.Asn1;
 
-namespace Codemations.Asn1.TypeConverters
+namespace Codemations.Asn1.Converters
 {
-    internal class AsnBooleanConverter : AsnTypeConverter
+    internal class AsnBooleanConverter : AsnElementConverter
     {
+        public AsnBooleanConverter(AsnConverterFactory converterFactory) : base(converterFactory)
+        {
+        }
+
         protected override Type[] AcceptedTypes => new []
         {
             typeof(bool), typeof(bool?)

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Formats.Asn1;
 using System.Linq;
 using System.Reflection;
-using Codemations.Asn1.TypeConverters;
+using Codemations.Asn1.Converters;
 
 namespace Codemations.Asn1
 {   
@@ -86,33 +86,30 @@ namespace Codemations.Asn1
         public static byte[] Serialize(object element, AsnEncodingRules ruleSet)
         {
             var writer = new AsnWriter(ruleSet);
-
-            if (element.GetType().GetCustomAttribute<AsnChoiceAttribute>() is not null)
-            {
-                new AsnChoiceConverter().Write(writer, element);
-            }
-            else
-            {
-                new AsnSequenceConverter().Write(writer, element);
-            }
+            var converter = new AsnConverterFactory().CreateRootConverter(element.GetType());
+            converter.Write(writer, element);
 
             return writer.Encode();
         }
 
         public static T Deserialize<T>(ReadOnlyMemory<byte> data, AsnEncodingRules ruleSet, AsnReaderOptions options = default) where T : class, new()
         {
-            var reader = new AsnReader(data, ruleSet, options);
+            var deserialized = Deserialize(data, typeof(T), ruleSet, options);
+            return (deserialized as T)!;
+        }
 
-            var deserialized = typeof(T).GetCustomAttribute<AsnChoiceAttribute>() is not null ? 
-                new AsnChoiceConverter().Read(reader, typeof(T)) : 
-                new AsnSequenceConverter().Read(reader, typeof(T));
+        public static object Deserialize(ReadOnlyMemory<byte> data, Type type, AsnEncodingRules ruleSet, AsnReaderOptions options = default)
+        {
+            var reader = new AsnReader(data, ruleSet, options);
+            var converter = new AsnConverterFactory().CreateRootConverter(type);
+            var deserialized = converter.Read(reader, type);
 
             if (reader.HasData)
             {
                 throw new AsnConversionException("Not read data left.");
             }
 
-            return (deserialized as T)!;
+            return deserialized;
         }
     }
 }

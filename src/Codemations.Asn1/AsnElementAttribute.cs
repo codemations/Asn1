@@ -10,7 +10,7 @@ namespace Codemations.Asn1
 
         public bool Optional { get; set; }
 
-        public IAsnConverter Converter { get; set; } = new AsnDefaultConverter();
+        public IAsnConverter? Converter { get; set; }
 
         public AsnElementAttribute(byte tag)
         {

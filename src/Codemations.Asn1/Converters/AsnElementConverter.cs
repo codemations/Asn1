@@ -2,11 +2,18 @@
 using System.Formats.Asn1;
 using System.Linq;
 
-namespace Codemations.Asn1.TypeConverters
+namespace Codemations.Asn1.Converters
 {
-    internal abstract class AsnTypeConverter : IAsnConverter
+    internal abstract class AsnElementConverter : IAsnConverter
     {
         protected virtual Type[] AcceptedTypes => Array.Empty<Type>();
+
+        protected AsnConverterFactory ConverterFactory { get; set; }
+
+        protected AsnElementConverter(AsnConverterFactory converterFactory)
+        {
+            this.ConverterFactory = converterFactory;
+        }
 
         public virtual bool IsAccepted(Type type)
         {
