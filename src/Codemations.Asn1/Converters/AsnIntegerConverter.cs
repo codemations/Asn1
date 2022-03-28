@@ -2,11 +2,15 @@
 using System.Formats.Asn1;
 using System.Numerics;
 
-namespace Codemations.Asn1.TypeConverters
+namespace Codemations.Asn1.Converters
 {
-    internal class AsnIntegerConverter : AsnTypeConverter
+    internal class AsnIntegerConverter : AsnElementConverter
     {
-        internal override Type[] AcceptedTypes => new []
+        public AsnIntegerConverter(AsnConverterFactory converterFactory) : base(converterFactory)
+        {
+        }
+
+        protected override Type[] AcceptedTypes => new []
         {
             typeof(long), typeof(long?),
             typeof(ulong), typeof(ulong?),
