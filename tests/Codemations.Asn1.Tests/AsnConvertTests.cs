@@ -29,6 +29,12 @@ namespace Codemations.Asn1.Tests
                     new [] { constructedElement },
                     new byte[] {0xA0, 0x0A, 0x81, 0x02, 0xCA, 0xFE, 0x82, 0x04, 0xDE, 0xAD, 0xBE, 0xEF}
                 };
+
+                yield return new object[]
+                {
+                    new [] { new AsnElement(0x9F2B.ToAsn1Tag()) { Value = new byte[] {0xCA, 0xFE}} },
+                    new byte[] { 0x9F, 0x2B, 0xCA, 0xFE}
+                };
             }
         }
 
