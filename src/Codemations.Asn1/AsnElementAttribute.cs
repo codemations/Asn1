@@ -29,6 +29,11 @@ namespace Codemations.Asn1
             this.Tag = tag.ToAsn1Tag();
         }
 
+        public AsnElementAttribute(int tag)
+        {
+            this.Tag = tag.ToAsn1Tag();
+        }
+
         public AsnElementAttribute(TagClass tagClass, int tagValue, bool isConstructed = false)
         {
             this.Tag = new Asn1Tag(tagClass, tagValue, isConstructed);
