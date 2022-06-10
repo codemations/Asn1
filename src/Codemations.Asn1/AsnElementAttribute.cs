@@ -17,7 +17,7 @@ namespace Codemations.Asn1
             {
                 if (value is not null && !typeof(IAsnConverter).IsAssignableFrom(value))
                 {
-                    throw new ArgumentException();
+                    throw new ArgumentException($"Type '{value.Name}' does not implement 'IAsnConverter' interface.");
                 }
 
                 this.converterType = value;
@@ -28,7 +28,12 @@ namespace Codemations.Asn1
         {
         }
 
-        public AsnElementAttribute(byte tag)
+        public AsnElementAttribute(uint tag)
+        {
+            this.Tag = tag.ToAsn1Tag();
+        }
+
+        public AsnElementAttribute(params byte[] tag)
         {
             this.Tag = tag.ToAsn1Tag();
         }
