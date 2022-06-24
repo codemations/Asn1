@@ -34,6 +34,7 @@ public class AsnConverterFactoryTests
     {
         [AsnElement(0x80)] public bool Boolean { get; set; }
         [AsnElement(0x81)] public BigInteger Integer { get; set; }
+        [AsnElement(0x82, Optional = true)] public TestEnum? Enum { get; set; }
     }
 
     public static IEnumerable<object[]> SequenceOfData
@@ -57,6 +58,28 @@ public class AsnConverterFactoryTests
                         0x30, 0x06,
                             0x80, 0x01, 0xFF,
                             0x81, 0x01, 0x14
+                }
+            };
+            yield return new object[]
+            {
+                new List<TestSequenceOfElement>
+                {
+                    new()
+                    {
+                        Boolean = false, 
+                        Integer = 10,
+                        Enum = TestEnum.Success
+                    }
+                },
+
+                0xA8,
+                new byte[]
+                {
+                    0xA8, 0x0B,
+                    0x30, 0x09,
+                    0x80, 0x01, 0x00,
+                    0x81, 0x01, 0x0A,
+                    0x82, 0x01, 0x7F,
                 }
             };
         }
