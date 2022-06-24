@@ -11,7 +11,7 @@ namespace Codemations.Asn1.Converters
 
         public override bool IsAccepted(Type type)
         {
-            return type.IsEnum;
+            return type.IsEnum || IsNullableEnum(type);
         }
 
         public override object Read(AsnReader reader, Asn1Tag? tag, Type type)
@@ -22,6 +22,11 @@ namespace Codemations.Asn1.Converters
         public override void Write(AsnWriter writer, Asn1Tag? tag, object value)
         {
             writer.WriteEnumeratedValue((Enum)value, tag);
+        }
+
+        private static bool IsNullableEnum(Type type)
+        {
+            return Nullable.GetUnderlyingType(type)?.IsEnum ?? false;
         }
     }
 }
