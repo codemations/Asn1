@@ -84,9 +84,8 @@ namespace Codemations.Asn1
         public static byte[] Serialize(object element, AsnEncodingRules ruleSet)
         {
             var writer = new AsnWriter(ruleSet);
-            var converter = new AsnConverterFactory().CreateRootConverter(element.GetType());
-            converter.Write(writer, element);
-
+            var converter = new AsnConverterFactory().CreateElementConverter(element.GetType());
+            converter.Write(writer, null, element);
             return writer.Encode();
         }
 
@@ -99,8 +98,8 @@ namespace Codemations.Asn1
         public static object Deserialize(ReadOnlyMemory<byte> data, Type type, AsnEncodingRules ruleSet, AsnReaderOptions options = default)
         {
             var reader = new AsnReader(data, ruleSet, options);
-            var converter = new AsnConverterFactory().CreateRootConverter(type);
-            var deserialized = converter.Read(reader, type);
+            var converter = new AsnConverterFactory().CreateElementConverter(type);
+            var deserialized = converter.Read(reader, null, type);
 
             if (reader.HasData)
             {

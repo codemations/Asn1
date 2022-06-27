@@ -92,13 +92,6 @@ namespace Codemations.Asn1.Tests
             public BigInteger? Integer { get; set; }
         }
 
-        [AsnSequence]
-        public class SequenceOf
-        {
-            [AsnElement(0xA4)]
-            public IEnumerable<bool>? BoolSequence { get; set; }
-        }
-
         public static IEnumerable<object[]> ChoiceModelData
         {
             get
@@ -143,11 +136,8 @@ namespace Codemations.Asn1.Tests
 
                 yield return new object[]
                 {
-                    new SequenceOf
-                    {
-                        BoolSequence = new []{ true, false }
-                    },
-                    new byte[] {0xA4, 0x06, 0x01, 0x01, 0xFF, 0x01, 0x01, 0x00 }
+                    new List<bool> { true, false },
+                    new byte[] {0x30, 0x06, 0x01, 0x01, 0xFF, 0x01, 0x01, 0x00 }
                 };
             }
         }
@@ -179,13 +169,13 @@ namespace Codemations.Asn1.Tests
 
         [Theory]
         [MemberData(nameof(SequenceOfModelData))]
-        public void ShouldDeserializeToSequenceOfModel(SequenceOf expectedElement, byte[] data)
+        public void ShouldDeserializeToSequenceOfModel(List<bool> expectedElement, byte[] data)
         {
             // Act
-            var element = AsnConvert.Deserialize<SequenceOf>(data, AsnEncodingRules.DER);
+            var element = AsnConvert.Deserialize<List<bool>>(data, AsnEncodingRules.DER);
 
             // Assert
-            Assert.Equal(expectedElement.BoolSequence, element.BoolSequence);
+            Assert.Equal(expectedElement, element);
         }
 
         [Fact]
@@ -212,5 +202,47 @@ namespace Codemations.Asn1.Tests
             Assert.Throws<AsnConversionException>(() => AsnConvert.Serialize(model, AsnEncodingRules.DER));
         }
 
+
+        [AsnSequence]
+        public class UniversalSequence
+        {
+            [AsnElement]
+            public BigInteger Integer { get; set; }
+        }
+
+        public static IEnumerable<object[]> UniversalTagModelData
+        {
+            get
+            {
+
+                yield return new object[]
+                {
+                    new UniversalSequence { Integer = 10 },
+                    new byte[] {0x30, 0x03, 0x02, 0x01, 0x0A }
+                };
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(UniversalTagModelData))]
+        public void ShouldSerializeUniversalSequence(UniversalSequence model, byte[] data)
+        {
+            // Act
+            var serialized = AsnConvert.Serialize(model, AsnEncodingRules.DER);
+
+            // Assert
+            Assert.Equal(data, serialized);
+        }
+
+        [Theory]
+        [MemberData(nameof(UniversalTagModelData))]
+        public void ShouldDeserializeUniversalSequence(UniversalSequence model, byte[] data)
+        {
+            // Act
+            var deserialized = AsnConvert.Deserialize<UniversalSequence>(data, AsnEncodingRules.DER);
+
+            // Assert
+            Assert.Equal(model.Integer, deserialized.Integer);
+        }
     }
 }

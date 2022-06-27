@@ -8,7 +8,7 @@ namespace Codemations.Asn1
     {
         private Type? converterType;
 
-        public Asn1Tag Tag { get; }
+        public Asn1Tag? Tag { get; }
         public bool Optional { get; set; }
         public Type? ConverterType
         {
@@ -22,6 +22,10 @@ namespace Codemations.Asn1
 
                 this.converterType = value;
             }
+        }
+
+        public AsnElementAttribute()
+        {
         }
 
         public AsnElementAttribute(byte tag)

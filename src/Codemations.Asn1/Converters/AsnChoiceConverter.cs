@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Codemations.Asn1.Converters
 {
-    internal class AsnChoiceConverter : AsnRootConverter
+    internal class AsnChoiceConverter : AsnConstructedConverter
     {
         public AsnChoiceConverter(AsnConverterFactory converterFactory) : base(converterFactory)
         {
@@ -16,33 +16,40 @@ namespace Codemations.Asn1.Converters
             return type.GetCustomAttribute<AsnChoiceAttribute>() is not null;
         }
 
-        public override object Read(AsnReader reader, Type type)
+        public override object Read(AsnReader reader, Asn1Tag? tag, Type type)
         {
-            var tag = reader.PeekTag();
+            var choiceReader = tag is null ? reader : reader.ReadSequence(tag);
+
+            var innerTag = choiceReader.PeekTag();
             var propertyInfos = GetPropertyInfos(type)
-                .Where(x => x.GetCustomAttribute<AsnElementAttribute>()!.Tag == tag).ToArray();
+                .Where(x => x.GetCustomAttribute<AsnElementAttribute>()!.Tag == innerTag).ToArray();
 
             switch (propertyInfos.Length)
             {
                 case 0:
-                    throw new AsnConversionException("No choice element with given tag.", tag);
+                    throw new AsnConversionException("No choice element with given tag.", innerTag);
 
                 case 1:
                     var item = Activator.CreateInstance(type)!;
                     var propertyInfo = propertyInfos.Single();
                     var asnElementAttribute = propertyInfo.GetCustomAttribute<AsnElementAttribute>()!;
                     var converter = GetConverter(asnElementAttribute, propertyInfo.PropertyType);
-                    var value = converter.Read(reader, asnElementAttribute.Tag, propertyInfo.PropertyType);
+                    var value = converter.Read(choiceReader, asnElementAttribute.Tag, propertyInfo.PropertyType);
                     propertyInfo.SetValue(item, value);
                     return item;
 
                 default:
-                    throw new AsnConversionException("Multiple choice elements with given tag.", tag);
+                    throw new AsnConversionException("Multiple choice elements with given tag.", innerTag);
             }
         }
 
-        public override void Write(AsnWriter writer, object item)
+        public override void Write(AsnWriter writer, Asn1Tag? tag, object item)
         {
+            if (tag is not null)
+            {
+                writer.PushSequence(tag);
+            }
+
             var propertyInfos = GetPropertyInfos(item.GetType())
                 .Where(propertyInfo => propertyInfo.GetValue(item) is not null).ToArray();
 
@@ -61,6 +68,11 @@ namespace Codemations.Asn1.Converters
 
                 default:
                     throw new AsnConversionException("Multiple non-null choice elements.");
+            }
+
+            if (tag is not null)
+            {
+                writer.PopSequence(tag);
             }
         }
     }

@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Codemations.Asn1.Converters
 {
-    internal class AsnSequenceConverter : AsnRootConverter
+    internal class AsnSequenceConverter : AsnConstructedConverter
     {
         public AsnSequenceConverter(AsnConverterFactory converterFactory) : base(converterFactory)
         {
@@ -16,8 +16,10 @@ namespace Codemations.Asn1.Converters
             return type.IsClass;
         }
 
-        public override object Read(AsnReader reader, Type type)
+        public override object Read(AsnReader reader, Asn1Tag? tag, Type type)
         {
+            var sequenceReader = reader.ReadSequence(tag);
+
             var item = Activator.CreateInstance(type)!;
 
             foreach (var propertyInfo in GetPropertyInfos(type))
@@ -27,7 +29,7 @@ namespace Codemations.Asn1.Converters
                 try
                 {
                     var converter = GetConverter(asnElementAttribute, propertyInfo.PropertyType);
-                    var value = converter.Read(reader, asnElementAttribute.Tag, propertyInfo.PropertyType);
+                    var value = converter.Read(sequenceReader, asnElementAttribute.Tag, propertyInfo.PropertyType);
                     propertyInfo.SetValue(item, value);
                 }
                 catch (Exception e)
@@ -42,8 +44,9 @@ namespace Codemations.Asn1.Converters
             return item;
         }
 
-        public override void Write(AsnWriter writer, object item)
+        public override void Write(AsnWriter writer, Asn1Tag? tag, object item)
         {
+            writer.PushSequence(tag);
             foreach (var propertyInfo in GetPropertyInfos(item.GetType())
                          .Where(propertyInfo => propertyInfo.GetValue(item) is not null))
             {
@@ -52,6 +55,7 @@ namespace Codemations.Asn1.Converters
                 var converter = GetConverter(asnElementAttribute, propertyInfo.PropertyType);
                 converter.Write(writer, asnElementAttribute.Tag, value);
             }
+            writer.PopSequence(tag);
         }
     }
 }

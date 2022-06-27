@@ -26,16 +26,6 @@ namespace Codemations.Asn1
             });
         }
 
-        public AsnRootConverter CreateRootConverter(Type type)
-        {
-            return CommonExceptionHandler(type, () =>
-            {
-                var converter = this.converters.Select(func => func(this))
-                    .First(converter => converter is AsnRootConverter && converter.IsAccepted(type));
-                return (converter as AsnRootConverter)!;
-            });
-        }
-
         private static T CommonExceptionHandler<T>(Type type, Func<T> func)
         {
             try

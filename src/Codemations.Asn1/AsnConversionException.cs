@@ -15,19 +15,23 @@ namespace Codemations.Asn1
         {
         }
 
-        public AsnConversionException(string? message, Asn1Tag tag) : base(FormatMessage(message, tag))
+        public AsnConversionException(string? message, Asn1Tag? tag) : base(FormatMessage(message, tag))
         {
             this.Tag = tag;
         }
 
-        public AsnConversionException(string? message, Asn1Tag tag, Exception exception) : base(FormatMessage(message, tag), exception)
+        public AsnConversionException(string? message, Asn1Tag? tag, Exception exception) : base(FormatMessage(message, tag), exception)
         {
             this.Tag = tag;
         }
 
-        private static string FormatMessage(string? message, Asn1Tag tag)
+        private static string FormatMessage(string? message, Asn1Tag? tag)
         {
-            return $"{message} (Tag '0x{tag.ToByte():X2}')";
+            if (tag is { } nonNullTag)
+            {
+                return $"{message} (Tag '0x{nonNullTag.ToByte():X2}')";
+            }
+            return $"{message} (Tag 'null')";
         }
     }
 }
