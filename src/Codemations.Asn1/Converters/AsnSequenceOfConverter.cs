@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Codemations.Asn1.Converters
 {
-    internal class AsnSequenceOfConverter : AsnElementConverter
+    internal class AsnSequenceOfConverter : AsnConstructedConverter
     {
         public AsnSequenceOfConverter(AsnConverterFactory converterFactory) : base(converterFactory)
         {
