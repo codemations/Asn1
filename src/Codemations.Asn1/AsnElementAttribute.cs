@@ -8,7 +8,7 @@ namespace Codemations.Asn1
     {
         private Type? converterType;
 
-        public Asn1Tag Tag { get; }
+        public Asn1Tag? Tag { get; }
         public bool Optional { get; set; }
         public Type? ConverterType
         {
@@ -17,14 +17,23 @@ namespace Codemations.Asn1
             {
                 if (value is not null && !typeof(IAsnConverter).IsAssignableFrom(value))
                 {
-                    throw new ArgumentException();
+                    throw new ArgumentException($"Type '{value.Name}' does not implement 'IAsnConverter' interface.");
                 }
 
                 this.converterType = value;
             }
         }
 
-        public AsnElementAttribute(byte tag)
+        public AsnElementAttribute()
+        {
+        }
+
+        public AsnElementAttribute(uint tag)
+        {
+            this.Tag = tag.ToAsn1Tag();
+        }
+
+        public AsnElementAttribute(params byte[] tag)
         {
             this.Tag = tag.ToAsn1Tag();
         }
