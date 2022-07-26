@@ -16,7 +16,8 @@ namespace Codemations.Asn1.Converters
 
         public override object Read(AsnReader reader, Asn1Tag? tag, Type type)
         {
-            return reader.ReadEnumeratedValue(type, tag);
+            var enumType = IsNullableEnum(type) ? Nullable.GetUnderlyingType(type)! : type;
+            return reader.ReadEnumeratedValue(enumType, tag);
         }
 
         public override void Write(AsnWriter writer, Asn1Tag? tag, object value)
