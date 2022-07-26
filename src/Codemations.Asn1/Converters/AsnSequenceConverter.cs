@@ -32,7 +32,7 @@ namespace Codemations.Asn1.Converters
                     var value = converter.Read(sequenceReader, asnElementAttribute.Tag, propertyInfo.PropertyType);
                     propertyInfo.SetValue(item, value);
                 }
-                catch (Exception e)
+                catch (AsnContentException e)
                 {
                     if (!asnElementAttribute.Optional)
                     {
