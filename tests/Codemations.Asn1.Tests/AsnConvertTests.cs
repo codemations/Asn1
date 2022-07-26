@@ -12,10 +12,10 @@ namespace Codemations.Asn1.Tests
         {
             get
             {
-                var cafeElement = new AsnElement(0x81.ToAsn1Tag()) {Value = new byte[] {0xCA, 0xFE}};
-                var deadBeefElement = new AsnElement(0x82.ToAsn1Tag())
+                var cafeElement = new AsnElement(0x81) {Value = new byte[] {0xCA, 0xFE}};
+                var deadBeefElement = new AsnElement(0x82)
                     {Value = new byte[] {0xDE, 0xAD, 0xBE, 0xEF}};
-                var constructedElement = new AsnElement(0xA0.ToAsn1Tag(),
+                var constructedElement = new AsnElement(0xA0,
                     new [] { cafeElement, deadBeefElement }.ToList());
 
                 yield return new object[]
