@@ -82,6 +82,7 @@ public class AsnConverterFactoryTests
                     0x82, 0x01, 0x7F,
                 }
             };
+
         }
     }
 
@@ -133,6 +134,7 @@ public class AsnConverterFactoryTests
         {
             Assert.Equal(expectedItem.Boolean, actualItem.Boolean);
             Assert.Equal(expectedItem.Integer, actualItem.Integer);
+            Assert.Equal(expectedItem.Enum, actualItem.Enum);
         }
     }
 }
