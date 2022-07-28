@@ -93,10 +93,11 @@ public class AsnConverterFactoryTests
     {
         // Arrange
         var writer = new AsnWriter(AsnEncodingRules.DER);
-        var converter = new AsnConverterFactory().CreateElementConverter(value.GetType());
+        var converterResolver = new DefaultConverterResolver();
+        var converter = new DefaultConverterResolver().Resolve(value.GetType());
 
         // Act
-        converter.Write(writer, tag.ToAsn1Tag(), value);
+        converter.Write(writer, tag.ToAsn1Tag(), value, converterResolver);
         var actualEncodedValue = writer.Encode();
 
         // Assert
@@ -109,10 +110,11 @@ public class AsnConverterFactoryTests
     {
         // Arrange
         var reader = new AsnReader(encodedValue, AsnEncodingRules.DER);
-        var converter = new AsnConverterFactory().CreateElementConverter(expectedValue.GetType());
+        var converterResolver = new DefaultConverterResolver();
+        var converter = new DefaultConverterResolver().Resolve(expectedValue.GetType());
 
         // Act
-        var actualValue = converter.Read(reader, tag.ToAsn1Tag(), expectedValue.GetType());
+        var actualValue = converter.Read(reader, tag.ToAsn1Tag(), expectedValue.GetType(), converterResolver);
 
         // Assert
         Assert.Equal(expectedValue, actualValue);
@@ -124,10 +126,11 @@ public class AsnConverterFactoryTests
     {
         // Arrange
         var reader = new AsnReader(encodedValue, AsnEncodingRules.DER);
-        var converter = new AsnConverterFactory().CreateElementConverter(expectedValue.GetType());
+        var converterResolver = new DefaultConverterResolver();
+        var converter = new DefaultConverterResolver().Resolve(expectedValue.GetType());
 
         // Act
-        var actualValue = (List<TestSequenceOfElement>)converter.Read(reader, tag.ToAsn1Tag(), expectedValue.GetType());
+        var actualValue = (List<TestSequenceOfElement>)converter.Read(reader, tag.ToAsn1Tag(), expectedValue.GetType(), converterResolver);
 
         // Assert
         foreach (var (expectedItem, actualItem) in expectedValue.Zip(actualValue))

@@ -3,23 +3,19 @@ using System.Formats.Asn1;
 
 namespace Codemations.Asn1.Converters
 {
-    internal class AsnOctetStringConverter : AsnElementConverter
+    internal class AsnOctetStringConverter : IAsnConverter
     {
-        public AsnOctetStringConverter(AsnConverterFactory converterFactory) : base(converterFactory)
+        public bool CanConvert(Type type)
         {
+            return typeof(byte[]) == type;
         }
 
-        protected override Type[] AcceptedTypes => new []
-        {
-            typeof(byte[])
-        };
-
-        public override object Read(AsnReader reader, Asn1Tag? tag, Type type)
+        public object Read(AsnReader reader, Asn1Tag? tag, Type type, IAsnConverterResolver converterResolver)
         {
             return reader.ReadOctetString(tag);
         }
 
-        public override void Write(AsnWriter writer, Asn1Tag? tag, object value)
+        public void Write(AsnWriter writer, Asn1Tag? tag, object value, IAsnConverterResolver converterResolver)
         {
             writer.WriteOctetString((byte[])value, tag);
         }

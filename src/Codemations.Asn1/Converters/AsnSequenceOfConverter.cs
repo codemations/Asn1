@@ -6,37 +6,33 @@ using System.Linq;
 
 namespace Codemations.Asn1.Converters
 {
-    internal class AsnSequenceOfConverter : AsnConstructedConverter
+    internal class AsnSequenceOfConverter : IAsnConverter
     {
-        public AsnSequenceOfConverter(AsnConverterFactory converterFactory) : base(converterFactory)
+        public bool CanConvert(Type type)
         {
+            return typeof(IEnumerable).IsAssignableFrom(type);
         }
 
-        public override bool IsAccepted(Type type)
-        {
-            return type != typeof(string) && type != typeof(byte[]) && typeof(IEnumerable).IsAssignableFrom(type);
-        }
-
-        public override object Read(AsnReader reader, Asn1Tag? tag, Type type)
+        public object Read(AsnReader reader, Asn1Tag? tag, Type type, IAsnConverterResolver converterResolver)
         {
             var genericArgType = type.GetGenericArguments().Single();
             var sequenceReader = reader.ReadSequence(tag);
             var sequence = (Activator.CreateInstance(typeof(List<>).MakeGenericType(genericArgType)) as IList)!;
             while (sequenceReader.HasData)
             {
-                var converter = new AsnConverterFactory().CreateElementConverter(genericArgType);
-                sequence.Add(converter.Read(sequenceReader, null, genericArgType));
+                var converter = converterResolver.Resolve(genericArgType);
+                sequence.Add(converter.Read(sequenceReader, null, genericArgType, converterResolver));
             }
             return sequence;
         }
 
-        public override void Write(AsnWriter writer, Asn1Tag? tag, object value)
+        public void Write(AsnWriter writer, Asn1Tag? tag, object value, IAsnConverterResolver converterResolver)
         {
             writer.PushSequence(tag);
             foreach (var element in (value as IEnumerable)!)
             {
-                var converter = new AsnConverterFactory().CreateElementConverter(element.GetType());
-                converter.Write(writer, null, element);
+                var converter = converterResolver.Resolve(element.GetType());
+                converter.Write(writer, null, element, converterResolver);
             }
             writer.PopSequence(tag);
         }

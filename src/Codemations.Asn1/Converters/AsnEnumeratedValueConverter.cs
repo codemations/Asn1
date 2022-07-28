@@ -3,24 +3,20 @@ using System.Formats.Asn1;
 
 namespace Codemations.Asn1.Converters
 {
-    internal class AsnEnumeratedValueConverter : AsnElementConverter
+    internal class AsnEnumeratedValueConverter : IAsnConverter
     {
-        public AsnEnumeratedValueConverter(AsnConverterFactory converterFactory) : base(converterFactory)
-        {
-        }
-
-        public override bool IsAccepted(Type type)
+        public bool CanConvert(Type type)
         {
             return type.IsEnum || IsNullableEnum(type);
         }
 
-        public override object Read(AsnReader reader, Asn1Tag? tag, Type type)
+        public object Read(AsnReader reader, Asn1Tag? tag, Type type, IAsnConverterResolver converterResolver)
         {
             var enumType = IsNullableEnum(type) ? Nullable.GetUnderlyingType(type)! : type;
             return reader.ReadEnumeratedValue(enumType, tag);
         }
 
-        public override void Write(AsnWriter writer, Asn1Tag? tag, object value)
+        public void Write(AsnWriter writer, Asn1Tag? tag, object value, IAsnConverterResolver converterResolver)
         {
             writer.WriteEnumeratedValue((Enum)value, tag);
         }

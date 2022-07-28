@@ -11,38 +11,6 @@ namespace Codemations.Asn1
     public static class AsnConvert
     {
         /// <summary>
-        ///   Deserializes <paramref name="data"/> with a given <paramref name="ruleSet"/>.
-        /// </summary>
-        /// <param name="data">The data to read.</param>
-        /// <param name="ruleSet">The encoding constraints for the reader.</param>
-        /// <param name="options">Additional options for the reader.</param>
-        /// <returns>An iterator with AsnElement objects.</returns>
-        /// <exception cref="ArgumentOutOfRangeException">
-        ///   <paramref name="ruleSet"/> is not defined.
-        /// </exception>
-        public static IEnumerable<AsnElement> Deserialize(ReadOnlyMemory<byte> data, AsnEncodingRules ruleSet, AsnReaderOptions options = default)
-        {
-            var reader = new AsnReader(data, ruleSet, options);
-            while (reader.HasData)
-            {
-                var tag = reader.PeekTag();
-                var value = reader.PeekContentBytes();
-
-                if (tag.IsConstructed)
-                {
-                    var elements = Deserialize(value, ruleSet, options).ToList();
-                    yield return new AsnElement(tag, elements);
-                }
-                else
-                {
-                    yield return new AsnElement(tag) { Value = value.ToArray() };
-                }
-
-                reader.ReadEncodedValue();
-            }
-        }
-
-        /// <summary>
         ///   Serializes <paramref name="items"/> with a given <paramref name="ruleSet"/>.
         /// </summary>
         /// <param name="items">Elements to serialize.</param>
@@ -83,10 +51,46 @@ namespace Codemations.Asn1
 
         public static byte[] Serialize(object element, AsnEncodingRules ruleSet)
         {
-            var writer = new AsnWriter(ruleSet);
-            var converter = new AsnConverterFactory().CreateElementConverter(element.GetType());
-            converter.Write(writer, null, element);
-            return writer.Encode();
+            var serializer = new AsnSerializer(ruleSet);
+            return serializer.Serialize(element);
+        }
+
+        /// <summary>
+        ///   Deserializes <paramref name="data"/> with a given <paramref name="ruleSet"/>.
+        /// </summary>
+        /// <param name="data">The data to read.</param>
+        /// <param name="ruleSet">The encoding constraints for the reader.</param>
+        /// <param name="options">Additional options for the reader.</param>
+        /// <returns>An iterator with AsnElement objects.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///   <paramref name="ruleSet"/> is not defined.
+        /// </exception>
+        public static IEnumerable<AsnElement> Deserialize(ReadOnlyMemory<byte> data, AsnEncodingRules ruleSet, AsnReaderOptions options = default)
+        {
+            var reader = new AsnReader(data, ruleSet, options);
+            while (reader.HasData)
+            {
+                var tag = reader.PeekTag();
+                var value = reader.PeekContentBytes();
+
+                if (tag.IsConstructed)
+                {
+                    var elements = Deserialize(value, ruleSet, options).ToList();
+                    yield return new AsnElement(tag, elements);
+                }
+                else
+                {
+                    yield return new AsnElement(tag) { Value = value.ToArray() };
+                }
+
+                reader.ReadEncodedValue();
+            }
+        }
+
+        public static object Deserialize(ReadOnlyMemory<byte> data, Type type, AsnEncodingRules ruleSet, AsnReaderOptions options = default)
+        {
+            var serializer = new AsnSerializer(ruleSet, options);
+            return serializer.Deserialize(data, type);
         }
 
         public static T Deserialize<T>(ReadOnlyMemory<byte> data, AsnEncodingRules ruleSet, AsnReaderOptions options = default) where T : class, new()
@@ -95,18 +99,6 @@ namespace Codemations.Asn1
             return (deserialized as T)!;
         }
 
-        public static object Deserialize(ReadOnlyMemory<byte> data, Type type, AsnEncodingRules ruleSet, AsnReaderOptions options = default)
-        {
-            var reader = new AsnReader(data, ruleSet, options);
-            var converter = new AsnConverterFactory().CreateElementConverter(type);
-            var deserialized = converter.Read(reader, null, type);
 
-            if (reader.HasData)
-            {
-                throw new AsnConversionException("Not read data left.");
-            }
-
-            return deserialized;
-        }
     }
 }

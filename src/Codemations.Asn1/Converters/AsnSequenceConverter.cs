@@ -5,31 +5,27 @@ using System.Reflection;
 
 namespace Codemations.Asn1.Converters
 {
-    internal class AsnSequenceConverter : AsnConstructedConverter
+    internal class AsnSequenceConverter : IAsnConverter
     {
-        public AsnSequenceConverter(AsnConverterFactory converterFactory) : base(converterFactory)
-        {
-        }
-
-        public override bool IsAccepted(Type type)
+        public bool CanConvert(Type type)
         {
             return type.IsClass;
         }
 
-        public override object Read(AsnReader reader, Asn1Tag? tag, Type type)
+        public object Read(AsnReader reader, Asn1Tag? tag, Type type, IAsnConverterResolver converterResolver)
         {
             var sequenceReader = reader.ReadSequence(tag);
 
             var item = Activator.CreateInstance(type)!;
 
-            foreach (var propertyInfo in GetPropertyInfos(type))
+            foreach (var propertyInfo in AsnHelper.GetPropertyInfos(type))
             {
                 var asnElementAttribute = propertyInfo.GetCustomAttribute<AsnElementAttribute>()!;
 
                 try
                 {
-                    var converter = GetConverter(asnElementAttribute, propertyInfo.PropertyType);
-                    var value = converter.Read(sequenceReader, asnElementAttribute.Tag, propertyInfo.PropertyType);
+                    var converter = converterResolver.Resolve(propertyInfo);
+                    var value = converter.Read(sequenceReader, asnElementAttribute.Tag, propertyInfo.PropertyType, converterResolver);
                     propertyInfo.SetValue(item, value);
                 }
                 catch (AsnContentException e)
@@ -44,16 +40,16 @@ namespace Codemations.Asn1.Converters
             return item;
         }
 
-        public override void Write(AsnWriter writer, Asn1Tag? tag, object item)
+        public void Write(AsnWriter writer, Asn1Tag? tag, object value, IAsnConverterResolver converterResolver)
         {
             writer.PushSequence(tag);
-            foreach (var propertyInfo in GetPropertyInfos(item.GetType())
-                         .Where(propertyInfo => propertyInfo.GetValue(item) is not null))
+            foreach (var propertyInfo in AsnHelper.GetPropertyInfos(value.GetType())
+                         .Where(propertyInfo => propertyInfo.GetValue(value) is not null))
             {
                 var asnElementAttribute = propertyInfo.GetCustomAttribute<AsnElementAttribute>()!;
-                var value = propertyInfo.GetValue(item)!;
-                var converter = GetConverter(asnElementAttribute, propertyInfo.PropertyType);
-                converter.Write(writer, asnElementAttribute.Tag, value);
+                var propertyValue = propertyInfo.GetValue(value)!;
+                var converter = converterResolver.Resolve(propertyInfo);
+                converter.Write(writer, asnElementAttribute.Tag, propertyValue, converterResolver);
             }
             writer.PopSequence(tag);
         }
