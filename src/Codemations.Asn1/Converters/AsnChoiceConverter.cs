@@ -5,23 +5,19 @@ using System.Reflection;
 
 namespace Codemations.Asn1.Converters
 {
-    internal class AsnChoiceConverter : AsnConstructedConverter
+    internal class AsnChoiceConverter : IAsnConverter
     {
-        public AsnChoiceConverter(AsnConverterFactory converterFactory) : base(converterFactory)
-        {
-        }
-
-        public override bool IsAccepted(Type type)
+        public bool CanConvert(Type type)
         {
             return type.GetCustomAttribute<AsnChoiceAttribute>() is not null;
         }
 
-        public override object Read(AsnReader reader, Asn1Tag? tag, Type type)
+        public object Read(AsnReader reader, Asn1Tag? tag, Type type, IAsnConverterResolver converterResolver)
         {
             var choiceReader = tag is null ? reader : reader.ReadSequence(tag);
 
             var innerTag = choiceReader.PeekTag();
-            var propertyInfos = GetPropertyInfos(type)
+            var propertyInfos = AsnHelper.GetPropertyInfos(type)
                 .Where(x => x.GetCustomAttribute<AsnElementAttribute>()!.Tag == innerTag).ToArray();
 
             switch (propertyInfos.Length)
@@ -33,8 +29,8 @@ namespace Codemations.Asn1.Converters
                     var item = Activator.CreateInstance(type)!;
                     var propertyInfo = propertyInfos.Single();
                     var asnElementAttribute = propertyInfo.GetCustomAttribute<AsnElementAttribute>()!;
-                    var converter = GetConverter(asnElementAttribute, propertyInfo.PropertyType);
-                    var value = converter.Read(choiceReader, asnElementAttribute.Tag, propertyInfo.PropertyType);
+                    var converter = converterResolver.Resolve(propertyInfo);
+                    var value = converter.Read(choiceReader, asnElementAttribute.Tag, propertyInfo.PropertyType, converterResolver);
                     propertyInfo.SetValue(item, value);
                     return item;
 
@@ -43,15 +39,15 @@ namespace Codemations.Asn1.Converters
             }
         }
 
-        public override void Write(AsnWriter writer, Asn1Tag? tag, object item)
+        public void Write(AsnWriter writer, Asn1Tag? tag, object value, IAsnConverterResolver converterResolver)
         {
             if (tag is not null)
             {
                 writer.PushSequence(tag);
             }
 
-            var propertyInfos = GetPropertyInfos(item.GetType())
-                .Where(propertyInfo => propertyInfo.GetValue(item) is not null).ToArray();
+            var propertyInfos = AsnHelper.GetPropertyInfos(value.GetType())
+                .Where(propertyInfo => propertyInfo.GetValue(value) is not null).ToArray();
 
             switch (propertyInfos.Length)
             {
@@ -61,9 +57,9 @@ namespace Codemations.Asn1.Converters
                 case 1:
                     var propertyInfo = propertyInfos.Single();
                     var asnElementAttribute = propertyInfo.GetCustomAttribute<AsnElementAttribute>()!;
-                    var value = propertyInfo.GetValue(item)!;
-                    var converter = GetConverter(asnElementAttribute, propertyInfo.PropertyType);
-                    converter.Write(writer, asnElementAttribute.Tag, value);
+                    var propertyValue = propertyInfo.GetValue(value)!;
+                    var converter = converterResolver.Resolve(propertyInfo);
+                    converter.Write(writer, asnElementAttribute.Tag, propertyValue, converterResolver);
                     break;
 
                 default:
