@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Formats.Asn1;
+using System.Linq;
 using System.Numerics;
 
 namespace Codemations.Asn1.Converters
 {
-    internal class AsnIntegerConverter : AsnElementConverter
+    internal class AsnIntegerConverter : IAsnConverter
     {
-        public AsnIntegerConverter(AsnConverterFactory converterFactory) : base(converterFactory)
-        {
-        }
-
-        protected override Type[] AcceptedTypes => new []
+        private static readonly Type[] AcceptedTypes =
         {
             typeof(long), typeof(long?),
             typeof(ulong), typeof(ulong?),
@@ -23,12 +20,17 @@ namespace Codemations.Asn1.Converters
             typeof(BigInteger), typeof(BigInteger?)
         };
 
-        public override object Read(AsnReader reader, Asn1Tag? tag, Type type)
+        public bool CanConvert(Type type)
+        {
+            return AcceptedTypes.Contains(type);
+        }
+
+        public object Read(AsnReader reader, Asn1Tag? tag, Type type, IAsnConverterResolver converterResolver)
         {
             return reader.ReadInteger(tag);
         }
 
-        public override void Write(AsnWriter writer, Asn1Tag? tag, object value)
+        public void Write(AsnWriter writer, Asn1Tag? tag, object value, IAsnConverterResolver converterResolver)
         {
             writer.WriteInteger((BigInteger)value, tag);
         }
