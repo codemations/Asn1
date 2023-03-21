@@ -1,6 +1,6 @@
 trigger:
 - main
-- develop
+- feature/*
 - release/*
 
 pool:
@@ -10,7 +10,6 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-  isMain: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
 
 steps:
 - task: GitVersion@5
@@ -58,13 +57,3 @@ steps:
     packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
     nuGetFeedType: 'internal'
     publishVstsFeed: '73ab56f3-41d3-43aa-b445-6c2591ea0149/39973489-c2cb-4fdf-97f7-17ca9ef2c262'
-  condition: eq(variables.isMain, 'false')
-
-- task: NuGetCommand@2
-  displayName: 'nuget push external'
-  inputs:
-    command: 'push'
-    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
-    nuGetFeedType: 'external'
-    publishFeedCredentials: 'NugetApiKey'
-  condition: eq(variables.isMain, 'true')
