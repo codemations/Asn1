@@ -16,23 +16,21 @@ namespace Codemations.Asn1.Converters
         {
             var sequenceReader = reader.ReadSequence(tag);
 
-            var item = Activator.CreateInstance(type)!;
+            var item = Activator.CreateInstance(type) ?? throw new AsnConversionException("Failed to create object.");
 
-            foreach (var propertyInfo in AsnHelper.GetPropertyInfos(type))
+            foreach (var propertyInfo in AsnHelper.GetAsnProperties(type))
             {
-                var asnElementAttribute = propertyInfo.GetCustomAttribute<AsnElementAttribute>()!;
-
                 try
                 {
-                    var converter = converterResolver.Resolve(propertyInfo);
-                    var value = converter.Read(sequenceReader, asnElementAttribute.Tag, propertyInfo.PropertyType, converterResolver);
+                    var converter = converterResolver.Resolve(propertyInfo.Type);
+                    var value = converter.Read(sequenceReader, propertyInfo.Tag, propertyInfo.Type, converterResolver);
                     propertyInfo.SetValue(item, value);
                 }
                 catch (AsnContentException e)
                 {
-                    if (!asnElementAttribute.Optional)
+                    if (!propertyInfo.IsOptional)
                     {
-                        throw new AsnConversionException("Value for required element is missing.", asnElementAttribute.Tag, e);
+                        throw new AsnConversionException("Value for required element is missing.", propertyInfo.Tag, e);
                     }
                 }
             }
@@ -43,13 +41,18 @@ namespace Codemations.Asn1.Converters
         public void Write(AsnWriter writer, Asn1Tag? tag, object value, IAsnConverterResolver converterResolver)
         {
             writer.PushSequence(tag);
-            foreach (var propertyInfo in AsnHelper.GetPropertyInfos(value.GetType())
-                         .Where(propertyInfo => propertyInfo.GetValue(value) is not null))
+            foreach (var propertyInfo in AsnHelper.GetAsnProperties(value.GetType()))
             {
-                var asnElementAttribute = propertyInfo.GetCustomAttribute<AsnElementAttribute>()!;
-                var propertyValue = propertyInfo.GetValue(value)!;
-                var converter = converterResolver.Resolve(propertyInfo);
-                converter.Write(writer, asnElementAttribute.Tag, propertyValue, converterResolver);
+                if(propertyInfo.GetValue(value) is not object propertyValue)
+                {
+                    if (propertyInfo.IsOptional)
+                    {
+                        continue;
+                    }
+                    throw new AsnConversionException("Value for required element is missing.");
+                }
+                var converter = propertyInfo.CustomConverter ?? converterResolver.Resolve(propertyInfo.Type);
+                converter.Write(writer, propertyInfo.Tag, propertyValue, converterResolver);
             }
             writer.PopSequence(tag);
         }

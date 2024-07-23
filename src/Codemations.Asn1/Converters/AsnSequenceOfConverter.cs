@@ -29,9 +29,10 @@ namespace Codemations.Asn1.Converters
         public void Write(AsnWriter writer, Asn1Tag? tag, object value, IAsnConverterResolver converterResolver)
         {
             writer.PushSequence(tag);
+            IAsnConverter? converter = null;
             foreach (var element in (value as IEnumerable)!)
             {
-                var converter = converterResolver.Resolve(element.GetType());
+                converter ??= converterResolver.Resolve(element.GetType());
                 converter.Write(writer, null, element, converterResolver);
             }
             writer.PopSequence(tag);

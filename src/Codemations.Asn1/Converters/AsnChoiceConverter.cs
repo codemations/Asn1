@@ -17,8 +17,8 @@ namespace Codemations.Asn1.Converters
             var choiceReader = tag is null ? reader : reader.ReadSequence(tag);
 
             var innerTag = choiceReader.PeekTag();
-            var propertyInfos = AsnHelper.GetPropertyInfos(type)
-                .Where(x => x.GetCustomAttribute<AsnElementAttribute>()!.Tag == innerTag).ToArray();
+            var propertyInfos = AsnHelper.GetAsnProperties(type)
+                .Where(propertyInfo => propertyInfo.Tag == innerTag).ToArray();
 
             switch (propertyInfos.Length)
             {
@@ -28,9 +28,8 @@ namespace Codemations.Asn1.Converters
                 case 1:
                     var item = Activator.CreateInstance(type)!;
                     var propertyInfo = propertyInfos.Single();
-                    var asnElementAttribute = propertyInfo.GetCustomAttribute<AsnElementAttribute>()!;
-                    var converter = converterResolver.Resolve(propertyInfo);
-                    var value = converter.Read(choiceReader, asnElementAttribute.Tag, propertyInfo.PropertyType, converterResolver);
+                    var converter = converterResolver.Resolve(propertyInfo.Type);
+                    var value = converter.Read(choiceReader, propertyInfo.Tag, propertyInfo.Type, converterResolver);
                     propertyInfo.SetValue(item, value);
                     return item;
 
@@ -46,20 +45,18 @@ namespace Codemations.Asn1.Converters
                 writer.PushSequence(tag);
             }
 
-            var propertyInfos = AsnHelper.GetPropertyInfos(value.GetType())
-                .Where(propertyInfo => propertyInfo.GetValue(value) is not null).ToArray();
+            var properties = AsnHelper.GetAsnProperties(value.GetType())
+                .Where(x => x.GetValue(value) is not null).ToArray();
 
-            switch (propertyInfos.Length)
+            switch (properties.Length)
             {
                 case 0:
                     throw new AsnConversionException("No choice element to serialize.");
 
                 case 1:
-                    var propertyInfo = propertyInfos.Single();
-                    var asnElementAttribute = propertyInfo.GetCustomAttribute<AsnElementAttribute>()!;
-                    var propertyValue = propertyInfo.GetValue(value)!;
-                    var converter = converterResolver.Resolve(propertyInfo);
-                    converter.Write(writer, asnElementAttribute.Tag, propertyValue, converterResolver);
+                    var property = properties.Single();
+                    var converter = property.CustomConverter ?? converterResolver.Resolve(property.Type);
+                    converter.Write(writer, property.Tag, property.GetValue(value)!, converterResolver);
                     break;
 
                 default:
