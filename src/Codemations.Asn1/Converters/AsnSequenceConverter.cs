@@ -51,8 +51,7 @@ namespace Codemations.Asn1.Converters
                     }
                     throw new AsnConversionException("Value for required element is missing.");
                 }
-                var converter = propertyInfo.CustomConverter ?? converterResolver.Resolve(propertyInfo.Type);
-                converter.Write(writer, propertyInfo.Tag, propertyValue, converterResolver);
+                writer.WriteProperty(propertyInfo, propertyValue, converterResolver);
             }
             writer.PopSequence(tag);
         }

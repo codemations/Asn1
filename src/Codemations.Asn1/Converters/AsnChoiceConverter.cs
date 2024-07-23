@@ -28,8 +28,7 @@ namespace Codemations.Asn1.Converters
                 case 1:
                     var item = Activator.CreateInstance(type)!;
                     var propertyInfo = propertyInfos.Single();
-                    var converter = converterResolver.Resolve(propertyInfo.Type);
-                    var value = converter.Read(choiceReader, propertyInfo.Tag, propertyInfo.Type, converterResolver);
+                    var value = choiceReader.ReadProperty(propertyInfo, converterResolver);
                     propertyInfo.SetValue(item, value);
                     return item;
 
@@ -45,18 +44,18 @@ namespace Codemations.Asn1.Converters
                 writer.PushSequence(tag);
             }
 
-            var properties = AsnHelper.GetAsnProperties(value.GetType())
+            var propertyInfos = AsnHelper.GetAsnProperties(value.GetType())
                 .Where(x => x.GetValue(value) is not null).ToArray();
 
-            switch (properties.Length)
+            switch (propertyInfos.Length)
             {
                 case 0:
                     throw new AsnConversionException("No choice element to serialize.");
 
                 case 1:
-                    var property = properties.Single();
-                    var converter = property.CustomConverter ?? converterResolver.Resolve(property.Type);
-                    converter.Write(writer, property.Tag, property.GetValue(value)!, converterResolver);
+                    var propertyInfo = propertyInfos.Single();
+                    var propertyValue = propertyInfo.GetValue(value)!;
+                    writer.WriteProperty(propertyInfo, propertyValue, converterResolver);
                     break;
 
                 default:
