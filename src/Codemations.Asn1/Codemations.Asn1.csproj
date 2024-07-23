@@ -1,7 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0</TargetFrameworks>
+    <TargetFrameworks>net48;net6.0</TargetFrameworks>
+    <LangVersion>11</LangVersion>
     <Nullable>enable</Nullable>
     <Authors>Arkadiusz Prochwicz</Authors>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -21,6 +22,10 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
   </ItemGroup>
 
 </Project>
