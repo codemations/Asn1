@@ -70,8 +70,7 @@ namespace Codemations.Asn1
             var reader = new AsnReader(data, ruleSet, options);
             while (reader.HasData)
             {
-                var tag = reader.PeekTag();
-                var value = reader.PeekContentBytes();
+                var value = reader.ReadContentBytes(out var tag);
 
                 if (tag.IsConstructed)
                 {
@@ -82,8 +81,6 @@ namespace Codemations.Asn1
                 {
                     yield return new AsnElement(tag) { Value = value.ToArray() };
                 }
-
-                reader.ReadEncodedValue();
             }
         }
 

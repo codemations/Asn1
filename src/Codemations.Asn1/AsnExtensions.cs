@@ -158,6 +158,13 @@ namespace Codemations.Asn1
             }
         }
 
+        public static ReadOnlyMemory<byte> ReadContentBytes(this AsnReader reader, out Asn1Tag tag)
+        {
+            var contentBytes = reader.ReadEncodedValue();
+            tag = AsnDecoder.ReadEncodedValue(contentBytes.Span, reader.RuleSet, out var contentOffset, out var contentLength, out _);
+            return contentBytes.Slice(contentOffset, contentLength);
+        }
+
         private static BigInteger GetTagValueFromBase128(IEnumerable<byte> base128TagValue)
         {
             BigInteger tagValue = 0;
