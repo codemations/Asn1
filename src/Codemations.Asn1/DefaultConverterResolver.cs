@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Codemations.Asn1.Converters;
 
 namespace Codemations.Asn1
@@ -21,17 +20,6 @@ namespace Codemations.Asn1
         };
 
         private readonly List<IAsnConverter> customConverters = new();
-
-        public IAsnConverter Resolve(PropertyInfo propertyInfo)
-        {
-            var converterAttribute = propertyInfo.GetCustomAttribute<AsnConverterAttribute>();
-            if (converterAttribute is not null)
-            {
-                return converterAttribute.CreateInstance();
-            }
-
-            return Resolve(propertyInfo.PropertyType);
-        }
 
         public IAsnConverter Resolve(Type type)
         {
