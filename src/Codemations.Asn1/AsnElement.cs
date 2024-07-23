@@ -23,7 +23,7 @@ namespace Codemations.Asn1
         /// <summary>
         /// Gets the list of child elements.
         /// </summary>
-        public List<AsnElement> Elements { get; }
+        public IList<AsnElement> Elements { get; }
 
         public AsnElement(byte encodedTag) : this(encodedTag, new List<AsnElement>())
         {
@@ -45,7 +45,11 @@ namespace Codemations.Asn1
         {
         }
 
-        public AsnElement(Asn1Tag tag, IEnumerable<AsnElement> elements)
+        public AsnElement(Asn1Tag tag, IEnumerable<AsnElement> elements) : this(tag, elements.ToList())
+        {
+        }
+
+        public AsnElement(Asn1Tag tag, IList<AsnElement> elements)
         {
             this.Tag = tag;
             this.Elements = elements.ToList();
