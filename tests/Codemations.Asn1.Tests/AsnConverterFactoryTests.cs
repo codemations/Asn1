@@ -133,7 +133,7 @@ public class AsnConverterFactoryTests
         var actualValue = (List<TestSequenceOfElement>)converter.Read(reader, tag.ToAsn1Tag(), expectedValue.GetType(), converterResolver);
 
         // Assert
-        foreach (var (expectedItem, actualItem) in expectedValue.Zip(actualValue))
+        foreach (var (expectedItem, actualItem) in expectedValue.Zip(actualValue, (e, a) => (e, a)))
         {
             Assert.Equal(expectedItem.Boolean, actualItem.Boolean);
             Assert.Equal(expectedItem.Integer, actualItem.Integer);
