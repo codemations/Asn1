@@ -40,7 +40,7 @@ namespace Codemations.Asn1.Tests
             var actualData = AsnConvert.Serialize(asnElements, AsnEncodingRules.DER);
 
             // Assert
-            Assert.Equal(expectedData, actualData.ToList());
+            Assert.Equal(expectedData, actualData);
         }
 
         [Theory]
@@ -67,7 +67,7 @@ namespace Codemations.Asn1.Tests
                 }
                 else
                 {
-                    Assert.Equal(expected.Value, actual.Value);
+                    Assert.Equal(expected.Value?.ToArray(), actual.Value?.ToArray());
                 }
             }
         }

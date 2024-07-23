@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Formats.Asn1;
 using System.Linq;
 
@@ -17,7 +18,7 @@ namespace Codemations.Asn1
         /// <summary>
         /// Gets or sets the content encoded value.
         /// </summary>
-        public byte[]? Value { get; set; }
+        public ReadOnlyMemory<byte>? Value { get; set; }
 
         /// <summary>
         /// Gets the list of child elements.

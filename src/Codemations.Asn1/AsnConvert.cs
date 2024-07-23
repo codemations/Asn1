@@ -43,7 +43,7 @@ namespace Codemations.Asn1
                         break;
 
                     case false:
-                        writer.WriteOctetString(element.Value.ToArray(), element.Tag);
+                        writer.WriteOctetString(element.Value.Value.Span, element.Tag);
                         break;
                 }
             }
@@ -79,7 +79,7 @@ namespace Codemations.Asn1
                 }
                 else
                 {
-                    yield return new AsnElement(tag) { Value = value.ToArray() };
+                    yield return new AsnElement(tag) { Value = value };
                 }
             }
         }
@@ -95,7 +95,5 @@ namespace Codemations.Asn1
             var deserialized = Deserialize(data, typeof(T), ruleSet, options);
             return (deserialized as T)!;
         }
-
-
     }
 }
