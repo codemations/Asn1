@@ -133,12 +133,16 @@ namespace Codemations.Asn1.Tests
         {
             get
             {
-
                 yield return new object[]
                 {
                     new List<bool> { true, false },
                     new byte[] {0x30, 0x06, 0x01, 0x01, 0xFF, 0x01, 0x01, 0x00 }
                 };
+                yield return new object[]
+{
+                    new bool[] { true, false },
+                    new byte[] {0x30, 0x06, 0x01, 0x01, 0xFF, 0x01, 0x01, 0x00 }
+};
             }
         }
 
@@ -169,10 +173,10 @@ namespace Codemations.Asn1.Tests
 
         [Theory]
         [MemberData(nameof(SequenceOfModelData))]
-        public void ShouldDeserializeToSequenceOfModel(List<bool> expectedElement, byte[] data)
+        public void ShouldDeserializeToSequenceOfModel(IEnumerable<bool> expectedElement, byte[] data)
         {
             // Act
-            var element = AsnConvert.Deserialize<List<bool>>(data, AsnEncodingRules.DER);
+            var element = AsnConvert.Deserialize(data, expectedElement.GetType(), AsnEncodingRules.DER);
 
             // Assert
             Assert.Equal(expectedElement, element);
