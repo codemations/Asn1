@@ -18,14 +18,14 @@ public class AsnConverterFactoryTests
     {
         get
         {
-            yield return new object[] {false, 0x80, new byte[] {0x80, 0x01, 000}};
-            yield return new object[] {true, 0x81, new byte[] {0x81, 0x01, 0xFF}};
-            yield return new object[] {(BigInteger) 10, 0x82, new byte[] {0x82, 0x01, 0x0A}};
-            yield return new object[] {new byte[] {0xCA, 0xFE}, 0x83, new byte[] {0x83, 0x02, 0xCA, 0xFE}};
-            yield return new object[] {new byte[] {0xCA, 0xFE}, 0x84, new byte[] {0x84, 0x02, 0xCA, 0xFE}};
-            yield return new object[] {TestEnum.Success, 0x85, new byte[] {0x85, 0x01, 0x7F}};
-            yield return new object[] {TestEnum.Failure, 0x86, new byte[] {0x86, 0x02, 0x00, 0x80}};
-            yield return new object[] {@"Arek", 0x87, new byte[] {0x87, 0x04, 0x41, 0x72, 0x65, 0x6B}};
+            yield return new object[] { false, 0x80, new byte[] { 0x80, 0x01, 000 } };
+            yield return new object[] { true, 0x81, new byte[] { 0x81, 0x01, 0xFF } };
+            yield return new object[] { (BigInteger)10, 0x82, new byte[] { 0x82, 0x01, 0x0A } };
+            yield return new object[] { new byte[] { 0xCA, 0xFE }, 0x83, new byte[] { 0x83, 0x02, 0xCA, 0xFE } };
+            yield return new object[] { new byte[] { 0xCA, 0xFE }, 0x84, new byte[] { 0x84, 0x02, 0xCA, 0xFE } };
+            yield return new object[] { TestEnum.Success, 0x85, new byte[] { 0x85, 0x01, 0x7F } };
+            yield return new object[] { TestEnum.Failure, 0x86, new byte[] { 0x86, 0x02, 0x00, 0x80 } };
+            yield return new object[] { @"Arek", 0x87, new byte[] { 0x87, 0x04, 0x41, 0x72, 0x65, 0x6B } };
         }
     }
 
@@ -66,7 +66,7 @@ public class AsnConverterFactoryTests
                 {
                     new()
                     {
-                        Boolean = false, 
+                        Boolean = false,
                         Integer = 10,
                         Enum = TestEnum.Success
                     }
@@ -93,11 +93,11 @@ public class AsnConverterFactoryTests
     {
         // Arrange
         var writer = new AsnWriter(AsnEncodingRules.DER);
-        var converterResolver = new DefaultConverterResolver();
+        var serializer = new AsnSerializer(AsnEncodingRules.BER);
         var converter = new DefaultConverterResolver().Resolve(value.GetType());
 
         // Act
-        converter.Write(writer, tag.ToAsn1Tag(), value, converterResolver);
+        converter.Write(writer, tag.ToAsn1Tag(), value, serializer);
         var actualEncodedValue = writer.Encode();
 
         // Assert
@@ -110,11 +110,11 @@ public class AsnConverterFactoryTests
     {
         // Arrange
         var reader = new AsnReader(encodedValue, AsnEncodingRules.DER);
-        var converterResolver = new DefaultConverterResolver();
+        var serializer = new AsnSerializer(AsnEncodingRules.BER);
         var converter = new DefaultConverterResolver().Resolve(expectedValue.GetType());
 
         // Act
-        var actualValue = converter.Read(reader, tag.ToAsn1Tag(), expectedValue.GetType(), converterResolver);
+        var actualValue = converter.Read(reader, tag.ToAsn1Tag(), expectedValue.GetType(), serializer);
 
         // Assert
         Assert.Equal(expectedValue, actualValue);
@@ -126,11 +126,11 @@ public class AsnConverterFactoryTests
     {
         // Arrange
         var reader = new AsnReader(encodedValue, AsnEncodingRules.DER);
-        var converterResolver = new DefaultConverterResolver();
+        var serializer = new AsnSerializer(AsnEncodingRules.BER);
         var converter = new DefaultConverterResolver().Resolve(expectedValue.GetType());
 
         // Act
-        var actualValue = (List<TestSequenceOfElement>)converter.Read(reader, tag.ToAsn1Tag(), expectedValue.GetType(), converterResolver);
+        var actualValue = (List<TestSequenceOfElement>)converter.Read(reader, tag.ToAsn1Tag(), expectedValue.GetType(), serializer);
 
         // Assert
         foreach (var (expectedItem, actualItem) in expectedValue.Zip(actualValue, (e, a) => (e, a)))

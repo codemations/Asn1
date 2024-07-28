@@ -13,10 +13,10 @@ namespace Codemations.Asn1.Converters
             return typeof(ICollection).IsAssignableFrom(type);
         }
 
-        public object Read(AsnReader reader, Asn1Tag? tag, Type type, IAsnConverterResolver converterResolver)
+        public object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
         {
             var elementType = GetElementType(type);
-            var collection = ReadCollection(reader, tag, elementType, converterResolver);
+            var collection = ReadCollection(reader, tag, elementType, serializer);
 
             return type switch
             {
@@ -26,25 +26,23 @@ namespace Codemations.Asn1.Converters
             };
         }
 
-        public void Write(AsnWriter writer, Asn1Tag? tag, object value, IAsnConverterResolver converterResolver)
+        public void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer)
         {
             using var sequenceScope = writer.PushSequence(tag);
             var elementType = GetElementType(value.GetType());
-            var converter = converterResolver.Resolve(elementType);
             foreach (var element in (value as ICollection)!)
             {
-                converter.Write(writer, null, element, converterResolver);
+                serializer.Serialize(writer, null, element);
             }
         }
 
-        private IEnumerable<object> ReadCollection(AsnReader reader, Asn1Tag? tag, Type elementType, IAsnConverterResolver converterResolver)
+        private IEnumerable<object> ReadCollection(AsnReader reader, Asn1Tag? tag, Type elementType, AsnSerializer serializer)
         {
             var sequenceReader = reader.ReadSequence(tag);
-            var converter = converterResolver.Resolve(elementType);
 
             while (sequenceReader.HasData)
-            {
-                yield return converter.Read(sequenceReader, null, elementType, converterResolver);
+            {                
+                yield return serializer.Deserialize(sequenceReader, null, elementType);
             }
         }
 

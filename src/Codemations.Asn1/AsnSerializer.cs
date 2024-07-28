@@ -24,8 +24,7 @@ namespace Codemations.Asn1
         public object Deserialize(ReadOnlyMemory<byte> data, Type type)
         {
             var reader = new AsnReader(data, this.EncodingRules, this.ReaderOptions);
-            var converter = this.ConverterResolver.Resolve(type);
-            var deserialized = converter.Read(reader, null, type, this.ConverterResolver);
+            var deserialized = Deserialize(reader, null, type);
 
             if (reader.HasData)
             {
@@ -35,12 +34,23 @@ namespace Codemations.Asn1
             return deserialized;
         }
 
-        public byte[] Serialize(object element)
+        public object Deserialize(AsnReader reader, Asn1Tag? tag, Type type)
+        {
+            var converter = this.ConverterResolver.Resolve(type);
+            return converter.Read(reader, tag, type, this);
+        }
+
+        public byte[] Serialize(object value)
         {
             var writer = new AsnWriter(this.EncodingRules);
-            var converter = this.ConverterResolver.Resolve(element.GetType());
-            converter.Write(writer, null, element, this.ConverterResolver);
+            Serialize(writer, null, value);
             return writer.Encode();
+        }
+
+        public void Serialize(AsnWriter writer, Asn1Tag? tag, object value)
+        {
+            var converter = this.ConverterResolver.Resolve(value.GetType());
+            converter.Write(writer, tag, value, this);
         }
     }
 }

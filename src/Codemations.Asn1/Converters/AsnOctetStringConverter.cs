@@ -10,12 +10,12 @@ namespace Codemations.Asn1.Converters
             return typeof(byte[]) == type;
         }
 
-        public object Read(AsnReader reader, Asn1Tag? tag, Type type, IAsnConverterResolver converterResolver)
+        public object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
         {
             return reader.ReadOctetString(tag);
         }
 
-        public void Write(AsnWriter writer, Asn1Tag? tag, object value, IAsnConverterResolver converterResolver)
+        public void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer)
         {
             writer.WriteOctetString((byte[])value, tag);
         }

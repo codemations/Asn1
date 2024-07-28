@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Formats.Asn1;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 
 namespace Codemations.Asn1
 {
@@ -20,18 +19,6 @@ namespace Codemations.Asn1
 
                 yield return new AsnPropertyInfo(asnElementAttribute.Tag, asnElementAttribute.Optional, propertyInfo);
             }
-        }
-
-        internal static void WriteProperty(this AsnWriter writer, AsnPropertyInfo propertyInfo, object propertyValue, IAsnConverterResolver converterResolver)
-        {
-            var converter = propertyInfo.CustomConverter ?? converterResolver.Resolve(propertyInfo.Type);
-            converter.Write(writer, propertyInfo.Tag, propertyValue, converterResolver);
-        }
-
-        internal static object ReadProperty(this AsnReader reader, AsnPropertyInfo propertyInfo, IAsnConverterResolver converterResolver)
-        {
-            var converter = propertyInfo.CustomConverter ?? converterResolver.Resolve(propertyInfo.Type);
-            return converter.Read(reader, propertyInfo.Tag, propertyInfo.Type, converterResolver);
         }
 
         public static T CreateInstance<T>(this Type type)
@@ -98,6 +85,4 @@ namespace Codemations.Asn1
             }
         }
     }
-
-
 }

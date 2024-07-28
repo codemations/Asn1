@@ -25,12 +25,12 @@ namespace Codemations.Asn1.Converters
             return AcceptedTypes.Contains(type);
         }
 
-        public object Read(AsnReader reader, Asn1Tag? tag, Type type, IAsnConverterResolver converterResolver)
+        public object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
         {
             return reader.ReadInteger(tag);
         }
 
-        public void Write(AsnWriter writer, Asn1Tag? tag, object value, IAsnConverterResolver converterResolver)
+        public void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer)
         {
             writer.WriteInteger((BigInteger)value, tag);
         }

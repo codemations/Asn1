@@ -6,7 +6,7 @@ namespace Codemations.Asn1
     public interface IAsnConverter
     {
         bool CanConvert(Type type);
-        object Read(AsnReader reader, Asn1Tag? tag, Type type, IAsnConverterResolver converterResolver);
-        void Write(AsnWriter writer, Asn1Tag? tag, object value, IAsnConverterResolver converterResolver);
+        object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer);
+        void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer);
     }
 }

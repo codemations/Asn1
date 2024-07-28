@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Formats.Asn1;
-using System.Linq;
-using System.Reflection;
 
 namespace Codemations.Asn1.Converters
 {
@@ -12,18 +10,17 @@ namespace Codemations.Asn1.Converters
             return type.IsClass;
         }
 
-        public object Read(AsnReader reader, Asn1Tag? tag, Type type, IAsnConverterResolver converterResolver)
+        public object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
         {
             var sequenceReader = reader.ReadSequence(tag);
 
-            var item = Activator.CreateInstance(type) ?? throw new AsnConversionException("Failed to create object.");
+            var item = type.CreateInstance();
 
             foreach (var propertyInfo in AsnHelper.GetAsnProperties(type))
             {
                 try
                 {
-                    var converter = converterResolver.Resolve(propertyInfo.Type);
-                    var value = converter.Read(sequenceReader, propertyInfo.Tag, propertyInfo.Type, converterResolver);
+                    var value = serializer.Deserialize(sequenceReader, propertyInfo.Tag, propertyInfo.Type);
                     propertyInfo.SetValue(item, value);
                 }
                 catch (AsnContentException e)
@@ -38,7 +35,7 @@ namespace Codemations.Asn1.Converters
             return item;
         }
 
-        public void Write(AsnWriter writer, Asn1Tag? tag, object value, IAsnConverterResolver converterResolver)
+        public void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer)
         {
             writer.PushSequence(tag);
             foreach (var propertyInfo in AsnHelper.GetAsnProperties(value.GetType()))
@@ -51,7 +48,7 @@ namespace Codemations.Asn1.Converters
                     }
                     throw new AsnConversionException("Value for required element is missing.");
                 }
-                writer.WriteProperty(propertyInfo, propertyValue, converterResolver);
+                serializer.Serialize(writer, propertyInfo.Tag, propertyValue);
             }
             writer.PopSequence(tag);
         }

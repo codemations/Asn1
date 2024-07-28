@@ -12,7 +12,19 @@ namespace Codemations.Asn1.Converters
             return type.GetCustomAttribute<AsnChoiceAttribute>() is not null;
         }
 
-        public object Read(AsnReader reader, Asn1Tag? tag, Type type, IAsnConverterResolver converterResolver)
+        private void CheckRead(int propertiesLength, Asn1Tag expectedTag)
+        {
+            if(propertiesLength == 0)
+            {
+                throw new AsnConversionException("No choice element with given tag.", expectedTag);
+            }
+            if(propertiesLength > 1) 
+            {
+                throw new AsnConversionException("Multiple choice elements with given tag.", expectedTag);
+            }
+        }
+
+        public object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
         {
             var choiceReader = tag is null ? reader : reader.ReadSequence(tag);
 
@@ -20,24 +32,16 @@ namespace Codemations.Asn1.Converters
             var propertyInfos = AsnHelper.GetAsnProperties(type)
                 .Where(propertyInfo => propertyInfo.Tag == innerTag).ToArray();
 
-            switch (propertyInfos.Length)
-            {
-                case 0:
-                    throw new AsnConversionException("No choice element with given tag.", innerTag);
+            CheckRead(propertyInfos.Length, innerTag);
 
-                case 1:
-                    var item = Activator.CreateInstance(type)!;
-                    var propertyInfo = propertyInfos.Single();
-                    var value = choiceReader.ReadProperty(propertyInfo, converterResolver);
-                    propertyInfo.SetValue(item, value);
-                    return item;
-
-                default:
-                    throw new AsnConversionException("Multiple choice elements with given tag.", innerTag);
-            }
+            var item = type.CreateInstance();
+            var propertyInfo = propertyInfos.Single();
+            var value = serializer.Deserialize(choiceReader, propertyInfo.Tag, propertyInfo.Type);
+            propertyInfo.SetValue(item, value);
+            return item;
         }
 
-        public void Write(AsnWriter writer, Asn1Tag? tag, object value, IAsnConverterResolver converterResolver)
+        public void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer)
         {
             if (tag is not null)
             {
@@ -55,7 +59,7 @@ namespace Codemations.Asn1.Converters
                 case 1:
                     var propertyInfo = propertyInfos.Single();
                     var propertyValue = propertyInfo.GetValue(value)!;
-                    writer.WriteProperty(propertyInfo, propertyValue, converterResolver);
+                    serializer.Serialize(writer, propertyInfo.Tag, propertyValue);
                     break;
 
                 default:
