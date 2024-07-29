@@ -12,32 +12,21 @@ namespace Codemations.Asn1.Converters
             return type.GetCustomAttribute<AsnChoiceAttribute>() is not null;
         }
 
-        private void CheckRead(int propertiesLength, Asn1Tag expectedTag)
-        {
-            if(propertiesLength == 0)
-            {
-                throw new AsnConversionException("No choice element with given tag.", expectedTag);
-            }
-            if(propertiesLength > 1) 
-            {
-                throw new AsnConversionException("Multiple choice elements with given tag.", expectedTag);
-            }
-        }
-
         public object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
         {
             var choiceReader = tag is null ? reader : reader.ReadSequence(tag);
-
             var innerTag = choiceReader.PeekTag();
-            var propertyInfos = AsnHelper.GetAsnProperties(type)
-                .Where(propertyInfo => propertyInfo.Tag == innerTag).ToArray();
 
-            CheckRead(propertyInfos.Length, innerTag);
-
+            var asnPropertyInfo= GetReadChoiceProperty(innerTag, type);
             var item = type.CreateInstance();
-            var propertyInfo = propertyInfos.Single();
-            var value = serializer.Deserialize(choiceReader, propertyInfo.Tag, propertyInfo.Type);
-            propertyInfo.SetValue(item, value);
+            var value = serializer.Deserialize(choiceReader, asnPropertyInfo);
+            asnPropertyInfo.SetValue(item, value);
+
+            if (choiceReader.HasData)
+            {
+                throw new AsnConversionException("More than one choice elements");
+            }
+
             return item;
         }
 
@@ -48,28 +37,42 @@ namespace Codemations.Asn1.Converters
                 writer.PushSequence(tag);
             }
 
-            var propertyInfos = AsnHelper.GetAsnProperties(value.GetType())
-                .Where(x => x.GetValue(value) is not null).ToArray();
-
-            switch (propertyInfos.Length)
-            {
-                case 0:
-                    throw new AsnConversionException("No choice element to serialize.");
-
-                case 1:
-                    var propertyInfo = propertyInfos.Single();
-                    var propertyValue = propertyInfo.GetValue(value)!;
-                    serializer.Serialize(writer, propertyInfo.Tag, propertyValue);
-                    break;
-
-                default:
-                    throw new AsnConversionException("Multiple non-null choice elements.");
-            }
+            var propertyInfo = GetWriteChoiceProperty(value);
+            var propertyValue = propertyInfo.GetValue(value)!;
+            serializer.Serialize(writer, propertyInfo.Tag, propertyValue);
 
             if (tag is not null)
             {
                 writer.PopSequence(tag);
             }
+        }
+
+        private AsnPropertyInfo GetReadChoiceProperty(Asn1Tag tag, Type type)
+        {
+            var propertyInfos = type.GetAsnProperties()
+                .Where(propertyInfo => propertyInfo.Tag == tag)
+                .ToArray();
+
+            return propertyInfos.Length switch
+            {
+                0 => throw new AsnConversionException("No choice element to matching the tag."),
+                1 => propertyInfos[0],
+                _ => throw new AsnConversionException("Multiple choice elements with the same tag."),
+            };
+        }
+        private AsnPropertyInfo GetWriteChoiceProperty(object value)
+        {
+            var propertyInfos = value.GetType().GetProperties()
+                .Where(propertyInfo => propertyInfo.GetValue(value) is not null)
+                .Select(proertyInfo => new AsnPropertyInfo(proertyInfo))
+                .ToArray();
+
+            return propertyInfos.Length switch
+            {
+                0 => throw new AsnConversionException("No choice element to serialize."),
+                1 => propertyInfos[0],
+                _ => throw new AsnConversionException("Multiple non-null choice elements."),
+            };
         }
     }
 }

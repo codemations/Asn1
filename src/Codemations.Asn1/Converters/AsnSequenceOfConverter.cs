@@ -39,10 +39,9 @@ namespace Codemations.Asn1.Converters
         private IEnumerable<object> ReadCollection(AsnReader reader, Asn1Tag? tag, Type elementType, AsnSerializer serializer)
         {
             var sequenceReader = reader.ReadSequence(tag);
-
             while (sequenceReader.HasData)
             {                
-                yield return serializer.Deserialize(sequenceReader, null, elementType);
+                yield return serializer.Deserialize(sequenceReader, elementType);
             }
         }
 

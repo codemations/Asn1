@@ -10,15 +10,7 @@ namespace Codemations.Asn1
     {
         internal static IEnumerable<AsnPropertyInfo> GetAsnProperties(this Type type)
         {
-            foreach (var propertyInfo in type.GetProperties())
-            {
-                if (propertyInfo.GetCustomAttribute<AsnElementAttribute>() is not AsnElementAttribute asnElementAttribute)
-                {
-                    continue;
-                }
-
-                yield return new AsnPropertyInfo(asnElementAttribute.Tag, asnElementAttribute.Optional, propertyInfo);
-            }
+            return type.GetProperties().Select(propertyInfo => new AsnPropertyInfo(propertyInfo));
         }
 
         public static T CreateInstance<T>(this Type type)
@@ -56,33 +48,6 @@ namespace Codemations.Asn1
 
             // Create an instance using the constructor
             return ctor.Invoke(parameters);
-        }
-
-        internal readonly struct AsnPropertyInfo
-        {
-            private readonly PropertyInfo _propertyInfo;
-            private readonly Lazy<AsnConverterAttribute?> _asnConverterAttribute;
-
-            public AsnPropertyInfo(Asn1Tag? tag, bool isOptional, PropertyInfo propertyInfo)
-            {
-                Tag = tag;
-                IsOptional = isOptional;
-                _propertyInfo = propertyInfo;
-                _asnConverterAttribute = new Lazy<AsnConverterAttribute?>(propertyInfo.GetCustomAttribute<AsnConverterAttribute>);
-            }
-
-            public readonly Asn1Tag? Tag { get; }
-            public readonly Type Type => _propertyInfo.PropertyType;
-            public readonly bool IsOptional { get; }
-            // TODO: Change to Type? ConverterType
-            public readonly IAsnConverter? CustomConverter => _asnConverterAttribute.Value?.CreateInstance();
-
-            public object? GetValue(object obj) => _propertyInfo.GetValue(obj);
-
-            public void SetValue(object obj, object value)
-            {
-                _propertyInfo.SetValue(obj, value);
-            }
         }
     }
 }

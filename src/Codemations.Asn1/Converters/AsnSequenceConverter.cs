@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Formats.Asn1;
+using System.Linq;
 
 namespace Codemations.Asn1.Converters
 {
@@ -16,18 +17,18 @@ namespace Codemations.Asn1.Converters
 
             var item = type.CreateInstance();
 
-            foreach (var propertyInfo in AsnHelper.GetAsnProperties(type))
+            foreach (var asnPropertyInfo in type.GetAsnProperties())
             {
                 try
                 {
-                    var value = serializer.Deserialize(sequenceReader, propertyInfo.Tag, propertyInfo.Type);
-                    propertyInfo.SetValue(item, value);
+                    var value = serializer.Deserialize(sequenceReader, asnPropertyInfo);
+                    asnPropertyInfo.SetValue(item, value);
                 }
                 catch (AsnContentException e)
                 {
-                    if (!propertyInfo.IsOptional)
+                    if (!asnPropertyInfo.IsOptional)
                     {
-                        throw new AsnConversionException("Value for required element is missing.", propertyInfo.Tag, e);
+                        throw new AsnConversionException("Value for required element is missing.", asnPropertyInfo.Tag, e);
                     }
                 }
             }
@@ -38,17 +39,16 @@ namespace Codemations.Asn1.Converters
         public void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer)
         {
             writer.PushSequence(tag);
-            foreach (var propertyInfo in AsnHelper.GetAsnProperties(value.GetType()))
+            foreach (var asnPropertyInfo in value.GetType().GetAsnProperties())
             {
-                if(propertyInfo.GetValue(value) is not object propertyValue)
+                if(asnPropertyInfo.GetValue(value) is object propertyValue)
                 {
-                    if (propertyInfo.IsOptional)
-                    {
-                        continue;
-                    }
+                    serializer.Serialize(writer, asnPropertyInfo.Tag, propertyValue);
+                }
+                else if (!asnPropertyInfo.IsOptional)
+                {
                     throw new AsnConversionException("Value for required element is missing.");
                 }
-                serializer.Serialize(writer, propertyInfo.Tag, propertyValue);
             }
             writer.PopSequence(tag);
         }
