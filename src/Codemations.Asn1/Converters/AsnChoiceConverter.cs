@@ -14,37 +14,21 @@ namespace Codemations.Asn1.Converters
 
         public object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
         {
-            var choiceReader = tag is null ? reader : reader.ReadSequence(tag);
-            var innerTag = choiceReader.PeekTag();
+            var innerTag = reader.PeekTag();
 
             var asnPropertyInfo= GetReadChoiceProperty(innerTag, type);
             var item = type.CreateInstance();
-            var value = serializer.Deserialize(choiceReader, asnPropertyInfo);
+            var value = serializer.Deserialize(reader, asnPropertyInfo);
             asnPropertyInfo.SetValue(item, value);
-
-            if (choiceReader.HasData)
-            {
-                throw new AsnConversionException("More than one choice elements");
-            }
 
             return item;
         }
 
         public void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer)
         {
-            if (tag is not null)
-            {
-                writer.PushSequence(tag);
-            }
-
             var propertyInfo = GetWriteChoiceProperty(value);
             var propertyValue = propertyInfo.GetValue(value)!;
             serializer.Serialize(writer, propertyInfo.Tag, propertyValue);
-
-            if (tag is not null)
-            {
-                writer.PopSequence(tag);
-            }
         }
 
         private AsnPropertyInfo GetReadChoiceProperty(Asn1Tag tag, Type type)

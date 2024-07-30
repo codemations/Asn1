@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Codemations.Asn1.Tests
 {
-    public class AsnConvertTests
+    public partial class AsnConvertTests
     {
         public static IEnumerable<object[]> Data
         {
