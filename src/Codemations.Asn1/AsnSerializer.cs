@@ -34,9 +34,9 @@ namespace Codemations.Asn1
             return deserialized;
         }
 
-        public object Deserialize(AsnReader reader, AsnPropertyInfo asnProperty)
+        public object Deserialize(AsnReader reader, AsnPropertyInfo asnPropertyInfo)
         {
-            return Deserialize(reader, asnProperty.Tag, asnProperty.Type, asnProperty.GetCustomConverter());
+            return Deserialize(reader, asnPropertyInfo.Tag, asnPropertyInfo.Type, asnPropertyInfo.GetCustomConverter());
         }
 
         public object Deserialize(AsnReader reader, Type propertyType)
@@ -53,13 +53,18 @@ namespace Codemations.Asn1
         public byte[] Serialize(object value)
         {
             var writer = new AsnWriter(this.EncodingRules);
-            Serialize(writer, null, value);
+            Serialize(writer, null, value, null);
             return writer.Encode();
         }
 
-        public void Serialize(AsnWriter writer, Asn1Tag? tag, object value)
+        public void Serialize(AsnWriter writer, AsnPropertyInfo asnPropertyInfo, object value)
         {
-            var converter = this.ConverterResolver.Resolve(value.GetType());
+            Serialize(writer, asnPropertyInfo.Tag, value, asnPropertyInfo.GetCustomConverter());
+        }
+
+        public void Serialize(AsnWriter writer, Asn1Tag? tag, object value, IAsnConverter? customConverter)
+        {
+            var converter = customConverter ?? ConverterResolver.Resolve(value.GetType());
             converter.Write(writer, tag, value, this);
         }
     }

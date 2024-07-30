@@ -32,7 +32,7 @@ namespace Codemations.Asn1.Converters
             var elementType = GetElementType(value.GetType());
             foreach (var element in (value as ICollection)!)
             {
-                serializer.Serialize(writer, null, element);
+                serializer.Serialize(writer, tag: null, element, customConverter: null);
             }
         }
 

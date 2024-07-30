@@ -42,7 +42,7 @@ namespace Codemations.Asn1.Converters
             {
                 if(asnPropertyInfo.GetValue(value) is object propertyValue)
                 {
-                    serializer.Serialize(writer, asnPropertyInfo.Tag, propertyValue);
+                    serializer.Serialize(writer, asnPropertyInfo, propertyValue);
                 }
                 else if (!asnPropertyInfo.IsOptional)
                 {

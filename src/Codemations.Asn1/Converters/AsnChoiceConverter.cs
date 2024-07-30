@@ -28,7 +28,7 @@ namespace Codemations.Asn1.Converters
         {
             var propertyInfo = GetWriteChoiceProperty(value);
             var propertyValue = propertyInfo.GetValue(value)!;
-            serializer.Serialize(writer, propertyInfo.Tag, propertyValue);
+            serializer.Serialize(writer, propertyInfo, propertyValue);
         }
 
         private AsnPropertyInfo GetReadChoiceProperty(Asn1Tag tag, Type type)
