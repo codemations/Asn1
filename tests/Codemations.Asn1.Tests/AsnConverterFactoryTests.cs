@@ -94,7 +94,7 @@ public class AsnConverterFactoryTests
         // Arrange
         var writer = new AsnWriter(AsnEncodingRules.DER);
         var serializer = new AsnSerializer(AsnEncodingRules.BER);
-        var converter = new DefaultConverterResolver().Resolve(value.GetType());
+        var converter = AsnConvertersList.CreateDefault().Get(value.GetType());
 
         // Act
         converter.Write(writer, tag.ToAsn1Tag(), value, serializer);
@@ -111,7 +111,7 @@ public class AsnConverterFactoryTests
         // Arrange
         var reader = new AsnReader(encodedValue, AsnEncodingRules.DER);
         var serializer = new AsnSerializer(AsnEncodingRules.BER);
-        var converter = new DefaultConverterResolver().Resolve(expectedValue.GetType());
+        var converter = AsnConvertersList.CreateDefault().Get(expectedValue.GetType());
 
         // Act
         var actualValue = converter.Read(reader, tag.ToAsn1Tag(), expectedValue.GetType(), serializer);
@@ -127,7 +127,7 @@ public class AsnConverterFactoryTests
         // Arrange
         var reader = new AsnReader(encodedValue, AsnEncodingRules.DER);
         var serializer = new AsnSerializer(AsnEncodingRules.BER);
-        var converter = new DefaultConverterResolver().Resolve(expectedValue.GetType());
+        var converter = AsnConvertersList.CreateDefault().Get(expectedValue.GetType());
 
         // Act
         var actualValue = (List<TestSequenceOfElement>)converter.Read(reader, tag.ToAsn1Tag(), expectedValue.GetType(), serializer);
