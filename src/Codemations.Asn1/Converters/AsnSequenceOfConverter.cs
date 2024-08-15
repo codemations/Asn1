@@ -29,14 +29,13 @@ namespace Codemations.Asn1.Converters
         public void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer)
         {
             using var sequenceScope = writer.PushSequence(tag);
-            var elementType = GetElementType(value.GetType());
             foreach (var element in (value as ICollection)!)
             {
                 serializer.Serialize(writer, element);
             }
         }
 
-        private IEnumerable<object> ReadCollection(AsnReader reader, Asn1Tag? tag, Type elementType, AsnSerializer serializer)
+        private static IEnumerable<object> ReadCollection(AsnReader reader, Asn1Tag? tag, Type elementType, AsnSerializer serializer)
         {
             var sequenceReader = reader.ReadSequence(tag);
             while (sequenceReader.HasData)
@@ -45,9 +44,9 @@ namespace Codemations.Asn1.Converters
             }
         }
 
-        private bool IsList(Type type) => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>);
+        private static bool IsList(Type type) => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>);
 
-        private object BuildList(Type type, IEnumerable<object> elements)
+        private static object BuildList(Type type, IEnumerable<object> elements)
         {
             var list = type.CreateInstance<IList>();
             foreach (var element in elements)
@@ -58,7 +57,7 @@ namespace Codemations.Asn1.Converters
             return list;
         }
 
-        private object BuildArray(Type type, IEnumerable<object> elements)
+        private static object BuildArray(Type type, IEnumerable<object> elements)
         {
             var srcArray = elements.ToArray();
             var dstArray = type.CreateInstance<Array>(srcArray.Length);
@@ -66,7 +65,7 @@ namespace Codemations.Asn1.Converters
             return dstArray;
         }
 
-        private Type GetElementType(Type collectionType)
+        private static Type GetElementType(Type collectionType)
         {
             return collectionType switch
             {

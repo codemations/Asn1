@@ -15,7 +15,7 @@ public readonly partial struct AsnOid
     {
         if (!_validationCache.TryGetValue(oidStr, out var validationResult))
         {
-            TryValidate(oidStr.AsSpan(), out validationResult);
+            Validate(oidStr.AsSpan(), out validationResult);
             _validationCache[oidStr] = validationResult;
         }
 
@@ -23,6 +23,63 @@ public readonly partial struct AsnOid
         {
             ThrowValidationException(validationResult);
         }
+    }
+
+    private static void Validate(ReadOnlySpan<char> oidStr, out ValidationResult validationResult)
+    {
+        if (oidStr.Length < 3)
+        {
+            validationResult = ValidationResult.TooShort;
+            return;
+        }
+
+        var componentParser = new ComponentParser(oidStr);
+
+        if (!componentParser.TryGetNext(out var firstComponentStr) ||
+            !componentParser.TryGetNext(out var secondComponentStr))
+        {
+            validationResult = ValidationResult.TooShort;
+            return;
+        }
+
+        if (!TryParseUInt32(firstComponentStr, out var firstComponent) ||
+            !TryParseUInt32(secondComponentStr, out var secondComponent))
+        {
+            validationResult = ValidationResult.InvalidFormat;
+            return;
+        }
+
+        if (firstComponent > 2)
+        {
+            validationResult = ValidationResult.InvalidFirstComponent;
+            return;
+        }
+
+        if (firstComponent < 2 && secondComponent > 39)
+        {
+            validationResult = ValidationResult.InvalidSecondComponent;
+            return;
+        }
+
+        while (componentParser.TryGetNext(out var nthComponent))
+        {
+            if (!TryParseUInt32(nthComponent, out _))
+            {
+                validationResult = ValidationResult.InvalidFormat;
+                return;
+            }
+        }
+
+        validationResult = ValidationResult.Success;
+    }
+
+    private static bool TryParseUInt32(ReadOnlySpan<char> s, out uint result)
+    {
+#if NET6_0_OR_GREATER
+        return uint.TryParse(s, out result);
+#else
+        return uint.TryParse(s.ToString(), out result);
+#endif
     }
 
     private static void ThrowValidationException(ValidationResult validationResult)
@@ -35,63 +92,6 @@ public readonly partial struct AsnOid
             ValidationResult.InvalidSecondComponent => new FormatException("The second component of the OID must be between 0 and 39 when the first component is less than 2."),
             _ => new FormatException("The OID string is invalid.")
         };
-    }
-
-    private static bool TryValidate(ReadOnlySpan<char> oidStr, out ValidationResult validationResult)
-    {
-        if (oidStr.Length < 3)
-        {
-            validationResult = ValidationResult.TooShort;
-            return false;
-        }
-
-        var componentParser = new ComponentParser(oidStr);
-
-        if (!componentParser.TryGetNext(out var firstComponentStr) ||
-            !componentParser.TryGetNext(out var secondComponentStr))
-        {
-            validationResult = ValidationResult.TooShort;
-            return false;
-        }
-        if (!TryParseUInt32(firstComponentStr, out var firstComponent) ||
-            !TryParseUInt32(secondComponentStr, out var secondComponent))
-        {
-            validationResult = ValidationResult.InvalidFormat;
-            return false;
-        }
-
-        if (firstComponent > 2)
-        {
-            validationResult = ValidationResult.InvalidFirstComponent;
-            return false;
-        }
-
-        if (firstComponent < 2 && secondComponent > 39)
-        {
-            validationResult = ValidationResult.InvalidSecondComponent;
-            return false;
-        }
-
-        while (componentParser.TryGetNext(out var nthComponent))
-        {
-            if (!TryParseUInt32(nthComponent, out _))
-            {
-                validationResult = ValidationResult.InvalidFormat;
-                return false;
-            }
-        }
-
-        validationResult = ValidationResult.Success;
-        return true;
-    }
-
-    private static bool TryParseUInt32(ReadOnlySpan<char> s, out uint result)
-    {
-#if NET6_0_OR_GREATER
-        return uint.TryParse(s, out result);
-#else
-        return uint.TryParse(s.ToString(), out result);
-#endif
     }
 
     private ref struct ComponentParser
@@ -113,14 +113,6 @@ public readonly partial struct AsnOid
         public ComponentParser(ReadOnlySpan<char> oidStr)
         {
             _oidStr = oidStr;
-        }
-
-        /// <summary>
-        /// Resets the parser to the beginning of the OID string.
-        /// </summary>
-        public void Reset()
-        {
-            _offset = -1;
         }
 
         /// <summary>

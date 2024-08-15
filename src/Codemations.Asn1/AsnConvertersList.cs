@@ -30,16 +30,12 @@ namespace Codemations.Asn1
             {
                 return cachedConverter;
             }
-            foreach (var converter in this)
-            {
-                if (converter.CanConvert(type))
-                {
-                    _cache[type] = converter;
-                    return converter;
-                }
-            }
 
-            throw new ArgumentException($"Type '{type.FullName}' is not supported by any of converters.", nameof(type));
+            var converter = Find(converter =>  converter.CanConvert(type)) ?? 
+                throw new ArgumentException($"Type '{type.FullName}' is not supported by any of converters.", nameof(type));
+
+            _cache[type] = converter;
+            return converter;
         }
     }
 }

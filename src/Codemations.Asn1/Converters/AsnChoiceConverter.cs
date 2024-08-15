@@ -31,7 +31,7 @@ namespace Codemations.Asn1.Converters
             serializer.Serialize(writer, propertyInfo, propertyValue);
         }
 
-        private AsnPropertyInfo GetReadChoiceProperty(Asn1Tag tag, Type type)
+        private static AsnPropertyInfo GetReadChoiceProperty(Asn1Tag tag, Type type)
         {
             var propertyInfos = type.GetAsnProperties()
                 .Where(propertyInfo => propertyInfo.Tag == tag)
@@ -44,7 +44,7 @@ namespace Codemations.Asn1.Converters
                 _ => throw new AsnConversionException("Multiple choice elements with the same tag."),
             };
         }
-        private AsnPropertyInfo GetWriteChoiceProperty(object value)
+        private static AsnPropertyInfo GetWriteChoiceProperty(object value)
         {
             var propertyInfos = value.GetType().GetProperties()
                 .Where(propertyInfo => propertyInfo.GetValue(value) is not null)

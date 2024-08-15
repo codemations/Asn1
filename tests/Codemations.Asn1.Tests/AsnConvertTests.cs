@@ -48,7 +48,7 @@ namespace Codemations.Asn1.Tests
         private static void AssertAsnElements(ICollection<AsnElement> expectedSequence,
             ICollection<AsnElement> actualSequence)
         {
-            Assert.That(actualSequence.Count, Is.EqualTo(expectedSequence.Count));
+            Assert.That(actualSequence, Has.Count.EqualTo(expectedSequence.Count));
             foreach (var (expected, actual) in expectedSequence.Zip(actualSequence, (x, y) => (x, y)))
             {
                 Assert.That(actual.Tag, Is.EqualTo(expected.Tag));
@@ -118,11 +118,14 @@ namespace Codemations.Asn1.Tests
         {
             // Act
             var element = AsnConvert.Deserialize<ChoiceElement>(data, AsnEncodingRules.DER);
-            
+
             // Assert
-            Assert.That(element.SequenceElement?.Integer, Is.EqualTo(expectedElement.SequenceElement?.Integer));
-            Assert.That(element.SequenceElement?.OctetString, Is.EqualTo(expectedElement.SequenceElement?.OctetString));
-            Assert.That(element.BooleanElement, Is.EqualTo(expectedElement.BooleanElement));
+            Assert.Multiple(() =>
+            {
+                Assert.That(element.SequenceElement?.Integer, Is.EqualTo(expectedElement.SequenceElement?.Integer));
+                Assert.That(element.SequenceElement?.OctetString, Is.EqualTo(expectedElement.SequenceElement?.OctetString));
+                Assert.That(element.BooleanElement, Is.EqualTo(expectedElement.BooleanElement));
+            });
         }
 
         [TestCaseSource(nameof(SequenceOfModelData))]
