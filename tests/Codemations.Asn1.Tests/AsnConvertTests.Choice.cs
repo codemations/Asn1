@@ -1,20 +1,13 @@
-﻿using System.Linq;
-using Xunit;
+﻿using NUnit.Framework;
+using System.Linq;
 
 namespace Codemations.Asn1.Tests
 {
     public partial class AsnConvertTests
     {
-        [AsnSequence]
-        public class ChoiceSequence
-        {
-            public ChoiceElement? Choice1 { get; set; }
-
-            public ChoiceElement? Choice2 { get; set; }
-        }
 
 
-        [Fact]
+        [Test]
         public void ShouldSerializeChoiceSequence()
         {
             var choice1 = new ChoiceElement
@@ -41,10 +34,10 @@ namespace Codemations.Asn1.Tests
 
             var actualEncodedValue = AsnConvert.Serialize(choiceSequence, System.Formats.Asn1.AsnEncodingRules.BER);
 
-            Assert.Equal(choiceSequenceEncoded, actualEncodedValue);
+            Assert.That(actualEncodedValue, Is.EqualTo(choiceSequenceEncoded));
         }
 
-        [Fact]
+        [Test]
         public void ShouldDeserializeChoiceSequence()
         {
             var choice1 = new ChoiceElement
@@ -71,8 +64,11 @@ namespace Codemations.Asn1.Tests
 
             var actualChoiceSequence = AsnConvert.Deserialize<ChoiceSequence>(choiceSequenceEncoded, System.Formats.Asn1.AsnEncodingRules.BER);
 
-            Assert.Equal(choiceSequence.Choice1.SequenceElement.Integer, actualChoiceSequence.Choice1?.SequenceElement?.Integer);
-            Assert.Equal(choiceSequence.Choice2.BooleanElement, actualChoiceSequence.Choice2?.BooleanElement);
+            Assert.Multiple(() =>
+            {
+                Assert.That(actualChoiceSequence.Choice1?.SequenceElement?.Integer, Is.EqualTo(choiceSequence.Choice1.SequenceElement.Integer));
+                Assert.That(actualChoiceSequence.Choice2?.BooleanElement, Is.EqualTo(choiceSequence.Choice2.BooleanElement));
+            });
         }
     }
 }
