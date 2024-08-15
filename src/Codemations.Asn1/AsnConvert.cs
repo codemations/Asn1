@@ -90,10 +90,10 @@ namespace Codemations.Asn1
             return serializer.Deserialize(data, type);
         }
 
-        public static T Deserialize<T>(ReadOnlyMemory<byte> data, AsnEncodingRules ruleSet, AsnReaderOptions options = default) where T : class, new()
+        public static T Deserialize<T>(ReadOnlyMemory<byte> data, AsnEncodingRules ruleSet, AsnReaderOptions options = default) where T : new()
         {
             var deserialized = Deserialize(data, typeof(T), ruleSet, options);
-            return (deserialized as T)!;
+            return (T)deserialized;
         }
     }
 }

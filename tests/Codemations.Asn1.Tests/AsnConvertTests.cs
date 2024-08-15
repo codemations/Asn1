@@ -183,6 +183,48 @@ namespace Codemations.Asn1.Tests
         }
 
         [Fact]
+        public void ShouldSerializeOid()
+        {
+            // Arrange
+            AsnOid? oid = new AsnOid("1.2.840.113549.1");
+            var expectedData = new byte[] { 6, 7, 42, 134, 72, 134, 247, 13, 1 };
+
+            // Act
+            var encodedData = AsnConvert.Serialize(oid, AsnEncodingRules.DER);
+
+            // Assert
+            Assert.Equal(expectedData, encodedData);
+        }
+
+        [Fact]
+        public void ShouldDeserializeOid()
+        {
+            // Arrange
+            var expectedOid = new AsnOid("1.2.840.113549.1");
+            var encodedData = new byte[] { 6, 7, 42, 134, 72, 134, 247, 13, 1 };
+
+            // Act
+            var actualOid = AsnConvert.Deserialize<AsnOid>(encodedData, AsnEncodingRules.DER);
+
+            // Assert
+            Assert.Equal(expectedOid, actualOid);
+        }
+
+        [Fact]
+        public void ShouldDeserializeNullableOid()
+        {
+            // Arrange
+            var expectedOid = new AsnOid("1.2.840.113549.1");
+            var encodedData = new byte[] { 6, 7, 42, 134, 72, 134, 247, 13, 1 };
+
+            // Act
+            var actualOid = AsnConvert.Deserialize<AsnOid?>(encodedData, AsnEncodingRules.DER);
+
+            // Assert
+            Assert.Equal(expectedOid, actualOid);
+        }
+
+        [Fact]
         public void ShouldThrowWhenDeserializing()
         {
             // Arrange

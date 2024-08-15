@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing.Imaging;
 using System.Formats.Asn1;
 
 namespace Codemations.Asn1
@@ -110,6 +111,11 @@ namespace Codemations.Asn1
             var contentBytes = reader.ReadEncodedValue();
             tag = AsnDecoder.ReadEncodedValue(contentBytes.Span, reader.RuleSet, out var contentOffset, out var contentLength, out _);
             return contentBytes.Slice(contentOffset, contentLength);
+        }
+
+        public static void WriteObjectIdentifier(this AsnWriter asnWriter, ReadOnlySpan<byte> encodedOidValue, Asn1Tag? tag = null)
+        {
+            asnWriter.WriteOctetString(encodedOidValue, tag ?? Asn1Tag.ObjectIdentifier);
         }
     }
 }

@@ -16,6 +16,7 @@ namespace Codemations.Asn1
                 new AsnEnumeratedValueConverter(),
                 new AsnIntegerConverter(),
                 new AsnOctetStringConverter(),
+                new AsnOidConverter(),
                 new AsnCharacterStringConverter(),
                 new AsnSequenceOfConverter(),
                 new AsnChoiceConverter(),
