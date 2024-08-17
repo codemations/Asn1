@@ -1,6 +1,6 @@
 using System.Formats.Asn1;
 using System.Numerics;
-using Xunit;
+using NUnit.Framework;
 
 namespace Codemations.Asn1.Tests
 {
@@ -15,7 +15,7 @@ namespace Codemations.Asn1.Tests
             public string? Question { get; set; }
         }
 
-        [Fact]
+        [Test]
         public void ShouldSerializeExample()
         {
             // Arrange
@@ -34,10 +34,10 @@ namespace Codemations.Asn1.Tests
             var actualData = AsnConvert.Serialize(myQuestion, AsnEncodingRules.DER);
 
             // Assert
-            Assert.Equal(expectedData, actualData);
+            Assert.That(actualData, Is.EqualTo(expectedData));
         }
 
-        [Fact]
+        [Test]
         public void ShouldDeserializeExample()
         {
             // Arrange
@@ -56,8 +56,11 @@ namespace Codemations.Asn1.Tests
             var actualQuestion = AsnConvert.Deserialize<FooQuestion>(data, AsnEncodingRules.DER);
 
             // Assert
-            Assert.Equal(expectedQuestion.TrackingNumber, actualQuestion.TrackingNumber);
-            Assert.Equal(expectedQuestion.Question, actualQuestion.Question);
+            Assert.Multiple(() =>
+            {
+                Assert.That(actualQuestion.TrackingNumber, Is.EqualTo(expectedQuestion.TrackingNumber));
+                Assert.That(actualQuestion.Question, Is.EqualTo(expectedQuestion.Question));
+            });
         }
     }
 }

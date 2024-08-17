@@ -4,11 +4,11 @@ using System.Linq;
 
 namespace Codemations.Asn1.Converters
 {
-    internal class AsnBooleanConverter : IAsnConverter
+    internal class AsnOidConverter : IAsnConverter
     {
         private static readonly Type[] AcceptedTypes = 
         {
-            typeof(bool), typeof(bool?)
+            typeof(AsnOid), typeof(AsnOid?)
         };
 
         public bool CanConvert(Type type)
@@ -18,12 +18,13 @@ namespace Codemations.Asn1.Converters
 
         public object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
         {
-            return reader.ReadBoolean(tag);
+            var oidStr = reader.ReadObjectIdentifier(tag);
+            return new AsnOid(oidStr, false);
         }
 
         public void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer)
         {
-            writer.WriteBoolean((bool)value, tag);
+            writer.WriteObjectIdentifier((string)(AsnOid)value, tag);
         }
     }
 }

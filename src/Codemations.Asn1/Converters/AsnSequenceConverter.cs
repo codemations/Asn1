@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Formats.Asn1;
-using System.Linq;
-using System.Reflection;
 
 namespace Codemations.Asn1.Converters
 {
@@ -12,27 +10,24 @@ namespace Codemations.Asn1.Converters
             return type.IsClass;
         }
 
-        public object Read(AsnReader reader, Asn1Tag? tag, Type type, IAsnConverterResolver converterResolver)
+        public object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
         {
             var sequenceReader = reader.ReadSequence(tag);
 
-            var item = Activator.CreateInstance(type)!;
+            var item = type.CreateInstance();
 
-            foreach (var propertyInfo in AsnHelper.GetPropertyInfos(type))
+            foreach (var asnPropertyInfo in type.GetAsnProperties())
             {
-                var asnElementAttribute = propertyInfo.GetCustomAttribute<AsnElementAttribute>()!;
-
                 try
                 {
-                    var converter = converterResolver.Resolve(propertyInfo);
-                    var value = converter.Read(sequenceReader, asnElementAttribute.Tag, propertyInfo.PropertyType, converterResolver);
-                    propertyInfo.SetValue(item, value);
+                    var value = serializer.Deserialize(sequenceReader, asnPropertyInfo);
+                    asnPropertyInfo.SetValue(item, value);
                 }
                 catch (AsnContentException e)
                 {
-                    if (!asnElementAttribute.Optional)
+                    if (!asnPropertyInfo.IsOptional)
                     {
-                        throw new AsnConversionException("Value for required element is missing.", asnElementAttribute.Tag, e);
+                        throw new AsnConversionException("Value for required element is missing.", asnPropertyInfo.Tag, e);
                     }
                 }
             }
@@ -40,16 +35,19 @@ namespace Codemations.Asn1.Converters
             return item;
         }
 
-        public void Write(AsnWriter writer, Asn1Tag? tag, object value, IAsnConverterResolver converterResolver)
+        public void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer)
         {
             writer.PushSequence(tag);
-            foreach (var propertyInfo in AsnHelper.GetPropertyInfos(value.GetType())
-                         .Where(propertyInfo => propertyInfo.GetValue(value) is not null))
+            foreach (var asnPropertyInfo in value.GetType().GetAsnProperties())
             {
-                var asnElementAttribute = propertyInfo.GetCustomAttribute<AsnElementAttribute>()!;
-                var propertyValue = propertyInfo.GetValue(value)!;
-                var converter = converterResolver.Resolve(propertyInfo);
-                converter.Write(writer, asnElementAttribute.Tag, propertyValue, converterResolver);
+                if(asnPropertyInfo.GetValue(value) is object propertyValue)
+                {
+                    serializer.Serialize(writer, asnPropertyInfo, propertyValue);
+                }
+                else if (!asnPropertyInfo.IsOptional)
+                {
+                    throw new AsnConversionException("Value for required element is missing.");
+                }
             }
             writer.PopSequence(tag);
         }

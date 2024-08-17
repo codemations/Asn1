@@ -13,14 +13,19 @@ namespace Codemations.Asn1
         {
         }
 
-        public AsnElementAttribute(uint tag)
+        public AsnElementAttribute(byte encodedTag)
         {
-            this.Tag = tag.ToAsn1Tag();
+            this.Tag = encodedTag.ToAsn1Tag();
         }
 
-        public AsnElementAttribute(params byte[] tag)
+        public AsnElementAttribute(uint encodedTag)
         {
-            this.Tag = tag.ToAsn1Tag();
+            this.Tag = encodedTag.ToAsn1Tag();
+        }
+
+        public AsnElementAttribute(params byte[] encodedTag)
+        {
+            this.Tag = encodedTag.ToAsn1Tag();
         }
 
         public AsnElementAttribute(TagClass tagClass, int tagValue, bool isConstructed = false)

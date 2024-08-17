@@ -10,31 +10,69 @@ namespace Codemations.Asn1.Converters
     {
         public bool CanConvert(Type type)
         {
-            return typeof(IEnumerable).IsAssignableFrom(type);
+            return typeof(ICollection).IsAssignableFrom(type);
         }
 
-        public object Read(AsnReader reader, Asn1Tag? tag, Type type, IAsnConverterResolver converterResolver)
+        public object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
         {
-            var genericArgType = type.GetGenericArguments().Single();
+            var elementType = GetElementType(type);
+            var collection = ReadCollection(reader, tag, elementType, serializer);
+
+            return type switch
+            {
+                _ when IsList(type) => BuildList(type, collection),              
+                _ when type.IsArray => BuildArray(type, collection),
+                _ => throw new NotSupportedException()
+            };
+        }
+
+        public void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer)
+        {
+            using var sequenceScope = writer.PushSequence(tag);
+            foreach (var element in (value as ICollection)!)
+            {
+                serializer.Serialize(writer, element);
+            }
+        }
+
+        private static IEnumerable<object> ReadCollection(AsnReader reader, Asn1Tag? tag, Type elementType, AsnSerializer serializer)
+        {
             var sequenceReader = reader.ReadSequence(tag);
-            var sequence = (Activator.CreateInstance(typeof(List<>).MakeGenericType(genericArgType)) as IList)!;
             while (sequenceReader.HasData)
-            {
-                var converter = converterResolver.Resolve(genericArgType);
-                sequence.Add(converter.Read(sequenceReader, null, genericArgType, converterResolver));
+            {                
+                yield return serializer.Deserialize(sequenceReader, elementType);
             }
-            return sequence;
         }
 
-        public void Write(AsnWriter writer, Asn1Tag? tag, object value, IAsnConverterResolver converterResolver)
+        private static bool IsList(Type type) => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>);
+
+        private static object BuildList(Type type, IEnumerable<object> elements)
         {
-            writer.PushSequence(tag);
-            foreach (var element in (value as IEnumerable)!)
+            var list = type.CreateInstance<IList>();
+            foreach (var element in elements)
             {
-                var converter = converterResolver.Resolve(element.GetType());
-                converter.Write(writer, null, element, converterResolver);
+                list.Add(element);
+
             }
-            writer.PopSequence(tag);
+            return list;
+        }
+
+        private static object BuildArray(Type type, IEnumerable<object> elements)
+        {
+            var srcArray = elements.ToArray();
+            var dstArray = type.CreateInstance<Array>(srcArray.Length);
+            srcArray.CopyTo(dstArray, 0);
+            return dstArray;
+        }
+
+        private static Type GetElementType(Type collectionType)
+        {
+            return collectionType switch
+            {
+                { IsGenericType: true } => collectionType.GetGenericArguments()[0],
+                { IsArray: true } => collectionType.GetElementType()!,
+                _ => throw new NotSupportedException()
+            };
         }
     }
 }

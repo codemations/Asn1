@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Formats.Asn1;
 using System.Linq;
 
@@ -17,12 +18,12 @@ namespace Codemations.Asn1
         /// <summary>
         /// Gets or sets the content encoded value.
         /// </summary>
-        public byte[]? Value { get; set; }
+        public ReadOnlyMemory<byte>? Value { get; set; }
 
         /// <summary>
         /// Gets the list of child elements.
         /// </summary>
-        public List<AsnElement> Elements { get; }
+        public IList<AsnElement> Elements { get; }
 
         public AsnElement(byte encodedTag) : this(encodedTag, new List<AsnElement>())
         {
@@ -44,7 +45,11 @@ namespace Codemations.Asn1
         {
         }
 
-        public AsnElement(Asn1Tag tag, IEnumerable<AsnElement> elements)
+        public AsnElement(Asn1Tag tag, IEnumerable<AsnElement> elements) : this(tag, elements.ToList())
+        {
+        }
+
+        public AsnElement(Asn1Tag tag, IList<AsnElement> elements)
         {
             this.Tag = tag;
             this.Elements = elements.ToList();

@@ -12,64 +12,51 @@ namespace Codemations.Asn1.Converters
             return type.GetCustomAttribute<AsnChoiceAttribute>() is not null;
         }
 
-        public object Read(AsnReader reader, Asn1Tag? tag, Type type, IAsnConverterResolver converterResolver)
+        public object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
         {
-            var choiceReader = tag is null ? reader : reader.ReadSequence(tag);
+            var innerTag = reader.PeekTag();
 
-            var innerTag = choiceReader.PeekTag();
-            var propertyInfos = AsnHelper.GetPropertyInfos(type)
-                .Where(x => x.GetCustomAttribute<AsnElementAttribute>()!.Tag == innerTag).ToArray();
+            var asnPropertyInfo= GetReadChoiceProperty(innerTag, type);
+            var item = type.CreateInstance();
+            var value = serializer.Deserialize(reader, asnPropertyInfo);
+            asnPropertyInfo.SetValue(item, value);
 
-            switch (propertyInfos.Length)
-            {
-                case 0:
-                    throw new AsnConversionException("No choice element with given tag.", innerTag);
-
-                case 1:
-                    var item = Activator.CreateInstance(type)!;
-                    var propertyInfo = propertyInfos.Single();
-                    var asnElementAttribute = propertyInfo.GetCustomAttribute<AsnElementAttribute>()!;
-                    var converter = converterResolver.Resolve(propertyInfo);
-                    var value = converter.Read(choiceReader, asnElementAttribute.Tag, propertyInfo.PropertyType, converterResolver);
-                    propertyInfo.SetValue(item, value);
-                    return item;
-
-                default:
-                    throw new AsnConversionException("Multiple choice elements with given tag.", innerTag);
-            }
+            return item;
         }
 
-        public void Write(AsnWriter writer, Asn1Tag? tag, object value, IAsnConverterResolver converterResolver)
+        public void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer)
         {
-            if (tag is not null)
+            var propertyInfo = GetWriteChoiceProperty(value);
+            var propertyValue = propertyInfo.GetValue(value)!;
+            serializer.Serialize(writer, propertyInfo, propertyValue);
+        }
+
+        private static AsnPropertyInfo GetReadChoiceProperty(Asn1Tag tag, Type type)
+        {
+            var propertyInfos = type.GetAsnProperties()
+                .Where(propertyInfo => propertyInfo.Tag == tag)
+                .ToArray();
+
+            return propertyInfos.Length switch
             {
-                writer.PushSequence(tag);
-            }
+                0 => throw new AsnConversionException("No choice element to matching the tag."),
+                1 => propertyInfos[0],
+                _ => throw new AsnConversionException("Multiple choice elements with the same tag."),
+            };
+        }
+        private static AsnPropertyInfo GetWriteChoiceProperty(object value)
+        {
+            var propertyInfos = value.GetType().GetProperties()
+                .Where(propertyInfo => propertyInfo.GetValue(value) is not null)
+                .Select(proertyInfo => new AsnPropertyInfo(proertyInfo))
+                .ToArray();
 
-            var propertyInfos = AsnHelper.GetPropertyInfos(value.GetType())
-                .Where(propertyInfo => propertyInfo.GetValue(value) is not null).ToArray();
-
-            switch (propertyInfos.Length)
+            return propertyInfos.Length switch
             {
-                case 0:
-                    throw new AsnConversionException("No choice element to serialize.");
-
-                case 1:
-                    var propertyInfo = propertyInfos.Single();
-                    var asnElementAttribute = propertyInfo.GetCustomAttribute<AsnElementAttribute>()!;
-                    var propertyValue = propertyInfo.GetValue(value)!;
-                    var converter = converterResolver.Resolve(propertyInfo);
-                    converter.Write(writer, asnElementAttribute.Tag, propertyValue, converterResolver);
-                    break;
-
-                default:
-                    throw new AsnConversionException("Multiple non-null choice elements.");
-            }
-
-            if (tag is not null)
-            {
-                writer.PopSequence(tag);
-            }
+                0 => throw new AsnConversionException("No choice element to serialize."),
+                1 => propertyInfos[0],
+                _ => throw new AsnConversionException("Multiple non-null choice elements."),
+            };
         }
     }
 }

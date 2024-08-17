@@ -1,19 +1,28 @@
 ﻿using System.Formats.Asn1;
-using Xunit;
+using NUnit.Framework;
 
 namespace Codemations.Asn1.Tests
 {
     public class AsnElementAttributeTests : TagTestData
     {
-        [Theory]
-        [MemberData(nameof(UIntData))]
+        [TestCaseSource(nameof(ByteData))]
+        public void ShouldCreateTagFromByte(Asn1Tag expectedTag, byte encodedTag)
+        {
+            // Act
+            var attribute = new AsnElementAttribute(encodedTag);
+
+            // Assert
+            Assert.That(attribute.Tag, Is.EqualTo(expectedTag));
+        }
+
+        [TestCaseSource(nameof(UIntData))]
         public void ShouldCreateTagFromUInt(Asn1Tag expectedTag, uint encodedTag)
         {
             // Act
             var attribute = new AsnElementAttribute(encodedTag);
 
             // Assert
-            Assert.Equal(expectedTag, attribute.Tag);
+            Assert.That(attribute.Tag, Is.EqualTo(expectedTag));
         }
     }
 }

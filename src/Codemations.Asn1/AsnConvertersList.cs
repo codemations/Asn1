@@ -1,0 +1,41 @@
+﻿using Codemations.Asn1.Converters;
+using System;
+using System.Collections.Generic;
+
+namespace Codemations.Asn1
+{
+    internal class AsnConvertersList : List<IAsnConverter>
+    {
+        private readonly Dictionary<Type, IAsnConverter> _cache = new ();
+
+        public static AsnConvertersList CreateDefault()
+        {
+            return new AsnConvertersList()
+            {
+                new AsnBooleanConverter(),
+                new AsnEnumeratedValueConverter(),
+                new AsnIntegerConverter(),
+                new AsnOctetStringConverter(),
+                new AsnOidConverter(),
+                new AsnCharacterStringConverter(),
+                new AsnSequenceOfConverter(),
+                new AsnChoiceConverter(),
+                new AsnSequenceConverter()
+            };
+        }
+
+        public IAsnConverter Get(Type type)
+        {
+            if (_cache.TryGetValue(type, out var cachedConverter))
+            {
+                return cachedConverter;
+            }
+
+            var converter = Find(converter =>  converter.CanConvert(type)) ?? 
+                throw new ArgumentException($"Type '{type.FullName}' is not supported by any of converters.", nameof(type));
+
+            _cache[type] = converter;
+            return converter;
+        }
+    }
+}

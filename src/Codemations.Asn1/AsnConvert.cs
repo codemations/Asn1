@@ -43,7 +43,7 @@ namespace Codemations.Asn1
                         break;
 
                     case false:
-                        writer.WriteOctetString(element.Value.ToArray(), element.Tag);
+                        writer.WriteOctetString(element.Value.Value.Span, element.Tag);
                         break;
                 }
             }
@@ -70,8 +70,7 @@ namespace Codemations.Asn1
             var reader = new AsnReader(data, ruleSet, options);
             while (reader.HasData)
             {
-                var tag = reader.PeekTag();
-                var value = reader.PeekContentBytes();
+                var value = reader.ReadContentBytes(out var tag);
 
                 if (tag.IsConstructed)
                 {
@@ -80,10 +79,8 @@ namespace Codemations.Asn1
                 }
                 else
                 {
-                    yield return new AsnElement(tag) { Value = value.ToArray() };
+                    yield return new AsnElement(tag) { Value = value };
                 }
-
-                reader.ReadEncodedValue();
             }
         }
 
@@ -93,12 +90,10 @@ namespace Codemations.Asn1
             return serializer.Deserialize(data, type);
         }
 
-        public static T Deserialize<T>(ReadOnlyMemory<byte> data, AsnEncodingRules ruleSet, AsnReaderOptions options = default) where T : class, new()
+        public static T Deserialize<T>(ReadOnlyMemory<byte> data, AsnEncodingRules ruleSet, AsnReaderOptions options = default) where T : new()
         {
             var deserialized = Deserialize(data, typeof(T), ruleSet, options);
-            return (deserialized as T)!;
+            return (T)deserialized;
         }
-
-
     }
 }
