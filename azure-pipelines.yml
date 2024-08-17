@@ -48,7 +48,7 @@ steps:
     packagesToPack: 'src/**/*.csproj'
     nobuild: true
     versioningScheme: 'byEnvVar'
-    versionEnvVar: 'GitVersion.SemVer'
+    versionEnvVar: 'GitVersion.FullSemVer'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet push internal'
