@@ -1,5 +1,4 @@
-﻿using Codemations.Asn1.Converters;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Formats.Asn1;
 
@@ -45,6 +44,11 @@ namespace Codemations.Asn1
 
         public object Deserialize(AsnReader reader, Asn1Tag? tag, Type propertyType, IAsnConverter? customConverter)
         {
+            if (propertyType.IsNullable())
+            {
+                propertyType = Nullable.GetUnderlyingType(propertyType);
+            }
+
             var converter = customConverter ?? _converterList.Get(propertyType);
             return converter.Read(reader, tag, propertyType, this);
         }

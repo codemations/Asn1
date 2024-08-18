@@ -9,15 +9,11 @@ namespace Codemations.Asn1.Converters
     {
         private static readonly Type[] AcceptedTypes =
         {
-            typeof(long), typeof(long?),
-            typeof(ulong), typeof(ulong?),
-            typeof(int), typeof(int?),
-            typeof(uint), typeof(uint?),
-            typeof(short), typeof(short?),
-            typeof(ushort), typeof(ushort?),
-            typeof(sbyte), typeof(sbyte?),
-            typeof(byte), typeof(byte?),
-            typeof(BigInteger), typeof(BigInteger?)
+            typeof(long), typeof(ulong),
+            typeof(int), typeof(uint),
+            typeof(short), typeof(ushort),
+            typeof(sbyte), typeof(byte),
+            typeof(BigInteger)
         };
 
         public bool CanConvert(Type type)
