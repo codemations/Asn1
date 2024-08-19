@@ -11,7 +11,7 @@ public class AsnConverterAttribute : Attribute
     {
         if (!typeof(AsnConverter).IsAssignableFrom(converterType))
         {
-            throw new ArgumentException($"Type '{converterType.Name}' does not implement 'IAsnConverter' interface.");
+            throw new ArgumentException($"Type '{converterType.Name}' does not implement '{nameof(AsnConverter)}' interface.");
         }
 
         this.ConverterType = converterType;
