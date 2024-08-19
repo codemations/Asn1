@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Formats.Asn1;
 
-namespace Codemations.Asn1;
+namespace Codemations.Asn1.Extensions;
 
 /// <summary>
 ///   <see cref="Asn1Tag"/> extension methods.

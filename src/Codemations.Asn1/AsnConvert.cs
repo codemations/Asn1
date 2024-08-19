@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Formats.Asn1;
 using System.Linq;
+using Codemations.Asn1.Extensions;
 
 namespace Codemations.Asn1
-{   
+{
     /// <summary>
     ///   Provides methods for converting between .NET types and ASN.1 encoded values.
     /// </summary>

@@ -1,4 +1,5 @@
-﻿using Codemations.Asn1.Types;
+﻿using Codemations.Asn1.Extensions;
+using Codemations.Asn1.Types;
 using System;
 using System.Formats.Asn1;
 

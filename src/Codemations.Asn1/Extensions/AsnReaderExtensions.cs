@@ -2,7 +2,7 @@
 using System;
 using System.Formats.Asn1;
 
-namespace Codemations.Asn1;
+namespace Codemations.Asn1.Extensions;
 
 public static class AsnReaderExtensions
 {

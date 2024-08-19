@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Formats.Asn1;
 using System.Linq;
+using Codemations.Asn1.Extensions;
 
 namespace Codemations.Asn1
 {

@@ -2,6 +2,7 @@
 using System.Formats.Asn1;
 using System.Linq;
 using System.Numerics;
+using Codemations.Asn1.Extensions;
 using NUnit.Framework;
 
 namespace Codemations.Asn1.Tests;

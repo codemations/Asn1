@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Codemations.Asn1
+namespace Codemations.Asn1.Extensions
 {
     internal static class TypeExtensions
     {
