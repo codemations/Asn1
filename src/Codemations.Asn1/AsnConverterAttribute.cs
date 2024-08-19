@@ -1,25 +1,24 @@
 using System;
 
-namespace Codemations.Asn1
+namespace Codemations.Asn1;
+
+[AttributeUsage(AttributeTargets.Property)]
+public class AsnConverterAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Property)]
-    public class AsnConverterAttribute : Attribute
+    public Type ConverterType { get; }
+
+    public AsnConverterAttribute(Type converterType)
     {
-        public Type ConverterType { get; }
-
-        public AsnConverterAttribute(Type converterType)
+        if (!typeof(AsnConverter).IsAssignableFrom(converterType))
         {
-            if (!typeof(IAsnConverter).IsAssignableFrom(converterType))
-            {
-                throw new ArgumentException($"Type '{converterType.Name}' does not implement 'IAsnConverter' interface.");
-            }
-
-            this.ConverterType = converterType;
+            throw new ArgumentException($"Type '{converterType.Name}' does not implement 'IAsnConverter' interface.");
         }
 
-        internal IAsnConverter CreateInstance()
-        {
-            return (Activator.CreateInstance(this.ConverterType) as IAsnConverter)!;
-        }
+        this.ConverterType = converterType;
+    }
+
+    internal AsnConverter CreateInstance()
+    {
+        return (Activator.CreateInstance(this.ConverterType) as AsnConverter)!;
     }
 }
