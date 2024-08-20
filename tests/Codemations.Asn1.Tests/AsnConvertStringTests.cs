@@ -27,7 +27,7 @@ namespace Codemations.Asn1.Tests
         public void ShouldSerializeString(object value, byte[] expectedEncodedValue)
         {
             // Act
-            var encodedValue = AsnConvert.SerializeBer(value);
+            var encodedValue = AsnSerializer.SerializeBer(value);
 
             // Assert
             Assert.That(encodedValue, Is.EqualTo(expectedEncodedValue));
@@ -37,7 +37,7 @@ namespace Codemations.Asn1.Tests
         public void ShouldDeserializeString(object expectedValue, byte[] encodedValue)
         {
             // Act
-            var value = AsnConvert.DeserializeBer(encodedValue, expectedValue.GetType());
+            var value = AsnSerializer.DeserializeBer(encodedValue, expectedValue.GetType());
 
             // Assert
             Assert.That(value, Is.EqualTo(expectedValue));

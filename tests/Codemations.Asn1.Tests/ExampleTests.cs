@@ -31,7 +31,7 @@ namespace Codemations.Asn1.Tests
             };
 
             // Act
-            var actualData = AsnConvert.Serialize(myQuestion, AsnEncodingRules.DER);
+            var actualData = AsnSerializer.Serialize(myQuestion, AsnEncodingRules.DER);
 
             // Assert
             Assert.That(actualData, Is.EqualTo(expectedData));
@@ -53,7 +53,7 @@ namespace Codemations.Asn1.Tests
             };
 
             // Act
-            var actualQuestion = AsnConvert.Deserialize<FooQuestion>(data, AsnEncodingRules.DER);
+            var actualQuestion = AsnSerializer.Deserialize<FooQuestion>(data, AsnEncodingRules.DER);
 
             // Assert
             Assert.Multiple(() =>

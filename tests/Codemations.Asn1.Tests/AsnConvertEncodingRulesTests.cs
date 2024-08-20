@@ -17,7 +17,7 @@ namespace Codemations.Asn1.Tests
         public void ShouldSerializeBer(object value, byte[] expectedEncodedValue)
         {
             //Act
-            var encodedValue = AsnConvert.SerializeBer(value);
+            var encodedValue = AsnSerializer.SerializeBer(value);
 
             // Arrange
             Assert.That(encodedValue, Is.EqualTo(expectedEncodedValue));
@@ -27,7 +27,7 @@ namespace Codemations.Asn1.Tests
         public void ShouldDeserializeBer(object expectedValue, byte[] encodedValue)
         {
             //Act
-            var value = AsnConvert.DeserializeBer(encodedValue, typeof(string));
+            var value = AsnSerializer.DeserializeBer(encodedValue, typeof(string));
 
             // Arrange
             Assert.That(value, Is.EqualTo(expectedValue));
@@ -37,7 +37,7 @@ namespace Codemations.Asn1.Tests
         public void ShouldDeserializeBerGeneric(object expectedValue, byte[] encodedValue)
         {
             //Act
-            var value = AsnConvert.DeserializeBer<string>(encodedValue);
+            var value = AsnSerializer.DeserializeBer<string>(encodedValue);
 
             // Arrange
             Assert.That(value, Is.EqualTo(expectedValue));
@@ -47,7 +47,7 @@ namespace Codemations.Asn1.Tests
         public void ShouldSerializeCer(object value, byte[] expectedEncodedValue)
         {
             //Act
-            var encodedValue = AsnConvert.SerializeCer(value);
+            var encodedValue = AsnSerializer.SerializeCer(value);
 
             // Arrange
             Assert.That(encodedValue, Is.EqualTo(expectedEncodedValue));
@@ -57,7 +57,7 @@ namespace Codemations.Asn1.Tests
         public void ShouldDeserializeCer(object expectedValue, byte[] encodedValue)
         {
             //Act
-            var value = AsnConvert.DeserializeCer(encodedValue, typeof(string));
+            var value = AsnSerializer.DeserializeCer(encodedValue, typeof(string));
 
             // Arrange
             Assert.That(value, Is.EqualTo(expectedValue));
@@ -67,7 +67,7 @@ namespace Codemations.Asn1.Tests
         public void ShouldDeserializeCerGeneric(object expectedValue, byte[] encodedValue)
         {
             //Act
-            var value = AsnConvert.DeserializeCer<string>(encodedValue);
+            var value = AsnSerializer.DeserializeCer<string>(encodedValue);
 
             // Arrange
             Assert.That(value, Is.EqualTo(expectedValue));
@@ -77,7 +77,7 @@ namespace Codemations.Asn1.Tests
         public void ShouldSerializeDer(object value, byte[] expectedEncodedValue)
         {
             //Act
-            var encodedValue = AsnConvert.SerializeDer(value);
+            var encodedValue = AsnSerializer.SerializeDer(value);
 
             // Arrange
             Assert.That(encodedValue, Is.EqualTo(expectedEncodedValue));
@@ -87,7 +87,7 @@ namespace Codemations.Asn1.Tests
         public void ShouldDeserializeDer(object expectedValue, byte[] encodedValue)
         {
             //Act
-            var value = AsnConvert.DeserializeDer(encodedValue, typeof(string));
+            var value = AsnSerializer.DeserializeDer(encodedValue, typeof(string));
 
             // Arrange
             Assert.That(value, Is.EqualTo(expectedValue));
@@ -97,7 +97,7 @@ namespace Codemations.Asn1.Tests
         public void ShouldDeserializeDerGeneric(object expectedValue, byte[] encodedValue)
         {
             //Act
-            var value = AsnConvert.DeserializeDer<string>(encodedValue);
+            var value = AsnSerializer.DeserializeDer<string>(encodedValue);
 
             // Arrange
             Assert.That(value, Is.EqualTo(expectedValue));
