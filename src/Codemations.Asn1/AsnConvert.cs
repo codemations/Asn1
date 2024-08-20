@@ -56,6 +56,42 @@ namespace Codemations.Asn1
             return serializer.Serialize(element);
         }
 
+        public static int Serialize(object element, AsnEncodingRules ruleSet, Span<byte> destination)
+        {
+            var serializer = new AsnSerializer(ruleSet);
+            return serializer.Serialize(element, destination);
+        }
+
+        public static byte[] SerializeBer(object element)
+        {
+            return Serialize(element, AsnEncodingRules.BER);
+        }
+
+        public static int SerializeBer(object element, Span<byte> destination)
+        {
+            return Serialize(element, AsnEncodingRules.BER, destination);
+        }
+
+        public static byte[] SerializeCer(object element)
+        {
+            return Serialize(element, AsnEncodingRules.CER);
+        }
+
+        public static int SerializeCer(object element, Span<byte> destination)
+        {
+            return Serialize(element, AsnEncodingRules.CER, destination);
+        }
+
+        public static byte[] SerializeDer(object element)
+        {
+            return Serialize(element, AsnEncodingRules.DER);
+        }
+
+        public static int SerializeDer(object element, Span<byte> destination)
+        {
+            return Serialize(element, AsnEncodingRules.DER, destination);
+        }
+
         /// <summary>
         ///   Deserializes <paramref name="data"/> with a given <paramref name="ruleSet"/>.
         /// </summary>
@@ -91,10 +127,40 @@ namespace Codemations.Asn1
             return serializer.Deserialize(data, type);
         }
 
-        public static T Deserialize<T>(ReadOnlyMemory<byte> data, AsnEncodingRules ruleSet, AsnReaderOptions options = default) where T : new()
+        public static T Deserialize<T>(ReadOnlyMemory<byte> data, AsnEncodingRules ruleSet, AsnReaderOptions options = default)
         {
             var deserialized = Deserialize(data, typeof(T), ruleSet, options);
             return (T)deserialized;
+        }
+
+        public static object DeserializeBer(ReadOnlyMemory<byte> data, Type type, AsnReaderOptions options = default)
+        {
+            return Deserialize(data, type, AsnEncodingRules.BER, options);
+        }
+
+        public static T DeserializeBer<T>(ReadOnlyMemory<byte> data, AsnReaderOptions options = default)
+        {
+            return Deserialize<T>(data, AsnEncodingRules.BER, options);
+        }
+
+        public static object DeserializeCer(ReadOnlyMemory<byte> data, Type type, AsnReaderOptions options = default)
+        {
+            return Deserialize(data, type, AsnEncodingRules.CER, options);
+        }
+
+        public static T DeserializeCer<T>(ReadOnlyMemory<byte> data, AsnReaderOptions options = default)
+        {
+            return Deserialize<T>(data, AsnEncodingRules.CER, options);
+        }
+
+        public static object DeserializeDer(ReadOnlyMemory<byte> data, Type type, AsnReaderOptions options = default)
+        {
+            return Deserialize(data, type, AsnEncodingRules.DER, options);
+        }
+
+        public static T DeserializeDer<T>(ReadOnlyMemory<byte> data, AsnReaderOptions options = default)
+        {
+            return Deserialize<T>(data, AsnEncodingRules.DER, options);
         }
     }
 }

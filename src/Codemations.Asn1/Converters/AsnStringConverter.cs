@@ -5,13 +5,13 @@ namespace Codemations.Asn1.Converters;
 
 internal class AsnStringConverter : AsnConverter<string>
 {
-    protected override string ReadTyped(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
+    public override object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
     {
-        return reader.ReadCharacterString(UniversalTagNumber.IA5String, tag);
+        return reader.ReadCharacterString(UniversalTagNumber.UTF8String, tag);
     }
 
-    protected override void WriteTyped(AsnWriter writer, Asn1Tag? tag, string value, AsnSerializer serializer)
+    public override void Write(AsnWriter writer, Asn1Tag? tag, string value, AsnSerializer serializer)
     {
-        writer.WriteCharacterString(UniversalTagNumber.IA5String, value, tag);
+        writer.WriteCharacterString(UniversalTagNumber.UTF8String, value, tag);
     }
 }

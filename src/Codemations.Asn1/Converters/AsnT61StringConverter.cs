@@ -7,12 +7,12 @@ namespace Codemations.Asn1.Converters;
 
 internal class AsnT61StringConverter : AsnConverter<AsnT61String>
 {
-    protected override AsnT61String ReadTyped(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
+    public override object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
     {
         return reader.ReadT61String(tag);
     }
 
-    protected override void WriteTyped(AsnWriter writer, Asn1Tag? tag, AsnT61String value, AsnSerializer serializer)
+    public override void Write(AsnWriter writer, Asn1Tag? tag, AsnT61String value, AsnSerializer serializer)
     {
         writer.WriteT61String(value, tag);
     }

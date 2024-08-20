@@ -7,12 +7,12 @@ namespace Codemations.Asn1.Converters;
 
 internal class AsnUtf8StringConverter : AsnConverter<AsnUtf8String>
 {
-    protected override AsnUtf8String ReadTyped(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
+    public override object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
     {
         return reader.ReadUtf8String(tag);
     }
 
-    protected override void WriteTyped(AsnWriter writer, Asn1Tag? tag, AsnUtf8String value, AsnSerializer serializer)
+    public override void Write(AsnWriter writer, Asn1Tag? tag, AsnUtf8String value, AsnSerializer serializer)
     {
         writer.WriteUtf8String(value, tag);
     }

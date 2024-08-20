@@ -10,23 +10,17 @@ public abstract class AsnConverter
     public abstract void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer);
 }
 
-internal abstract class AsnConverter<T> : AsnConverter where T : notnull
-{
-    protected abstract T ReadTyped(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer);
-    protected abstract void WriteTyped(AsnWriter writer, Asn1Tag? tag, T value, AsnSerializer serializer);
-
+public abstract class AsnConverter<T> : AsnConverter where T : notnull
+{    
     public override bool CanConvert(Type type)
     {
         return type == typeof(T);
     }
 
-    public override object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
-    {
-        return ReadTyped(reader, tag, type, serializer);
-    }
-
     public override void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer)
     {
-        WriteTyped(writer, tag, (T)value, serializer);
+        Write(writer, tag, (T)value, serializer);
     }
+
+    public abstract void Write(AsnWriter writer, Asn1Tag? tag, T value, AsnSerializer serializer);
 }

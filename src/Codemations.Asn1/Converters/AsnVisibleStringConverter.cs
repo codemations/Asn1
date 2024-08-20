@@ -7,12 +7,12 @@ namespace Codemations.Asn1.Converters;
 
 internal class AsnVisibleStringConverter : AsnConverter<AsnVisibleString>
 {
-    protected override AsnVisibleString ReadTyped(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
+    public override object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
     {
         return reader.ReadVisibleString(tag);
     }
 
-    protected override void WriteTyped(AsnWriter writer, Asn1Tag? tag, AsnVisibleString value, AsnSerializer serializer)
+    public override void Write(AsnWriter writer, Asn1Tag? tag, AsnVisibleString value, AsnSerializer serializer)
     {
         writer.WriteVisibleString(value, tag);
     }

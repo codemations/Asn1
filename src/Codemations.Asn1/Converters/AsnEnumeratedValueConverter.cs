@@ -3,7 +3,7 @@ using System.Formats.Asn1;
 
 namespace Codemations.Asn1.Converters;
 
-internal class AsnEnumeratedValueConverter : AsnConverter
+internal class AsnEnumeratedValueConverter : AsnConverter<Enum>
 {
     public override bool CanConvert(Type type)
     {
@@ -15,8 +15,8 @@ internal class AsnEnumeratedValueConverter : AsnConverter
         return reader.ReadEnumeratedValue(type, tag);
     }
 
-    public override void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer)
+    public override void Write(AsnWriter writer, Asn1Tag? tag, Enum value, AsnSerializer serializer)
     {
-        writer.WriteEnumeratedValue((Enum)value, tag);
+        writer.WriteEnumeratedValue(value, tag);
     }
 }

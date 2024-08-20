@@ -32,9 +32,9 @@ public class AsnSerializer
         return deserialized;
     }
 
-    public object Deserialize(AsnReader reader, Type propertyType)
+    public object Deserialize(AsnReader reader, Type type)
     {
-        return Deserialize(reader, tag: null, propertyType, customConverter: null);
+        return Deserialize(reader, tag: null, type, customConverter: null);
     }
 
     public object Deserialize(AsnReader reader, AsnPropertyInfo asnPropertyInfo)
@@ -42,37 +42,47 @@ public class AsnSerializer
         return Deserialize(reader, asnPropertyInfo.Tag, asnPropertyInfo.Type, asnPropertyInfo.GetCustomConverter());
     }
 
-    public object Deserialize(AsnReader reader, Asn1Tag? tag, Type propertyType, AsnConverter? customConverter)
+    public object Deserialize(AsnReader reader, Asn1Tag? tag, Type type, AsnConverter? customConverter)
     {
-        if (propertyType.IsNullable())
+        if (type.IsNullable())
         {
-            propertyType = Nullable.GetUnderlyingType(propertyType)!;
+            type = Nullable.GetUnderlyingType(type)!;
         }
 
-        var converter = customConverter ?? _converterList.Get(propertyType);
-        return converter.Read(reader, tag, propertyType, this);
+        var converter = customConverter ?? _converterList.Get(type);
+        return converter.Read(reader, tag, type, this);
     }
 
     public byte[] Serialize(object value)
     {
-        var writer = new AsnWriter(this.EncodingRules);
-        Serialize(writer, value);
-        return writer.Encode();
+        return SerializeInternal(value).Encode();
+    }
+
+    public int Serialize(object value, Span<byte> destination)
+    {
+        return SerializeInternal(value).Encode(destination);
     }
 
     public void Serialize(AsnWriter writer, object value)
     {
-        Serialize(writer, null, value, null);
+        SerializeCore(writer, tag: null, value, customConverter: null);
     }
 
     public void Serialize(AsnWriter writer, AsnPropertyInfo asnPropertyInfo, object value)
     {
-        Serialize(writer, asnPropertyInfo.Tag, value, asnPropertyInfo.GetCustomConverter());
+        SerializeCore(writer, asnPropertyInfo.Tag, value, asnPropertyInfo.GetCustomConverter());
     }
 
-    public void Serialize(AsnWriter writer, Asn1Tag? tag, object value, AsnConverter? customConverter)
+    private void SerializeCore(AsnWriter writer, Asn1Tag? tag, object value, AsnConverter? customConverter)
     {
         var converter = customConverter ?? _converterList.Get(value.GetType());
         converter.Write(writer, tag, value, this);
+    }
+
+    private AsnWriter SerializeInternal(object value)
+    {
+        var writer = new AsnWriter(EncodingRules);
+        Serialize(writer, value);
+        return writer;
     }
 }

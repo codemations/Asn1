@@ -7,12 +7,12 @@ namespace Codemations.Asn1.Converters;
 
 internal class AsnIA5StringConverter : AsnConverter<AsnIA5String>
 {
-    protected override AsnIA5String ReadTyped(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
+    public override object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
     {
         return reader.ReadIA5String(tag);
     }
 
-    protected override void WriteTyped(AsnWriter writer, Asn1Tag? tag, AsnIA5String value, AsnSerializer serializer)
+    public override void Write(AsnWriter writer, Asn1Tag? tag, AsnIA5String value, AsnSerializer serializer)
     {
         writer.WriteIA5String(value, tag);
     }
