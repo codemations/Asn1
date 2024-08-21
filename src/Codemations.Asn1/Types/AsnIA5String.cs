@@ -1,8 +1,11 @@
-﻿namespace Codemations.Asn1.Types;
+﻿using Codemations.Asn1.Converters;
+
+namespace Codemations.Asn1.Types;
 
 /// <summary>
 /// Represents an ASN.1 IA5String type.
 /// </summary>
+[AsnConverter(typeof(AsnIA5StringConverter))]
 public readonly struct AsnIA5String
 {
     private readonly string _value;

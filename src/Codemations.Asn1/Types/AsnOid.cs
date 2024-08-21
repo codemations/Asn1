@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Formats.Asn1;
+using Codemations.Asn1.Converters;
 using Codemations.Asn1.Extensions;
 
 namespace Codemations.Asn1;
@@ -8,6 +9,7 @@ namespace Codemations.Asn1;
 /// Represents an Object Identifier (OID) in ASN.1 notation. An OID is a sequence of integers that uniquely identifies a specific object in a globally unique manner.
 /// This struct provides methods for creating, validating, and manipulating OIDs.
 /// </summary>
+[AsnConverter(typeof(AsnOidConverter))]
 public readonly partial struct AsnOid : IEquatable<AsnOid>
 {
     private readonly string _oidString;

@@ -1,8 +1,11 @@
-﻿namespace Codemations.Asn1.Types;
+﻿using Codemations.Asn1.Converters;
+
+namespace Codemations.Asn1.Types;
 
 /// <summary>
 /// Represents an ASN.1 NumericString type.
 /// </summary>
+[AsnConverter(typeof(AsnNumericStringConverter))]
 public readonly struct AsnNumericString
 {
     private readonly string _value;

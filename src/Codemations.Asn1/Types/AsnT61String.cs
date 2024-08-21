@@ -1,8 +1,11 @@
-﻿namespace Codemations.Asn1.Types;
+﻿using Codemations.Asn1.Converters;
+
+namespace Codemations.Asn1.Types;
 
 /// <summary>
 /// Represents an ASN.1 T61String type.
 /// </summary>
+[AsnConverter(typeof(AsnT61StringConverter))]
 public readonly struct AsnT61String
 {
     private readonly string _value;

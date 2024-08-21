@@ -1,8 +1,11 @@
-﻿namespace Codemations.Asn1.Types;
+﻿using Codemations.Asn1.Converters;
+
+namespace Codemations.Asn1.Types;
 
 /// <summary>
 /// Represents an ASN.1 PrintableString type.
 /// </summary>
+[AsnConverter(typeof(AsnPrintableStringConverter))]
 public readonly struct AsnPrintableString
 {
     private readonly string _value;

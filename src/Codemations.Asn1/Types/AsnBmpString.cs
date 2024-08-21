@@ -1,8 +1,11 @@
-﻿namespace Codemations.Asn1.Types;
+﻿using Codemations.Asn1.Converters;
+
+namespace Codemations.Asn1.Types;
 
 /// <summary>
 /// Represents an ASN.1 BMPString type.
 /// </summary>
+[AsnConverter(typeof(AsnBmpStringConverter))]
 public readonly struct AsnBmpString
 {
     private readonly string _value;

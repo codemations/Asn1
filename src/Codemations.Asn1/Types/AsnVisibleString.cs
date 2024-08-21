@@ -1,8 +1,11 @@
-﻿namespace Codemations.Asn1.Types;
+﻿using Codemations.Asn1.Converters;
+
+namespace Codemations.Asn1.Types;
 
 /// <summary>
 /// Represents an ASN.1 VisibleString type.
 /// </summary>
+[AsnConverter(typeof(AsnVisibleStringConverter))]
 public readonly struct AsnVisibleString
 {
     private readonly string _value;

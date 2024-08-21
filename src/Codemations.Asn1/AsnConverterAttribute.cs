@@ -2,7 +2,7 @@ using System;
 
 namespace Codemations.Asn1;
 
-[AttributeUsage(AttributeTargets.Property)]
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Struct | AttributeTargets.Class)]
 public class AsnConverterAttribute : Attribute
 {
     public Type ConverterType { get; }
@@ -15,10 +15,5 @@ public class AsnConverterAttribute : Attribute
         }
 
         this.ConverterType = converterType;
-    }
-
-    internal AsnConverter CreateInstance()
-    {
-        return (Activator.CreateInstance(this.ConverterType) as AsnConverter)!;
     }
 }

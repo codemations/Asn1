@@ -26,7 +26,7 @@ public class AsnPropertyInfo
 
     public static implicit operator AsnPropertyInfo(PropertyInfo propertyInfo) => new(propertyInfo);
 
-    public AsnConverter? GetCustomConverter()
+    public AsnConverter? GetAsnConverter()
     {
         if (_propertyInfo.GetCustomAttribute<AsnConverterAttribute>() is AsnConverterAttribute asnConverterAttribute)
         {

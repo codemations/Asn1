@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Codemations.Asn1.Extensions;
 
@@ -49,5 +50,15 @@ internal static class TypeExtensions
             throw new InvalidOperationException($"Type {type.FullName} does not have a constructor with the specified parameters.");
 
         return ctor.Invoke(parameters);
+    }
+
+    public static AsnConverterAttribute? GetAsnConverterAttribute(this Type type)
+    {
+        return type.GetCustomAttribute<AsnConverterAttribute>();
+    }
+
+    public static AsnConverter? GetAsnConverter(this Type type)
+    {
+        return type.GetAsnConverterAttribute()?.ConverterType.CreateInstance<AsnConverter>();
     }
 }
