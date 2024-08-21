@@ -32,7 +32,7 @@ namespace Codemations.Asn1.Tests
                 .Concat(choice2Encoded)
                 .ToArray();
 
-            var actualEncodedValue = AsnConvert.Serialize(choiceSequence, System.Formats.Asn1.AsnEncodingRules.BER);
+            var actualEncodedValue = AsnSerializer.Serialize(choiceSequence, System.Formats.Asn1.AsnEncodingRules.BER);
 
             Assert.That(actualEncodedValue, Is.EqualTo(choiceSequenceEncoded));
         }
@@ -62,7 +62,7 @@ namespace Codemations.Asn1.Tests
                 .Concat(choice2Encoded)
                 .ToArray();
 
-            var actualChoiceSequence = AsnConvert.Deserialize<ChoiceSequence>(choiceSequenceEncoded, System.Formats.Asn1.AsnEncodingRules.BER);
+            var actualChoiceSequence = AsnSerializer.Deserialize<ChoiceSequence>(choiceSequenceEncoded, System.Formats.Asn1.AsnEncodingRules.BER);
 
             Assert.Multiple(() =>
             {

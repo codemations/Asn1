@@ -2,6 +2,7 @@
 using System.Formats.Asn1;
 using System.Linq;
 using System.Numerics;
+using Codemations.Asn1.Extensions;
 using NUnit.Framework;
 
 namespace Codemations.Asn1.Tests;
@@ -86,8 +87,8 @@ public class AsnConverterFactoryTests
     public void ShouldWriteValue(object value, byte tag, byte[] expectedEncodedValue)
     {
         // Arrange
-        var writer = new AsnWriter(AsnEncodingRules.DER);
-        var serializer = new AsnSerializer(AsnEncodingRules.BER);
+        var writer = new AsnWriter(AsnEncodingRules.BER);
+        var serializer = new AsnSerializer();
         var converter = AsnConvertersList.CreateDefault().Get(value.GetType());
 
         // Act
@@ -102,8 +103,8 @@ public class AsnConverterFactoryTests
     public void ShouldReadValue(object expectedValue, byte tag, byte[] encodedValue)
     {
         // Arrange
-        var reader = new AsnReader(encodedValue, AsnEncodingRules.DER);
-        var serializer = new AsnSerializer(AsnEncodingRules.BER);
+        var reader = new AsnReader(encodedValue, AsnEncodingRules.BER);
+        var serializer = new AsnSerializer();
         var converter = AsnConvertersList.CreateDefault().Get(expectedValue.GetType());
 
         // Act
@@ -117,8 +118,8 @@ public class AsnConverterFactoryTests
     public void ShouldReadSequenceOf(List<TestSequenceOfElement> expectedValue, byte tag, byte[] encodedValue)
     {
         // Arrange
-        var reader = new AsnReader(encodedValue, AsnEncodingRules.DER);
-        var serializer = new AsnSerializer(AsnEncodingRules.BER);
+        var reader = new AsnReader(encodedValue, AsnEncodingRules.BER);
+        var serializer = new AsnSerializer();
         var converter = AsnConvertersList.CreateDefault().Get(expectedValue.GetType());
 
         // Act

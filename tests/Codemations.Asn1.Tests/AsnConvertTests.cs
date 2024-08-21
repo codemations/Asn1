@@ -29,7 +29,7 @@ namespace Codemations.Asn1.Tests
         public void ShouldSerializeAsnElements(ICollection<AsnElement> asnElements, byte[] expectedData)
         {
             // Act
-            var actualData = AsnConvert.Serialize(asnElements, AsnEncodingRules.DER);
+            var actualData = AsnSerializer.Serialize(asnElements, AsnEncodingRules.DER);
 
             // Assert
             Assert.That(actualData, Is.EqualTo(expectedData));
@@ -39,7 +39,7 @@ namespace Codemations.Asn1.Tests
         public void ShouldDeserializeToAsnElements(ICollection<AsnElement> expectedAsnElements, byte[] data)
         {
             // Act
-            var actualAsnElements = AsnConvert.Deserialize(data, AsnEncodingRules.DER);
+            var actualAsnElements = AsnSerializer.Deserialize(data, AsnEncodingRules.DER);
 
             // Assert
             AssertAsnElements(expectedAsnElements, actualAsnElements.ToList());
@@ -107,7 +107,7 @@ namespace Codemations.Asn1.Tests
         public void ShouldSerializeModel(object element, byte[] expectedData)
         {
             // Act
-            var data = AsnConvert.Serialize(element, AsnEncodingRules.DER);
+            var data = AsnSerializer.Serialize(element, AsnEncodingRules.DER);
 
             // Assert
             Assert.That(data, Is.EqualTo(expectedData));
@@ -117,7 +117,7 @@ namespace Codemations.Asn1.Tests
         public void ShouldDeserializeToChoiceModel(ChoiceElement expectedElement, byte[] data)
         {
             // Act
-            var element = AsnConvert.Deserialize<ChoiceElement>(data, AsnEncodingRules.DER);
+            var element = AsnSerializer.Deserialize<ChoiceElement>(data, AsnEncodingRules.DER);
 
             // Assert
             Assert.Multiple(() =>
@@ -132,7 +132,7 @@ namespace Codemations.Asn1.Tests
         public void ShouldDeserializeToSequenceOfModel(IEnumerable<bool> expectedElement, byte[] data)
         {
             // Act
-            var element = AsnConvert.Deserialize(data, expectedElement.GetType(), AsnEncodingRules.DER);
+            var element = AsnSerializer.Deserialize(data, expectedElement.GetType(), AsnEncodingRules.DER);
 
             // Assert
             Assert.That(element, Is.EqualTo(expectedElement));
@@ -146,7 +146,7 @@ namespace Codemations.Asn1.Tests
             var expectedData = new byte[] { 6, 7, 42, 134, 72, 134, 247, 13, 1 };
 
             // Act
-            var encodedData = AsnConvert.Serialize(oid, AsnEncodingRules.DER);
+            var encodedData = AsnSerializer.Serialize(oid, AsnEncodingRules.DER);
 
             // Assert
             Assert.That(encodedData, Is.EqualTo(expectedData));
@@ -160,7 +160,7 @@ namespace Codemations.Asn1.Tests
             var encodedData = new byte[] { 6, 7, 42, 134, 72, 134, 247, 13, 1 };
 
             // Act
-            var actualOid = AsnConvert.Deserialize<AsnOid>(encodedData, AsnEncodingRules.DER);
+            var actualOid = AsnSerializer.Deserialize<AsnOid>(encodedData, AsnEncodingRules.DER);
 
             // Assert
             Assert.That(actualOid, Is.EqualTo(expectedOid));
@@ -174,7 +174,7 @@ namespace Codemations.Asn1.Tests
             var encodedData = new byte[] { 6, 7, 42, 134, 72, 134, 247, 13, 1 };
 
             // Act
-            var actualOid = AsnConvert.Deserialize<AsnOid?>(encodedData, AsnEncodingRules.DER);
+            var actualOid = AsnSerializer.Deserialize<AsnOid?>(encodedData, AsnEncodingRules.DER);
 
             // Assert
             Assert.That(actualOid, Is.EqualTo(expectedOid));
@@ -187,7 +187,7 @@ namespace Codemations.Asn1.Tests
             var data = new byte[] {0xA0, 0x03, 0x82, 0x01, 0x0A, 0x81, 0x01, 0x00};
 
             // Act & Assert
-            Assert.Throws<AsnConversionException>(() => AsnConvert.Deserialize<ChoiceElement>(data, AsnEncodingRules.DER));
+            Assert.Throws<AsnContentException>(() => AsnSerializer.Deserialize<ChoiceElement>(data, AsnEncodingRules.DER));
         }
 
         [Test]
@@ -201,7 +201,7 @@ namespace Codemations.Asn1.Tests
             };
 
             // Act & Assert
-            Assert.Throws<AsnConversionException>(() => AsnConvert.Serialize(model, AsnEncodingRules.DER));
+            Assert.Throws<AsnConversionException>(() => AsnSerializer.Serialize(model, AsnEncodingRules.DER));
         }
 
 
@@ -227,7 +227,7 @@ namespace Codemations.Asn1.Tests
         public void ShouldSerializeUniversalSequence(UniversalSequence model, byte[] data)
         {
             // Act
-            var serialized = AsnConvert.Serialize(model, AsnEncodingRules.DER);
+            var serialized = AsnSerializer.Serialize(model, AsnEncodingRules.DER);
 
             // Assert
             Assert.That(serialized, Is.EqualTo(data));
@@ -237,7 +237,7 @@ namespace Codemations.Asn1.Tests
         public void ShouldDeserializeUniversalSequence(UniversalSequence model, byte[] data)
         {
             // Act
-            var deserialized = AsnConvert.Deserialize<UniversalSequence>(data, AsnEncodingRules.DER);
+            var deserialized = AsnSerializer.Deserialize<UniversalSequence>(data, AsnEncodingRules.DER);
 
             // Assert
             Assert.That(deserialized.Integer, Is.EqualTo(model.Integer));

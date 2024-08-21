@@ -2,40 +2,38 @@
 using System;
 using System.Collections.Generic;
 
-namespace Codemations.Asn1
+namespace Codemations.Asn1;
+
+internal class AsnConvertersList : List<AsnConverter>
 {
-    internal class AsnConvertersList : List<IAsnConverter>
+    private readonly Dictionary<Type, AsnConverter> _cache = new ();
+
+    public static AsnConvertersList CreateDefault()
     {
-        private readonly Dictionary<Type, IAsnConverter> _cache = new ();
-
-        public static AsnConvertersList CreateDefault()
+        return new AsnConvertersList()
         {
-            return new AsnConvertersList()
-            {
-                new AsnBooleanConverter(),
-                new AsnEnumeratedValueConverter(),
-                new AsnIntegerConverter(),
-                new AsnOctetStringConverter(),
-                new AsnOidConverter(),
-                new AsnCharacterStringConverter(),
-                new AsnSequenceOfConverter(),
-                new AsnChoiceConverter(),
-                new AsnSequenceConverter()
-            };
+            new AsnBooleanConverter(),
+            new AsnEnumeratedValueConverter(),
+            new AsnIntegerConverter(),
+            new AsnOctetStringConverter(),
+            new AsnStringConverter(),
+            new AsnSequenceOfConverter(),
+            new AsnChoiceConverter(),
+            new AsnSequenceConverter()
+        };
+    }
+
+    public AsnConverter Get(Type type)
+    {
+        if (_cache.TryGetValue(type, out var cachedConverter))
+        {
+            return cachedConverter;
         }
 
-        public IAsnConverter Get(Type type)
-        {
-            if (_cache.TryGetValue(type, out var cachedConverter))
-            {
-                return cachedConverter;
-            }
+        var converter = Find(converter =>  converter.CanConvert(type)) ?? 
+            throw new ArgumentException($"Type '{type.FullName}' is not supported by any of converters.", nameof(type));
 
-            var converter = Find(converter =>  converter.CanConvert(type)) ?? 
-                throw new ArgumentException($"Type '{type.FullName}' is not supported by any of converters.", nameof(type));
-
-            _cache[type] = converter;
-            return converter;
-        }
+        _cache[type] = converter;
+        return converter;
     }
 }

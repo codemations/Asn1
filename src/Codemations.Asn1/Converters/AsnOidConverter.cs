@@ -1,30 +1,18 @@
 ﻿using System;
 using System.Formats.Asn1;
-using System.Linq;
 
-namespace Codemations.Asn1.Converters
+namespace Codemations.Asn1.Converters;
+
+internal class AsnOidConverter : AsnConverter<AsnOid>
 {
-    internal class AsnOidConverter : IAsnConverter
+    public override object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
     {
-        private static readonly Type[] AcceptedTypes = 
-        {
-            typeof(AsnOid), typeof(AsnOid?)
-        };
+        var oidStr = reader.ReadObjectIdentifier(tag);
+        return new AsnOid(oidStr, false);
+    }
 
-        public bool CanConvert(Type type)
-        {
-            return AcceptedTypes.Contains(type);
-        }
-
-        public object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
-        {
-            var oidStr = reader.ReadObjectIdentifier(tag);
-            return new AsnOid(oidStr, false);
-        }
-
-        public void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer)
-        {
-            writer.WriteObjectIdentifier((string)(AsnOid)value, tag);
-        }
+    public override void Write(AsnWriter writer, Asn1Tag? tag, AsnOid value, AsnSerializer serializer)
+    {
+        writer.WriteObjectIdentifier((string)value, tag);
     }
 }

@@ -1,23 +1,17 @@
 ﻿using System;
 using System.Formats.Asn1;
 
-namespace Codemations.Asn1.Converters
+namespace Codemations.Asn1.Converters;
+
+internal class AsnOctetStringConverter : AsnConverter<byte[]>
 {
-    internal class AsnOctetStringConverter : IAsnConverter
+    public override object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
     {
-        public bool CanConvert(Type type)
-        {
-            return typeof(byte[]) == type;
-        }
+        return reader.ReadOctetString(tag);
+    }
 
-        public object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
-        {
-            return reader.ReadOctetString(tag);
-        }
-
-        public void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer)
-        {
-            writer.WriteOctetString((byte[])value, tag);
-        }
+    public override void Write(AsnWriter writer, Asn1Tag? tag, byte[] value, AsnSerializer serializer)
+    {
+        writer.WriteOctetString(value, tag);
     }
 }
