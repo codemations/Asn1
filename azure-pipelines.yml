@@ -12,10 +12,12 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-- task: GitVersion@5
+- task: gitversion/setup@3
   inputs:
-    versionSpec: '5.x'
-    includePrerelease: true
+    versionSpec: '6.x'
+
+- task: gitversion/execute@3
+  inputs:
     useConfigFile: true
     configFilePath: '$(System.DefaultWorkingDirectory)/GitVersion.yml'
 
