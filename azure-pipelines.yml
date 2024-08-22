@@ -25,21 +25,32 @@ steps:
   inputs:
     restoreSolution: '$(solution)'
 
-- task: VSBuild@1
+- task: SonarCloudPrepare@2
   inputs:
-    solution: '$(solution)'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    SonarCloud: 'SonarCloud'
+    organization: 'codemations'
+    scannerMode: 'MSBuild'
+    projectKey: 'codemations_Asn1'
+    extraProperties: sonar.cs.opencover.reportsPaths=$(Agent.TempDirectory)/**/*.opencover.xml
 
-- task: VSTest@2
+- task: DotNetCoreCLI@2
   inputs:
-    testSelector: 'testAssemblies'
-    testAssemblyVer2: |
-      **\*.Tests.dll
-      !**\*TestAdapter.dll
-      !**\obj\**
-    searchFolder: '$(System.DefaultWorkingDirectory)'
-    codeCoverageEnabled: true
+    command: 'build'
+    projects: '**/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'test'
+    projects: '**/*Tests/*.csproj'
+    arguments: '--configuration $(buildConfiguration) --no-restore --collect:"Code Coverage" --logger trx'
+    publishTestResults: true
+
+- task: SonarCloudAnalyze@2
+
+- task: SonarCloudPublish@2
+  inputs:
+    pollingTimeoutSec: '300'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet pack'
