@@ -40,9 +40,9 @@ internal class AsnChoiceConverter : AsnConverter
 
         return propertyInfos.Length switch
         {
-            0 => throw new AsnConversionException("No choice element to matching the tag."),
+            0 => throw new AsnConversionException("No choice element to matching the tag.", tag),
             1 => propertyInfos[0],
-            _ => throw new AsnConversionException("Multiple choice elements with the same tag."),
+            _ => throw new AsnConversionException("Multiple choice elements with the same tag.", tag),
         };
     }
     private static AsnPropertyInfo GetWriteChoiceProperty(object value)

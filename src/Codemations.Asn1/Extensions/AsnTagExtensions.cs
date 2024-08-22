@@ -57,7 +57,7 @@ public static class AsnTagExtensions
     public static Asn1Tag ToAsn1Tag(this byte encodedTag)
     {
         Span<byte> encodedTagBytes = stackalloc byte[] { encodedTag };
-        return Asn1Tag.Decode(encodedTagBytes, out _);
+        return encodedTagBytes.ToAsn1Tag();
     }
 
     /// <summary>
@@ -76,15 +76,15 @@ public static class AsnTagExtensions
             _ => 4
         };
 
-        Span<byte> bytes = stackalloc byte[encodedSize];
+        Span<byte> encodedTagBytes = stackalloc byte[encodedSize];
 
         for (var offset = encodedSize - 1; offset >= 0; offset--)
         {
-            bytes[offset] = (byte)encodedTag;
+            encodedTagBytes[offset] = (byte)encodedTag;
             encodedTag >>= 8;
         }
 
-        return Asn1Tag.Decode(bytes, out _);
+        return encodedTagBytes.ToAsn1Tag();
     }
 
     /// <summary>

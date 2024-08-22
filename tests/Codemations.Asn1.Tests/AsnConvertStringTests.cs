@@ -1,6 +1,7 @@
 ﻿using Codemations.Asn1.Types;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Formats.Asn1;
 
 namespace Codemations.Asn1.Tests
 {
@@ -21,6 +22,8 @@ namespace Codemations.Asn1.Tests
             yield return new TestCaseData((AsnT61String?)@"Arek", new byte[] { 0x14, 0x04, 0x41, 0x72, 0x65, 0x6B });
             yield return new TestCaseData((AsnBmpString)@"Arek", new byte[] { 0x1E, 0x08, 0x00, 0x41, 0x00, 0x72, 0x00, 0x65, 0x00, 0x6B });
             yield return new TestCaseData((AsnBmpString?)@"Arek", new byte[] { 0x1E, 0x08, 0x00, 0x41, 0x00, 0x72, 0x00, 0x65, 0x00, 0x6B });
+            yield return new TestCaseData((AsnNumericString)@"1234", new byte[] { 0x12, 0x04, 0x31, 0x32, 0x33, 0x34 });
+            yield return new TestCaseData((AsnNumericString?)@"1234", new byte[] { 0x12, 0x04, 0x31, 0x32, 0x33, 0x34 });
         }
 
         [TestCaseSource(nameof(GetTestData))]

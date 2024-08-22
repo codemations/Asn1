@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using Codemations.Asn1.Extensions;
+using NUnit.Framework;
+using System.Formats.Asn1;
 using System.Linq;
 
 namespace Codemations.Asn1.Tests
@@ -69,6 +71,19 @@ namespace Codemations.Asn1.Tests
                 Assert.That(actualChoiceSequence.Choice1?.SequenceElement?.Integer, Is.EqualTo(choiceSequence.Choice1.SequenceElement.Integer));
                 Assert.That(actualChoiceSequence.Choice2?.BooleanElement, Is.EqualTo(choiceSequence.Choice2.BooleanElement));
             });
+        }
+
+        [Test]
+        public void ShouldThrowWhenMultipleElementsWithTheSameTag()
+        {
+            // Arrange
+            var expectedTag = new Asn1Tag(TagClass.ContextSpecific, 0);
+            var choiceEncoded = new byte[] { expectedTag.ToByte(), 0x01, 0x00 };
+
+            // Act & Assert
+            var exception = Assert.Throws<AsnConversionException>(() => 
+                AsnSerializer.DeserializeBer<InvalidChoiceElement>(choiceEncoded));
+            Assert.That(exception.Tag, Is.EqualTo(expectedTag));
         }
     }
 }
