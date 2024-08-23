@@ -40,9 +40,4 @@ public static class AsnWriterExtensions
     {
         writer.WriteCharacterString(UniversalTagNumber.T61String, value, tag);
     }
-
-    public static void WriteObjectIdentifier(this AsnWriter asnWriter, ReadOnlySpan<byte> encodedOidValue, Asn1Tag? tag = null)
-    {
-        asnWriter.WriteOctetString(encodedOidValue, tag ?? Asn1Tag.ObjectIdentifier);
-    }
 }
