@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Formats.Asn1;
 using Codemations.Asn1.Converters;
-using Codemations.Asn1.Extensions;
 
 namespace Codemations.Asn1;
 
@@ -34,6 +33,11 @@ public readonly partial struct AsnOid : IEquatable<AsnOid>
 
     internal AsnOid(string oidStr, bool validate)
     {
+        if (oidStr is null)
+        {
+            throw new ArgumentNullException(nameof(oidStr));
+        }
+
         _oidString = oidStr;
 
         if (validate)
@@ -108,8 +112,22 @@ public readonly partial struct AsnOid : IEquatable<AsnOid>
         return _oidString.GetHashCode();
     }
 
+
     /// <summary>
-    /// Determines whether this OID is a prefix of another OID.
+    /// Determines whether the current <see cref="AsnOid"/> instance is a prefix of the specified OID string.
+    /// </summary>
+    /// <param name="other">The OID string to compare with.</param>
+    /// <returns>
+    /// <c>true</c> if the current <see cref="AsnOid"/> instance is a prefix of the specified OID string; otherwise, <c>false</c>.
+    /// </returns>
+    /// <exception cref="FormatException">Thrown if the provided string cannot be converted to an <see cref="AsnOid"/>.</exception>
+    public bool IsPrefixOf(string other)
+    {
+        return IsPrefixOf((AsnOid)other);
+    }
+
+    /// <summary>
+    /// Determines whether the current <see cref="AsnOid"/> instance is a prefix of the specified OID string.
     /// </summary>
     /// <param name="other">The other <see cref="AsnOid"/> to compare with.</param>
     /// <returns><c>true</c> if this OID is a prefix of the other OID; otherwise, <c>false</c>.</returns>
@@ -127,14 +145,21 @@ public readonly partial struct AsnOid : IEquatable<AsnOid>
     /// <exception cref="FormatException">Thrown when the OID cannot be decoded.</exception>
     public static AsnOid FromEncodedValue(ReadOnlySpan<byte> encodedOidValue, AsnEncodingRules ruleSet)
     {
+        // We need to decode the OID value into its dot-delimited string representation.
+        // The method ReadObjectIdentifier can be used for this purpose, but the encoded value must be in TLV (Tag-Length-Value) format.
+        // Since there is no direct method to wrap the encoded value in this format, we can use WriteOctetString for this purpose.
+        // To bypass the universal tag checks, we use a context-specific tag.
+        var oidTag = new Asn1Tag(TagClass.ContextSpecific, 0);
+
+        // Create encoded TLV
         var writer = new AsnWriter(ruleSet);
-        writer.WriteObjectIdentifier(encodedOidValue);
+        writer.WriteOctetString(encodedOidValue, oidTag);
         Span<byte> encodedOid = stackalloc byte[writer.GetEncodedLength()];
         writer.Encode(encodedOid);
 
         try
         {
-            var oidString = AsnDecoder.ReadObjectIdentifier(encodedOid, ruleSet, out _);
+            var oidString = AsnDecoder.ReadObjectIdentifier(encodedOid, ruleSet, out _, oidTag);
             return new AsnOid(oidString);
         }
         catch (Exception ex) when (ex is AsnContentException || ex is ArgumentException || ex is ArgumentOutOfRangeException)

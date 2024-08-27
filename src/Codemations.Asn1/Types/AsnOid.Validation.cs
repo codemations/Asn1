@@ -33,6 +33,13 @@ public readonly partial struct AsnOid
             return;
         }
 
+        ReadOnlySpan<char> dotSpan = stackalloc char[] { '.' };
+        if (oidStr.StartsWith(dotSpan) || oidStr.EndsWith(dotSpan))
+        {
+            validationResult = ValidationResult.InvalidFormat;
+            return;
+        }
+
         var componentParser = new ComponentParser(oidStr);
 
         if (!componentParser.TryGetNext(out var firstComponentStr) ||
