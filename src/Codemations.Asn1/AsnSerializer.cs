@@ -8,12 +8,11 @@ namespace Codemations.Asn1
 {
     public class AsnSerializer
     {
-        private readonly AsnConvertersList _converterList;
-        public IList<AsnConverter> Converters => _converterList;
+        private readonly AsnConverterResolver _converterResolver;
 
         public AsnSerializer()
         {
-            _converterList = AsnConvertersList.CreateDefault();
+            _converterResolver = new AsnConverterResolver();
         }
 
         /// <summary>
@@ -85,7 +84,8 @@ namespace Codemations.Asn1
         /// <param name="value">The object to serialize.</param>
         public void Serialize(AsnWriter writer, object value)
         {
-            SerializeCore(writer, tag: null, value, converter: null);
+            var converter = _converterResolver.Resolve(value.GetType(), out _);
+            SerializeCore(writer, tag: null, value, converter);
         }
 
         /// <summary>
@@ -96,7 +96,8 @@ namespace Codemations.Asn1
         /// <param name="value">The object to serialize.</param>
         public void Serialize(AsnWriter writer, AsnPropertyInfo asnPropertyInfo, object value)
         {
-            SerializeCore(writer, asnPropertyInfo.Tag, value, asnPropertyInfo.GetAsnConverter());
+            var converter = _converterResolver.Resolve(asnPropertyInfo, out _);
+            SerializeCore(writer, asnPropertyInfo.Tag, value, converter);
         }
 
         private static AsnWriter SerializeInternal(object value, AsnEncodingRules ruleSet)
@@ -106,11 +107,8 @@ namespace Codemations.Asn1
             return writer;
         }
 
-        private void SerializeCore(AsnWriter writer, Asn1Tag? tag, object value, AsnConverter? converter)
+        private void SerializeCore(AsnWriter writer, Asn1Tag? tag, object value, AsnConverter converter)
         {            
-            converter ??= value.GetType().GetAsnConverter();
-            converter ??= _converterList.Get(value.GetType());
-
             converter.Write(writer, tag, value, this);
         }
 
@@ -232,7 +230,8 @@ namespace Codemations.Asn1
         /// <returns>The deserialized object.</returns>
         public object Deserialize(AsnReader reader, Type type)
         {
-            return Deserialize(reader, tag: null, type, converter: null);
+            var converter = _converterResolver.Resolve(type, out var resolvedType);
+            return Deserialize(reader, tag: null, resolvedType, converter);
         }
 
         /// <summary>
@@ -243,7 +242,8 @@ namespace Codemations.Asn1
         /// <returns>The deserialized object.</returns>
         public object Deserialize(AsnReader reader, AsnPropertyInfo asnPropertyInfo)
         {
-            return Deserialize(reader, asnPropertyInfo.Tag, asnPropertyInfo.Type, asnPropertyInfo.GetAsnConverter());
+            var converter = _converterResolver.Resolve(asnPropertyInfo, out var resolvedType);
+            return Deserialize(reader, asnPropertyInfo.Tag, resolvedType, converter);
         }
 
         /// <summary>
@@ -254,16 +254,8 @@ namespace Codemations.Asn1
         /// <param name="type">The type to deserialize into.</param>
         /// <param name="converter">An optional custom converter to use during deserialization.</param>
         /// <returns>The deserialized object.</returns>
-        public object Deserialize(AsnReader reader, Asn1Tag? tag, Type type, AsnConverter? converter)
+        public object Deserialize(AsnReader reader, Asn1Tag? tag, Type type, AsnConverter converter)
         {
-            if (type.IsNullable())
-            {
-                type = Nullable.GetUnderlyingType(type)!;
-            }
-
-            converter ??= type.GetAsnConverter();
-            converter ??= _converterList.Get(type);
-
             return converter.Read(reader, tag, type, this);
         }
 

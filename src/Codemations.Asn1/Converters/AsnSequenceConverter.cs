@@ -8,7 +8,7 @@ internal class AsnSequenceConverter : AsnConverter
 {
     public override bool CanConvert(Type type)
     {
-        return type.IsClass;
+        return type.IsClass && type != typeof(object);
     }
 
     public override object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)

@@ -7,7 +7,7 @@ internal class AsnEnumeratedValueConverter : AsnConverter<Enum>
 {
     public override bool CanConvert(Type type)
     {
-        return type.IsEnum;
+        return type.IsEnum || base.CanConvert(type);
     }
 
     public override object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
