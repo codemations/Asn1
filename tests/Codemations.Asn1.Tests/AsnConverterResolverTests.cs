@@ -1,4 +1,5 @@
-﻿using Codemations.Asn1.Converters;
+﻿using Codemations.Asn1.Attributes;
+using Codemations.Asn1.Converters;
 using Codemations.Asn1.Types;
 using NUnit.Framework;
 using System;

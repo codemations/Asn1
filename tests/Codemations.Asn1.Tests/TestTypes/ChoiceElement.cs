@@ -1,12 +1,14 @@
-﻿namespace Codemations.Asn1.Tests
+﻿using Codemations.Asn1.Attributes;
+
+namespace Codemations.Asn1.Tests
 {
     [AsnChoice]
     public class ChoiceElement
     {
-        [AsnElement(0xA0)]
+        [AsnTag(0xA0)]
         public SequenceElement? SequenceElement { get; set; }
 
-        [AsnElement(0x81)]
+        [AsnTag(0x81)]
         public bool? BooleanElement { get; set; }
     }
 }

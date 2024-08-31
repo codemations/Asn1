@@ -13,23 +13,23 @@ internal class AsnConverterResolver
     /// <summary>
     /// An array of built-in ASN.1 converters that are available by default.
     /// </summary>
-    private readonly AsnConverter[] _builtInConverters;
+    private readonly IAsnConverter[] _builtInConverters;
 
     /// <summary>
     /// An array of custom ASN.1 converters provided by the user.
     /// </summary>
-    private readonly AsnConverter[] _customConverters;
+    private readonly IAsnConverter[] _customConverters;
 
     /// <summary>
     /// A thread-safe cache that stores resolved converters for types to improve performance on subsequent lookups.
     /// </summary>
-    private readonly ConcurrentDictionary<Type, AsnConverter> _cache = new();
+    private readonly ConcurrentDictionary<Type, IAsnConverter> _cache = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AsnConverterResolver"/> class with default built-in converters.
     /// </summary>
     public AsnConverterResolver() :
-        this(GetDefaultBuiltInConverters(), Array.Empty<AsnConverter>())
+        this(GetDefaultBuiltInConverters(), Array.Empty<IAsnConverter>())
     {
     }
 
@@ -37,12 +37,12 @@ internal class AsnConverterResolver
     /// Initializes a new instance of the <see cref="AsnConverterResolver"/> class with a specified array of custom converters.
     /// </summary>
     /// <param name="customConverters">An array of custom converters provided by the user.</param>
-    public AsnConverterResolver(params AsnConverter[] customConverters)
+    public AsnConverterResolver(params IAsnConverter[] customConverters)
         : this(GetDefaultBuiltInConverters(), customConverters)
     {
     }
 
-    private AsnConverterResolver(AsnConverter[] builtInConverters, AsnConverter[] customConverters)
+    private AsnConverterResolver(IAsnConverter[] builtInConverters, IAsnConverter[] customConverters)
     {
         _builtInConverters = builtInConverters;
         _customConverters = customConverters;
@@ -55,14 +55,14 @@ internal class AsnConverterResolver
     /// <param name="resolvedType">The resolved underlying type of the property.</param>
     /// <returns>The resolved ASN.1 converter for the specified property info.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="asnPropertyInfo"/> is null.</exception>
-    public AsnConverter Resolve(AsnPropertyInfo asnPropertyInfo, out Type resolvedType)
+    public IAsnConverter Resolve(AsnPropertyInfo asnPropertyInfo, out Type resolvedType)
     {
         if (asnPropertyInfo is null)
         {
             throw new ArgumentNullException(nameof(asnPropertyInfo));
         }
 
-        resolvedType = ResolveType(asnPropertyInfo.Type);
+        resolvedType = ResolveType(asnPropertyInfo.PropertyType);
 
         return asnPropertyInfo.GetAsnConverter() ?? ResolveInternal(resolvedType);
     }
@@ -74,7 +74,7 @@ internal class AsnConverterResolver
     /// <param name="resolvedType">The resolved underlying type.</param>
     /// <returns>The resolved ASN.1 converter for the specified type.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="type"/> is null.</exception>
-    public AsnConverter Resolve(Type type, out Type resolvedType)
+    public IAsnConverter Resolve(Type type, out Type resolvedType)
     {
         if (type is null)
         {
@@ -86,12 +86,12 @@ internal class AsnConverterResolver
         return ResolveInternal(resolvedType);
     }
 
-    private AsnConverter ResolveInternal(Type type)
+    private IAsnConverter ResolveInternal(Type type)
     {
         return _cache.GetOrAdd(type, ResolveConverter(type));
     }
 
-    private AsnConverter ResolveConverter(Type type)
+    private IAsnConverter ResolveConverter(Type type)
     {       
         return Array.Find(_customConverters, converter => converter.CanConvert(type))
             ?? type.GetAsnConverter()
@@ -104,9 +104,9 @@ internal class AsnConverterResolver
         return type.IsNullable() ? Nullable.GetUnderlyingType(type)! : type;
     }
 
-    private static AsnConverter[] GetDefaultBuiltInConverters()
+    private static IAsnConverter[] GetDefaultBuiltInConverters()
     {
-        return new AsnConverter[]
+        return new IAsnConverter[]
         {
             new AsnBooleanConverter(),
             new AsnEnumeratedValueConverter(),

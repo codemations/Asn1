@@ -73,7 +73,7 @@ public partial class AsnSerializer
         return writer;
     }
 
-    private void SerializeCore(AsnWriter writer, object value, AsnConverter converter, Asn1Tag? tag = null)
+    private void SerializeCore(AsnWriter writer, object value, IAsnConverter converter, Asn1Tag? tag = null)
     {
         converter.Write(writer, tag, value, this);
     }
@@ -199,7 +199,7 @@ public partial class AsnSerializer
     /// <param name="type">The type to deserialize into.</param>
     /// <param name="converter">An optional custom converter to use during deserialization.</param>
     /// <returns>The deserialized object.</returns>
-    public object Deserialize(AsnReader reader, Type type, AsnConverter converter, Asn1Tag? expectedTag = null)
+    public object Deserialize(AsnReader reader, Type type, IAsnConverter converter, Asn1Tag? expectedTag = null)
     {
         return converter.Read(reader, expectedTag, type, this);
     }

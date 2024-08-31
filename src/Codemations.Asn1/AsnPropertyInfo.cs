@@ -1,38 +1,34 @@
-﻿using Codemations.Asn1.Extensions;
+﻿using Codemations.Asn1.Attributes;
+using Codemations.Asn1.Extensions;
 using System;
 using System.Formats.Asn1;
 using System.Reflection;
-
 
 namespace Codemations.Asn1;
 
 public class AsnPropertyInfo
 {
     public Asn1Tag? Tag { get; }
-    public bool IsOptional { get; }
-    public Type Type => _propertyInfo.PropertyType;
+    public bool IsRequired { get; }
+    public Type PropertyType => _propertyInfo.PropertyType;
+    public Type? ConverterType { get; }
     private readonly PropertyInfo _propertyInfo;
 
     public AsnPropertyInfo(PropertyInfo propertyInfo)
     {
         _propertyInfo = propertyInfo;
+        var attributes = propertyInfo.GetCustomAttributes(typeof(AsnAttribute), true);
 
-        if (propertyInfo.GetCustomAttribute<AsnElementAttribute>() is AsnElementAttribute asnElementAttribute)
-        {
-            Tag = asnElementAttribute.Tag;
-            IsOptional = asnElementAttribute.Optional;
-        }
+        Tag = GetAttribute<AsnTagAttribute>(attributes)?.Tag;
+        IsRequired = GetAttribute<AsnOptionalAttribute>(attributes) is null;
+        ConverterType = GetAttribute<AsnConverterAttribute>(attributes)?.ConverterType;
     }
 
     public static implicit operator AsnPropertyInfo(PropertyInfo propertyInfo) => new(propertyInfo);
 
-    public AsnConverter? GetAsnConverter()
+    public IAsnConverter? GetAsnConverter()
     {
-        if (_propertyInfo.GetCustomAttribute<AsnConverterAttribute>() is AsnConverterAttribute asnConverterAttribute)
-        {
-            return asnConverterAttribute.ConverterType?.CreateInstance<AsnConverter>();
-        }
-        return null;
+        return ConverterType?.CreateInstance<IAsnConverter>();
     }
 
     public object? GetValue(object parentObj)
@@ -43,5 +39,10 @@ public class AsnPropertyInfo
     public void SetValue(object parentObj, object? value)
     {
         _propertyInfo.SetValue(parentObj, value);
+    }
+
+    private static T? GetAttribute<T>(object[] attributes) where T: Attribute
+    {
+        return Array.Find(attributes, attribute => attribute is T) as T;
     }
 }

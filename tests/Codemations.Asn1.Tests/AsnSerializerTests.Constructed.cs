@@ -1,4 +1,5 @@
-﻿using Codemations.Asn1.Extensions;
+﻿using Codemations.Asn1.Attributes;
+using Codemations.Asn1.Extensions;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Formats.Asn1;
@@ -191,7 +192,7 @@ namespace Codemations.Asn1.Tests
         [AsnSequence]
         public class UniversalSequence
         {
-            [AsnElement]
+            [AsnTag]
             public BigInteger Integer { get; set; }
         }
 

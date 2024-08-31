@@ -4,14 +4,14 @@ using System.Formats.Asn1;
 
 namespace Codemations.Asn1.Converters;
 
-internal class AsnSequenceConverter : AsnConverter
+internal class AsnSequenceConverter : IAsnConverter
 {
-    public override bool CanConvert(Type type)
+    public bool CanConvert(Type type)
     {
         return type.IsClass && type != typeof(object);
     }
 
-    public override object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
+    public object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
     {
         var sequenceReader = reader.ReadSequence(tag);
 
@@ -26,7 +26,7 @@ internal class AsnSequenceConverter : AsnConverter
             }
             catch (AsnContentException e)
             {
-                if (!asnPropertyInfo.IsOptional)
+                if (asnPropertyInfo.IsRequired)
                 {
                     throw new AsnConversionException("Value for required element is missing.", asnPropertyInfo.Tag, e);
                 }
@@ -36,7 +36,7 @@ internal class AsnSequenceConverter : AsnConverter
         return item;
     }
 
-    public override void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer)
+    public void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer)
     {
         writer.PushSequence(tag);
         foreach (var asnPropertyInfo in value.GetType().GetAsnProperties())
@@ -45,7 +45,7 @@ internal class AsnSequenceConverter : AsnConverter
             {
                 serializer.Serialize(writer, asnPropertyInfo, propertyValue);
             }
-            else if (!asnPropertyInfo.IsOptional)
+            else if (asnPropertyInfo.IsRequired)
             {
                 throw new AsnConversionException("Value for required element is missing.");
             }
