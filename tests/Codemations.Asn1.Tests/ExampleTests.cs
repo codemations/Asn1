@@ -6,7 +6,6 @@ namespace Codemations.Asn1.Tests
 {
     public class ExampleTests
     {
-        [AsnSequence]
         public class FooQuestion
         {
             [AsnElement]
