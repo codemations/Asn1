@@ -26,7 +26,7 @@ internal class AsnSequenceConverter : AsnConverter
             }
             catch (AsnContentException e)
             {
-                if (!asnPropertyInfo.IsOptional)
+                if (asnPropertyInfo.IsRequired)
                 {
                     throw new AsnConversionException("Value for required element is missing.", asnPropertyInfo.Tag, e);
                 }
@@ -45,7 +45,7 @@ internal class AsnSequenceConverter : AsnConverter
             {
                 serializer.Serialize(writer, asnPropertyInfo, propertyValue);
             }
-            else if (!asnPropertyInfo.IsOptional)
+            else if (asnPropertyInfo.IsRequired)
             {
                 throw new AsnConversionException("Value for required element is missing.");
             }

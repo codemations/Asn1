@@ -1,14 +1,14 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
+using Codemations.Asn1.Attributes;
 
-namespace Codemations.Asn1.Tests
+namespace Codemations.Asn1.Tests;
+
+public class SequenceElement
 {
-    public class SequenceElement
-    {
-        [AsnElement(0x81, Optional = true)]
-        public byte[]? OctetString { get; set; }
+    [AsnTag(0x81)]
+    [AsnOptional]
+    public byte[]? OctetString { get; set; }
 
-        [AsnElement(0x82)]
-        public BigInteger? Integer { get; set; }
-    }
+    [AsnTag(0x82)]
+    public BigInteger? Integer { get; set; }
 }

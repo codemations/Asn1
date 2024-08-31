@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Codemations.Asn1.Attributes;
 using Codemations.Asn1.Extensions;
 using NUnit.Framework;
 
@@ -16,9 +17,15 @@ internal partial class AsnSerializerTests
 
     public class TestSequenceOfElement
     {
-        [AsnElement(0x80)] public bool Boolean { get; set; }
-        [AsnElement(0x81)] public BigInteger Integer { get; set; }
-        [AsnElement(0x82, Optional = true)] public TestEnum? Enum { get; set; }
+        [AsnTag(0x80)] 
+        public bool Boolean { get; set; }
+
+        [AsnTag(0x81)]
+        public BigInteger Integer { get; set; }
+        
+        [AsnTag(0x82)]
+        [AsnOptional]
+        public TestEnum? Enum { get; set; }
     }
 
     private static IEnumerable<TestCaseData> GetSequenceOfTestCases()

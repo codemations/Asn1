@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Codemations.Asn1.Attributes;
 
 namespace Codemations.Asn1.Extensions;
 

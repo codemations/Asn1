@@ -1,9 +1,9 @@
 using System;
 
-namespace Codemations.Asn1;
+namespace Codemations.Asn1.Attributes;
 
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Struct | AttributeTargets.Class)]
-public class AsnConverterAttribute : Attribute
+public class AsnConverterAttribute : AsnAttribute
 {
     public Type ConverterType { get; }
 
@@ -14,6 +14,6 @@ public class AsnConverterAttribute : Attribute
             throw new ArgumentException($"Type '{converterType.Name}' does not implement '{nameof(AsnConverter)}' interface.");
         }
 
-        this.ConverterType = converterType;
+        ConverterType = converterType;
     }
 }

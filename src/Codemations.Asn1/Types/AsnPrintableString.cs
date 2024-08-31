@@ -1,4 +1,5 @@
-﻿using Codemations.Asn1.Converters;
+﻿using Codemations.Asn1.Attributes;
+using Codemations.Asn1.Converters;
 
 namespace Codemations.Asn1.Types;
 

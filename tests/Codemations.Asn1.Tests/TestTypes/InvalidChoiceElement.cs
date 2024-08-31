@@ -1,12 +1,13 @@
-﻿namespace Codemations.Asn1.Tests
-{
-    [AsnChoice]
-    public class InvalidChoiceElement
-    {
-        [AsnElement(0x80)]
-        public int? IntegerElement { get; set; }
+﻿using Codemations.Asn1.Attributes;
 
-        [AsnElement(0x80)]
-        public bool? BooleanElement { get; set; }
-    }
+namespace Codemations.Asn1.Tests;
+
+[AsnChoice]
+public class InvalidChoiceElement
+{
+    [AsnTag(0x80)]
+    public int? IntegerElement { get; set; }
+
+    [AsnTag(0x80)]
+    public bool? BooleanElement { get; set; }
 }

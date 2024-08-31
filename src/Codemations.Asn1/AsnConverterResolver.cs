@@ -62,7 +62,7 @@ internal class AsnConverterResolver
             throw new ArgumentNullException(nameof(asnPropertyInfo));
         }
 
-        resolvedType = ResolveType(asnPropertyInfo.Type);
+        resolvedType = ResolveType(asnPropertyInfo.PropertyType);
 
         return asnPropertyInfo.GetAsnConverter() ?? ResolveInternal(resolvedType);
     }

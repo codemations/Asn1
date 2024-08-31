@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Formats.Asn1;
+using Codemations.Asn1.Attributes;
 using Codemations.Asn1.Converters;
 
 namespace Codemations.Asn1;
