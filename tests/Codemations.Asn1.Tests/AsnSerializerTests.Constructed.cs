@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using Codemations.Asn1.Extensions;
+using NUnit.Framework;
 using System.Collections.Generic;
 using System.Formats.Asn1;
 using System.Linq;
@@ -6,61 +7,83 @@ using System.Numerics;
 
 namespace Codemations.Asn1.Tests
 {
-    public partial class AsnConvertTests
+    internal partial class AsnSerializerTests
     {
-        private static IEnumerable<TestCaseData> Data()
+        [Test]
+        public void ShouldSerializeChoiceSequence()
         {
-            var cafeElement = new AsnElement(0x81) {Value = new byte[] {0xCA, 0xFE}};
-            var deadBeefElement = new AsnElement(0x82)
-                {Value = new byte[] {0xDE, 0xAD, 0xBE, 0xEF}};
-            var constructedElement = new AsnElement(0xA0,
-                new [] { cafeElement, deadBeefElement }.ToList());
-
-            yield return new TestCaseData(
-                new [] { cafeElement, deadBeefElement },
-                new byte[] {0x81, 0x02, 0xCA, 0xFE, 0x82, 0x04, 0xDE, 0xAD, 0xBE, 0xEF});
-
-            yield return new TestCaseData(
-                new [] { constructedElement },
-                new byte[] {0xA0, 0x0A, 0x81, 0x02, 0xCA, 0xFE, 0x82, 0x04, 0xDE, 0xAD, 0xBE, 0xEF});
-        }
-
-        [TestCaseSource(nameof(Data))]
-        public void ShouldSerializeAsnElements(ICollection<AsnElement> asnElements, byte[] expectedData)
-        {
-            // Act
-            var actualData = AsnSerializer.Serialize(asnElements, AsnEncodingRules.DER);
-
-            // Assert
-            Assert.That(actualData, Is.EqualTo(expectedData));
-        }
-
-        [TestCaseSource(nameof(Data))]
-        public void ShouldDeserializeToAsnElements(ICollection<AsnElement> expectedAsnElements, byte[] data)
-        {
-            // Act
-            var actualAsnElements = AsnSerializer.Deserialize(data, AsnEncodingRules.DER);
-
-            // Assert
-            AssertAsnElements(expectedAsnElements, actualAsnElements.ToList());
-        }
-
-        private static void AssertAsnElements(ICollection<AsnElement> expectedSequence,
-            ICollection<AsnElement> actualSequence)
-        {
-            Assert.That(actualSequence, Has.Count.EqualTo(expectedSequence.Count));
-            foreach (var (expected, actual) in expectedSequence.Zip(actualSequence, (x, y) => (x, y)))
+            var choice1 = new ChoiceElement
             {
-                Assert.That(actual.Tag, Is.EqualTo(expected.Tag));
-                if (expected.Tag.IsConstructed)
+                SequenceElement = new SequenceElement
                 {
-                    AssertAsnElements(expected.Elements.ToList(), actual.Elements.ToList());
+                    OctetString = new byte[] { 0xCA, 0xFE },
+                    Integer = 10
                 }
-                else
+            };
+            var choice1Encoded = new byte[] { 0xA0, 0x07, 0x81, 0x02, 0xCA, 0xFE, 0x82, 0x01, 0x0A };
+
+            var choice2 = new ChoiceElement
+            {
+                BooleanElement = true
+            };                  
+            var choice2Encoded = new byte[] { 0x81, 0x01, 0xFF };
+
+            var choiceSequence = new ChoiceSequence { Choice1 = choice1, Choice2 = choice2 };
+            var choiceSequenceEncoded = new byte[] { 0x30, (byte)(choice1Encoded.Length + choice2Encoded.Length) }
+                .Concat(choice1Encoded)
+                .Concat(choice2Encoded)
+                .ToArray();
+
+            var actualEncodedValue = AsnSerializer.Serialize(choiceSequence, System.Formats.Asn1.AsnEncodingRules.BER);
+
+            Assert.That(actualEncodedValue, Is.EqualTo(choiceSequenceEncoded));
+        }
+
+        [Test]
+        public void ShouldDeserializeChoiceSequence()
+        {
+            var choice1 = new ChoiceElement
+            {
+                SequenceElement = new SequenceElement
                 {
-                    Assert.That(actual.Value?.ToArray(), Is.EqualTo(expected.Value?.ToArray()));
+                    OctetString = new byte[] { 0xCA, 0xFE },
+                    Integer = 10
                 }
-            }
+            };
+            var choice1Encoded = new byte[] { 0xA0, 0x07, 0x81, 0x02, 0xCA, 0xFE, 0x82, 0x01, 0x0A };
+
+            var choice2 = new ChoiceElement
+            {
+                BooleanElement = true
+            };
+            var choice2Encoded = new byte[] { 0x81, 0x01, 0xFF };
+
+            var choiceSequence = new ChoiceSequence { Choice1 = choice1, Choice2 = choice2 };
+            var choiceSequenceEncoded = new byte[] { 0x30, (byte)(choice1Encoded.Length + choice2Encoded.Length) }
+                .Concat(choice1Encoded)
+                .Concat(choice2Encoded)
+                .ToArray();
+
+            var actualChoiceSequence = AsnSerializer.Deserialize<ChoiceSequence>(choiceSequenceEncoded, AsnEncodingRules.BER);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(actualChoiceSequence.Choice1?.SequenceElement?.Integer, Is.EqualTo(choiceSequence.Choice1.SequenceElement.Integer));
+                Assert.That(actualChoiceSequence.Choice2?.BooleanElement, Is.EqualTo(choiceSequence.Choice2.BooleanElement));
+            });
+        }
+
+        [Test]
+        public void ShouldThrowWhenMultipleElementsWithTheSameTag()
+        {
+            // Arrange
+            var expectedTag = new Asn1Tag(TagClass.ContextSpecific, 0);
+            var choiceEncoded = new byte[] { expectedTag.ToByte(), 0x01, 0x00 };
+
+            // Act & Assert
+            var exception = Assert.Throws<AsnConversionException>(() => 
+                AsnSerializer.DeserializeBer<InvalidChoiceElement>(choiceEncoded));
+            Assert.That(exception.Tag, Is.EqualTo(expectedTag));
         }
 
         private static IEnumerable<TestCaseData> ChoiceModelData()
@@ -70,11 +93,11 @@ namespace Codemations.Asn1.Tests
                 {
                     SequenceElement = new SequenceElement
                     {
-                        OctetString = new byte[] {0xCA, 0xFE},
+                        OctetString = new byte[] { 0xCA, 0xFE },
                         Integer = 10
                     }
                 },
-                new byte[] {0xA0, 0x07, 0x81, 0x02, 0xCA, 0xFE, 0x82, 0x01, 0x0A});
+                new byte[] { 0xA0, 0x07, 0x81, 0x02, 0xCA, 0xFE, 0x82, 0x01, 0x0A });
             yield return new TestCaseData(
                 new ChoiceElement
                 {
@@ -83,23 +106,23 @@ namespace Codemations.Asn1.Tests
                         Integer = 10
                     }
                 },
-                new byte[] {0xA0, 0x03, 0x82, 0x01, 0x0A});
+                new byte[] { 0xA0, 0x03, 0x82, 0x01, 0x0A });
             yield return new TestCaseData(
                 new ChoiceElement
                 {
                     BooleanElement = true
                 },
-                new byte[] {0x81, 0x01, 0xFF});
+                new byte[] { 0x81, 0x01, 0xFF });
         }
 
         private static IEnumerable<TestCaseData> SequenceOfModelData()
         {
             yield return new TestCaseData(
                 new List<bool> { true, false },
-                new byte[] {0x30, 0x06, 0x01, 0x01, 0xFF, 0x01, 0x01, 0x00 });
+                new byte[] { 0x30, 0x06, 0x01, 0x01, 0xFF, 0x01, 0x01, 0x00 });
             yield return new TestCaseData(
                 new bool[] { true, false },
-                new byte[] {0x30, 0x06, 0x01, 0x01, 0xFF, 0x01, 0x01, 0x00 });
+                new byte[] { 0x30, 0x06, 0x01, 0x01, 0xFF, 0x01, 0x01, 0x00 });
         }
 
         [TestCaseSource(nameof(ChoiceModelData))]
@@ -138,53 +161,13 @@ namespace Codemations.Asn1.Tests
             Assert.That(element, Is.EqualTo(expectedElement));
         }
 
-        [Test]
-        public void ShouldSerializeOid()
-        {
-            // Arrange
-            AsnOid? oid = new AsnOid("1.2.840.113549.1");
-            var expectedData = new byte[] { 6, 7, 42, 134, 72, 134, 247, 13, 1 };
 
-            // Act
-            var encodedData = AsnSerializer.Serialize(oid, AsnEncodingRules.DER);
-
-            // Assert
-            Assert.That(encodedData, Is.EqualTo(expectedData));
-        }
-
-        [Test]
-        public void ShouldDeserializeOid()
-        {
-            // Arrange
-            var expectedOid = new AsnOid("1.2.840.113549.1");
-            var encodedData = new byte[] { 6, 7, 42, 134, 72, 134, 247, 13, 1 };
-
-            // Act
-            var actualOid = AsnSerializer.Deserialize<AsnOid>(encodedData, AsnEncodingRules.DER);
-
-            // Assert
-            Assert.That(actualOid, Is.EqualTo(expectedOid));
-        }
-
-        [Test]
-        public void ShouldDeserializeNullableOid()
-        {
-            // Arrange
-            var expectedOid = new AsnOid("1.2.840.113549.1");
-            var encodedData = new byte[] { 6, 7, 42, 134, 72, 134, 247, 13, 1 };
-
-            // Act
-            var actualOid = AsnSerializer.Deserialize<AsnOid?>(encodedData, AsnEncodingRules.DER);
-
-            // Assert
-            Assert.That(actualOid, Is.EqualTo(expectedOid));
-        }
 
         [Test]
         public void ShouldThrowWhenDeserializing()
         {
             // Arrange
-            var data = new byte[] {0xA0, 0x03, 0x82, 0x01, 0x0A, 0x81, 0x01, 0x00};
+            var data = new byte[] { 0xA0, 0x03, 0x82, 0x01, 0x0A, 0x81, 0x01, 0x00 };
 
             // Act & Assert
             Assert.Throws<AsnContentException>(() => AsnSerializer.Deserialize<ChoiceElement>(data, AsnEncodingRules.DER));
@@ -196,7 +179,7 @@ namespace Codemations.Asn1.Tests
             // Arrange
             var model = new ChoiceElement()
             {
-                SequenceElement = new SequenceElement(){Integer = 6},
+                SequenceElement = new SequenceElement() { Integer = 6 },
                 BooleanElement = true
             };
 
@@ -219,7 +202,7 @@ namespace Codemations.Asn1.Tests
 
                 yield return new TestCaseData(
                     new UniversalSequence { Integer = 10 },
-                    new byte[] {0x30, 0x03, 0x02, 0x01, 0x0A });
+                    new byte[] { 0x30, 0x03, 0x02, 0x01, 0x0A });
             }
         }
 

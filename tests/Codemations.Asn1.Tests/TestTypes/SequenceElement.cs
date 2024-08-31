@@ -1,8 +1,8 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 
 namespace Codemations.Asn1.Tests
 {
-    [AsnSequence]
     public class SequenceElement
     {
         [AsnElement(0x81, Optional = true)]

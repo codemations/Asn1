@@ -1,6 +1,5 @@
 ﻿namespace Codemations.Asn1.Tests
 {
-    [AsnSequence]
     public class ChoiceSequence
     {
         public ChoiceElement? Choice1 { get; set; }

@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace Codemations.Asn1.Tests
 {
-    public class AsnExtensionsTests : TagTestData
+    public class AsnTagExtensionsTests : TagTestData
     {
         [TestCaseSource(nameof(ByteData))]
         public void ShouldConvertTagToByte(Asn1Tag asn1Tag, byte expectedTag)

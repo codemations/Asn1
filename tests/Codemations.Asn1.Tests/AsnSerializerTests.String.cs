@@ -1,13 +1,12 @@
 ﻿using Codemations.Asn1.Types;
 using NUnit.Framework;
 using System.Collections.Generic;
-using System.Formats.Asn1;
 
 namespace Codemations.Asn1.Tests
 {
-    internal class AsnConvertStringTests
+    internal partial class AsnSerializerTests
     {
-        private static IEnumerable<TestCaseData> GetTestData()
+        private static IEnumerable<TestCaseData> GetStringTestCases()
         {
             yield return new TestCaseData(@"Arek", new byte[] { 0x0C, 0x04, 0x41, 0x72, 0x65, 0x6B });
             yield return new TestCaseData((AsnUtf8String)@"Arek", new byte[] { 0x0C, 0x04, 0x41, 0x72, 0x65, 0x6B });
@@ -26,8 +25,8 @@ namespace Codemations.Asn1.Tests
             yield return new TestCaseData((AsnNumericString?)@"1234", new byte[] { 0x12, 0x04, 0x31, 0x32, 0x33, 0x34 });
         }
 
-        [TestCaseSource(nameof(GetTestData))]
-        public void ShouldSerializeString(object value, byte[] expectedEncodedValue)
+        [TestCaseSource(nameof(GetStringTestCases))]
+        public void Serialize_StringData_ShouldReturnExpectedEncodedValue(object value, byte[] expectedEncodedValue)
         {
             // Act
             var encodedValue = AsnSerializer.SerializeBer(value);
@@ -36,8 +35,8 @@ namespace Codemations.Asn1.Tests
             Assert.That(encodedValue, Is.EqualTo(expectedEncodedValue));
         }
 
-        [TestCaseSource(nameof(GetTestData))]
-        public void ShouldDeserializeString(object expectedValue, byte[] encodedValue)
+        [TestCaseSource(nameof(GetStringTestCases))]
+        public void Deserialize_StringData_ShouldReturnExpectedValue(object expectedValue, byte[] encodedValue)
         {
             // Act
             var value = AsnSerializer.DeserializeBer(encodedValue, expectedValue.GetType());
