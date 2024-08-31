@@ -26,9 +26,9 @@ public class AsnPropertyInfo
 
     public static implicit operator AsnPropertyInfo(PropertyInfo propertyInfo) => new(propertyInfo);
 
-    public AsnConverter? GetAsnConverter()
+    public IAsnConverter? GetAsnConverter()
     {
-        return ConverterType?.CreateInstance<AsnConverter>();
+        return ConverterType?.CreateInstance<IAsnConverter>();
     }
 
     public object? GetValue(object parentObj)

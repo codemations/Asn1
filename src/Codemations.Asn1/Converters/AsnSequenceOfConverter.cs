@@ -7,14 +7,14 @@ using System.Linq;
 
 namespace Codemations.Asn1.Converters;
 
-internal class AsnSequenceOfConverter : AsnConverter
+internal class AsnSequenceOfConverter : IAsnConverter
 {
-    public override bool CanConvert(Type type)
+    public bool CanConvert(Type type)
     {
         return typeof(ICollection).IsAssignableFrom(type);
     }
 
-    public override object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
+    public object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
     {
         var elementType = GetElementType(type);
         var collection = ReadCollection(reader, tag, elementType, serializer);
@@ -27,7 +27,7 @@ internal class AsnSequenceOfConverter : AsnConverter
         };
     }
 
-    public override void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer)
+    public void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer)
     {
         using var sequenceScope = writer.PushSequence(tag);
         foreach (var element in (value as ICollection)!)

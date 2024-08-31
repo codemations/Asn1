@@ -9,9 +9,9 @@ public class AsnConverterAttribute : AsnAttribute
 
     public AsnConverterAttribute(Type converterType)
     {
-        if (!typeof(AsnConverter).IsAssignableFrom(converterType))
+        if (!typeof(IAsnConverter).IsAssignableFrom(converterType))
         {
-            throw new ArgumentException($"Type '{converterType.Name}' does not implement '{nameof(AsnConverter)}' interface.");
+            throw new ArgumentException($"Type '{converterType.Name}' does not implement '{nameof(IAsnConverter)}' interface.");
         }
 
         ConverterType = converterType;

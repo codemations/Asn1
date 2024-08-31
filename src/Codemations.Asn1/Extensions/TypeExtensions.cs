@@ -58,8 +58,8 @@ internal static class TypeExtensions
         return type.GetCustomAttribute<AsnConverterAttribute>();
     }
 
-    public static AsnConverter? GetAsnConverter(this Type type)
+    public static IAsnConverter? GetAsnConverter(this Type type)
     {
-        return type.GetAsnConverterAttribute()?.ConverterType.CreateInstance<AsnConverter>();
+        return type.GetAsnConverterAttribute()?.ConverterType.CreateInstance<IAsnConverter>();
     }
 }

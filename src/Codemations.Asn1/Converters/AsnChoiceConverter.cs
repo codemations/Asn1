@@ -7,14 +7,14 @@ using System.Reflection;
 
 namespace Codemations.Asn1.Converters;
 
-internal class AsnChoiceConverter : AsnConverter
+internal class AsnChoiceConverter : IAsnConverter
 {
-    public override bool CanConvert(Type type)
+    public bool CanConvert(Type type)
     {
         return type.GetCustomAttribute<AsnChoiceAttribute>() is not null;
     }
 
-    public override object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
+    public object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
     {
         var innerTag = reader.PeekTag();
 
@@ -26,7 +26,7 @@ internal class AsnChoiceConverter : AsnConverter
         return item;
     }
 
-    public override void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer)
+    public void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer)
     {
         var propertyInfo = GetWriteChoiceProperty(value);
         var propertyValue = propertyInfo.GetValue(value)!;
