@@ -16,9 +16,9 @@ internal class AsnChoiceConverter : IAsnConverter
 
     public object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
     {
-        var innerTag = reader.PeekTag();
+        var choiceTag = reader.PeekTag();
 
-        var asnPropertyInfo = GetReadChoiceProperty(innerTag, type);
+        var asnPropertyInfo = GetReadChoiceProperty(choiceTag, type);
         var item = type.CreateInstance();
         var value = serializer.Deserialize(reader, asnPropertyInfo);
         asnPropertyInfo.SetValue(item, value);
