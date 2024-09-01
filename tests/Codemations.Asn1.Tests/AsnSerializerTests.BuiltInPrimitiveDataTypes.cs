@@ -12,6 +12,14 @@ namespace Codemations.Asn1.Tests
             yield return new TestCaseData(false, (byte)0x80, new byte[] { 0x80, 0x01, 000 });
             yield return new TestCaseData(true, (byte)0x81, new byte[] { 0x81, 0x01, 0xFF });
             yield return new TestCaseData((BigInteger)10, (byte)0x82, new byte[] { 0x82, 0x01, 0x0A });
+            yield return new TestCaseData((int)10, (byte)0x82, new byte[] { 0x82, 0x01, 0x0A });
+            yield return new TestCaseData((uint)10, (byte)0x82, new byte[] { 0x82, 0x01, 0x0A });
+            yield return new TestCaseData((long)10, (byte)0x82, new byte[] { 0x82, 0x01, 0x0A });
+            yield return new TestCaseData((ulong)10, (byte)0x82, new byte[] { 0x82, 0x01, 0x0A });
+            yield return new TestCaseData((short)10, (byte)0x82, new byte[] { 0x82, 0x01, 0x0A });
+            yield return new TestCaseData((ushort)10, (byte)0x82, new byte[] { 0x82, 0x01, 0x0A });
+            yield return new TestCaseData((byte)10, (byte)0x82, new byte[] { 0x82, 0x01, 0x0A });
+            yield return new TestCaseData((sbyte)10, (byte)0x82, new byte[] { 0x82, 0x01, 0x0A });
             yield return new TestCaseData(new byte[] { 0xCA, 0xFE }, (byte)0x83, new byte[] { 0x83, 0x02, 0xCA, 0xFE });
             yield return new TestCaseData(new byte[] { 0xCA, 0xFE }, (byte)0x84, new byte[] { 0x84, 0x02, 0xCA, 0xFE });
             yield return new TestCaseData(TestEnum.Success, (byte)0x85, new byte[] { 0x85, 0x01, 0x7F });
