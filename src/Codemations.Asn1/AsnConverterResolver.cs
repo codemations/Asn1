@@ -115,6 +115,7 @@ internal class AsnConverterResolver
             new AsnStringConverter(),
             new AsnSequenceOfConverter(),
             new AsnChoiceConverter(),
+            new AsnPolymorphicChoiceConverter(),
             new AsnSequenceConverter()
         };
     }

@@ -1,9 +1,8 @@
 using System;
 
-namespace Codemations.Asn1.Attributes
+namespace Codemations.Asn1.Attributes;
+
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+public class AsnChoiceAttribute : AsnAttribute
 {
-    [AttributeUsage(AttributeTargets.Class)]
-    public class AsnChoiceAttribute : AsnAttribute
-    {
-    }
 }

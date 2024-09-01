@@ -6,12 +6,12 @@ namespace Codemations.Asn1.Converters;
 
 internal class AsnSequenceConverter : IAsnConverter
 {
-    public bool CanConvert(Type type)
+    public virtual bool CanConvert(Type type)
     {
         return type.IsClass && type != typeof(object);
     }
 
-    public object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
+    public virtual object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
     {
         var sequenceReader = reader.ReadSequence(tag);
 
@@ -36,7 +36,7 @@ internal class AsnSequenceConverter : IAsnConverter
         return item;
     }
 
-    public void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer)
+    public virtual void Write(AsnWriter writer, Asn1Tag? tag, object value, AsnSerializer serializer)
     {
         writer.PushSequence(tag);
         foreach (var asnPropertyInfo in value.GetType().GetAsnProperties())
