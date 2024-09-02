@@ -1,4 +1,5 @@
-﻿using System.Formats.Asn1;
+﻿using System;
+using System.Formats.Asn1;
 using Codemations.Asn1.Extensions;
 using NUnit.Framework;
 
@@ -47,6 +48,26 @@ namespace Codemations.Asn1.Tests
 
             // Assert
             Assert.That(actualAsn1Tag, Is.EqualTo(expectedAsn1Tag));
+        }
+
+        [Test]
+        public void ToByte_OutOfRangeValue_ShouldThrow()
+        {
+            // Arrange
+            var asn1Tag = new Asn1Tag(TagClass.ContextSpecific, MaxByteEncodedTagValue + 1);
+
+            // Act & Assert
+            Assert.Throws<ArgumentOutOfRangeException>(() => asn1Tag.ToByte());
+        }
+
+        [Test]
+        public void ToUInt_OutOfRangeValue_ShouldThrow()
+        {
+            // Arrange
+            var asn1Tag = new Asn1Tag(TagClass.ContextSpecific, MaxUIntEncodedTagValue + 1);
+
+            // Act & Assert
+            Assert.Throws<ArgumentOutOfRangeException>(() => asn1Tag.ToUInt());
         }
     }
 }
