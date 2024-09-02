@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Formats.Asn1;
 using System.Linq;
-using System.Numerics;
+using Codemations.Asn1.Extensions;
 
 namespace Codemations.Asn1.Tests
 {
@@ -10,10 +10,10 @@ namespace Codemations.Asn1.Tests
     {
         private static IEnumerable<TestCaseData> GetAsnElementTestCases()
         {
-            var cafeElement = new AsnElement(0x81) {Value = new byte[] {0xCA, 0xFE}};
-            var deadBeefElement = new AsnElement(0x82)
+            var cafeElement = new AsnElement(0x81u.ToAsn1Tag()) {Value = new byte[] {0xCA, 0xFE}};
+            var deadBeefElement = new AsnElement(0x82u.ToAsn1Tag())
                 {Value = new byte[] {0xDE, 0xAD, 0xBE, 0xEF}};
-            var constructedElement = new AsnElement(0xA0,
+            var constructedElement = new AsnElement(0xA0u.ToAsn1Tag(),
                 new [] { cafeElement, deadBeefElement }.ToList());
 
             yield return new TestCaseData(

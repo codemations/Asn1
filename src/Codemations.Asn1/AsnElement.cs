@@ -26,23 +26,7 @@ namespace Codemations.Asn1
         /// </summary>
         public IList<AsnElement> Elements { get; }
 
-        public AsnElement(byte encodedTag) : this(encodedTag, new List<AsnElement>())
-        {
-        }
-
-        public AsnElement(uint encodedTag) : this(encodedTag, new List<AsnElement>())
-        {
-        }
-
         public AsnElement(Asn1Tag tag): this(tag, new List<AsnElement>())
-        {
-        }
-
-        public AsnElement(byte encodedTag, IEnumerable<AsnElement> elements) : this(encodedTag.ToAsn1Tag(), elements)
-        {
-        }
-
-        public AsnElement(uint encodedTag, IEnumerable<AsnElement> elements) : this(encodedTag.ToAsn1Tag(), elements)
         {
         }
 
