@@ -13,7 +13,7 @@ public static class AsnReaderExtensions
         return contentBytes.Slice(contentOffset, contentLength);
     }
 
-    public static AsnUtf8String ReadUtf8String(this AsnReader reader, Asn1Tag? tag = null)
+    public static string ReadUtf8String(this AsnReader reader, Asn1Tag? tag = null)
     {
         return reader.ReadCharacterString(UniversalTagNumber.UTF8String, tag);
     }

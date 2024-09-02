@@ -96,9 +96,6 @@ namespace Codemations.Asn1.Tests
             yield return new TestCaseData(typeof(AsnT61String), typeof(AsnT61StringConverter), typeof(AsnT61String));
             yield return new TestCaseData(typeof(AsnT61String?), typeof(AsnT61StringConverter), typeof(AsnT61String));
 
-            yield return new TestCaseData(typeof(AsnUtf8String), typeof(AsnUtf8StringConverter), typeof(AsnUtf8String));
-            yield return new TestCaseData(typeof(AsnUtf8String?), typeof(AsnUtf8StringConverter), typeof(AsnUtf8String));
-
             yield return new TestCaseData(typeof(AsnVisibleString), typeof(AsnVisibleStringConverter), typeof(AsnVisibleString));
             yield return new TestCaseData(typeof(AsnVisibleString?), typeof(AsnVisibleStringConverter), typeof(AsnVisibleString));
 

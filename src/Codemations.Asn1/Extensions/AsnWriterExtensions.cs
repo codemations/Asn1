@@ -6,7 +6,7 @@ namespace Codemations.Asn1.Extensions;
 
 public static class AsnWriterExtensions
 {
-    public static void WriteUtf8String(this AsnWriter writer, AsnUtf8String value, Asn1Tag? tag = null)
+    public static void WriteUtf8String(this AsnWriter writer, string value, Asn1Tag? tag = null)
     {
         writer.WriteCharacterString(UniversalTagNumber.UTF8String, value, tag);
     }
