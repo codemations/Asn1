@@ -10,29 +10,29 @@ namespace Codemations.Asn1;
 /// This struct provides methods for creating, validating, and manipulating OIDs.
 /// </summary>
 [AsnConverter(typeof(AsnOidConverter))]
-public readonly partial struct AsnOid : IEquatable<AsnOid>
+public readonly partial struct Oid : IEquatable<Oid>
 {
     private readonly string _oidString;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AsnOid"/> struct with the specified components.
+    /// Initializes a new instance of the <see cref="Oid"/> struct with the specified components.
     /// </summary>
     /// <param name="components">The components of the OID.</param>
-    public AsnOid(params int[] components)
+    public Oid(params int[] components)
     {
         _oidString = string.Join(".", components);
         Validate(_oidString);
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AsnOid"/> struct with the specified OID string.
+    /// Initializes a new instance of the <see cref="Oid"/> struct with the specified OID string.
     /// </summary>
     /// <param name="oidStr">The dot-delimited OID string.</param>
-    public AsnOid(string oidStr) : this(oidStr, validate: true)
+    public Oid(string oidStr) : this(oidStr, validate: true)
     {
     }
 
-    internal AsnOid(string oidStr, bool validate)
+    internal Oid(string oidStr, bool validate)
     {
         if (oidStr is null)
         {
@@ -48,16 +48,16 @@ public readonly partial struct AsnOid : IEquatable<AsnOid>
     }
 
     /// <summary>
-    /// Implicitly converts an <see cref="AsnOid"/> instance to its string representation.
+    /// Implicitly converts an <see cref="Oid"/> instance to its string representation.
     /// </summary>
-    /// <param name="oid">The <see cref="AsnOid"/> instance.</param>
-    public static implicit operator string(AsnOid oid) => oid._oidString;
+    /// <param name="oid">The <see cref="Oid"/> instance.</param>
+    public static implicit operator string(Oid oid) => oid._oidString;
 
     /// <summary>
-    /// Explicitely converts a string to an <see cref="AsnOid"/> instance.
+    /// Explicitely converts a string to an <see cref="Oid"/> instance.
     /// </summary>
     /// <param name="oidStr">The OID string to convert.</param>
-    public static explicit operator AsnOid(string oidStr) => new(oidStr);
+    public static explicit operator Oid(string oidStr) => new(oidStr);
 
     /// <summary>
     /// Returns the dot-delimited string representation of the OID.
@@ -75,37 +75,37 @@ public readonly partial struct AsnOid : IEquatable<AsnOid>
     /// <returns><c>true</c> if the specified object is equal to this instance; otherwise, <c>false</c>.</returns>
     public override bool Equals(object? obj)
     {
-        return obj is AsnOid other && Equals(other);
+        return obj is Oid other && Equals(other);
     }
 
     /// <summary>
-    /// Indicates whether the current <see cref="AsnOid"/> is equal to another <see cref="AsnOid"/>.
+    /// Indicates whether the current <see cref="Oid"/> is equal to another <see cref="Oid"/>.
     /// </summary>
-    /// <param name="other">An <see cref="AsnOid"/> to compare with this <see cref="AsnOid"/>.</param>
-    /// <returns><c>true</c> if the current <see cref="AsnOid"/> is equal to the other <see cref="AsnOid"/>; otherwise, <c>false</c>.</returns>
-    public bool Equals(AsnOid other)
+    /// <param name="other">An <see cref="Oid"/> to compare with this <see cref="Oid"/>.</param>
+    /// <returns><c>true</c> if the current <see cref="Oid"/> is equal to the other <see cref="Oid"/>; otherwise, <c>false</c>.</returns>
+    public bool Equals(Oid other)
     {
         return _oidString == other._oidString;
     }
 
     /// <summary>
-    /// Determines whether two <see cref="AsnOid"/> instances are equal.
+    /// Determines whether two <see cref="Oid"/> instances are equal.
     /// </summary>
-    /// <param name="left">The first <see cref="AsnOid"/> to compare.</param>
-    /// <param name="right">The second <see cref="AsnOid"/> to compare.</param>
+    /// <param name="left">The first <see cref="Oid"/> to compare.</param>
+    /// <param name="right">The second <see cref="Oid"/> to compare.</param>
     /// <returns><c>true</c> if the two OIDs are equal; otherwise, <c>false</c>.</returns>
-    public static bool operator ==(AsnOid left, AsnOid right) => left.Equals(right);
+    public static bool operator ==(Oid left, Oid right) => left.Equals(right);
 
     /// <summary>
-    /// Determines whether two <see cref="AsnOid"/> instances are not equal.
+    /// Determines whether two <see cref="Oid"/> instances are not equal.
     /// </summary>
-    /// <param name="left">The first <see cref="AsnOid"/> to compare.</param>
-    /// <param name="right">The second <see cref="AsnOid"/> to compare.</param>
+    /// <param name="left">The first <see cref="Oid"/> to compare.</param>
+    /// <param name="right">The second <see cref="Oid"/> to compare.</param>
     /// <returns><c>true</c> if the two OIDs are not equal; otherwise, <c>false</c>.</returns>
-    public static bool operator !=(AsnOid left, AsnOid right) => !left.Equals(right);
+    public static bool operator !=(Oid left, Oid right) => !left.Equals(right);
 
     /// <summary>
-    /// Returns the hash code for this <see cref="AsnOid"/>.
+    /// Returns the hash code for this <see cref="Oid"/>.
     /// </summary>
     /// <returns>A 32-bit signed integer hash code.</returns>
     public override int GetHashCode()
@@ -115,36 +115,36 @@ public readonly partial struct AsnOid : IEquatable<AsnOid>
 
 
     /// <summary>
-    /// Determines whether the current <see cref="AsnOid"/> instance is a prefix of the specified OID string.
+    /// Determines whether the current <see cref="Oid"/> instance is a prefix of the specified OID string.
     /// </summary>
     /// <param name="other">The OID string to compare with.</param>
     /// <returns>
-    /// <c>true</c> if the current <see cref="AsnOid"/> instance is a prefix of the specified OID string; otherwise, <c>false</c>.
+    /// <c>true</c> if the current <see cref="Oid"/> instance is a prefix of the specified OID string; otherwise, <c>false</c>.
     /// </returns>
-    /// <exception cref="FormatException">Thrown if the provided string cannot be converted to an <see cref="AsnOid"/>.</exception>
+    /// <exception cref="FormatException">Thrown if the provided string cannot be converted to an <see cref="Oid"/>.</exception>
     public bool IsPrefixOf(string other)
     {
-        return IsPrefixOf((AsnOid)other);
+        return IsPrefixOf((Oid)other);
     }
 
     /// <summary>
-    /// Determines whether the current <see cref="AsnOid"/> instance is a prefix of the specified OID string.
+    /// Determines whether the current <see cref="Oid"/> instance is a prefix of the specified OID string.
     /// </summary>
-    /// <param name="other">The other <see cref="AsnOid"/> to compare with.</param>
+    /// <param name="other">The other <see cref="Oid"/> to compare with.</param>
     /// <returns><c>true</c> if this OID is a prefix of the other OID; otherwise, <c>false</c>.</returns>
-    public bool IsPrefixOf(AsnOid other)
+    public bool IsPrefixOf(Oid other)
     {
         return other._oidString.StartsWith(_oidString + ".");
     }
 
     /// <summary>
-    /// Creates an <see cref="AsnOid"/> instance from an encoded OID value using the specified ASN.1 encoding rules.
+    /// Creates an <see cref="Oid"/> instance from an encoded OID value using the specified ASN.1 encoding rules.
     /// </summary>
     /// <param name="encodedOidValue">The encoded OID value as a <see cref="ReadOnlySpan{T}"/> of bytes.</param>
     /// <param name="ruleSet">The ASN.1 encoding rules to use for decoding.</param>
-    /// <returns>An <see cref="AsnOid"/> instance representing the decoded OID.</returns>
+    /// <returns>An <see cref="Oid"/> instance representing the decoded OID.</returns>
     /// <exception cref="FormatException">Thrown when the OID cannot be decoded.</exception>
-    public static AsnOid FromEncodedValue(ReadOnlySpan<byte> encodedOidValue, AsnEncodingRules ruleSet)
+    public static Oid FromEncodedValue(ReadOnlySpan<byte> encodedOidValue, AsnEncodingRules ruleSet)
     {
         // We need to decode the OID value into its dot-delimited string representation.
         // The method ReadObjectIdentifier can be used for this purpose, but the encoded value must be in TLV (Tag-Length-Value) format.
@@ -161,7 +161,7 @@ public readonly partial struct AsnOid : IEquatable<AsnOid>
         try
         {
             var oidString = AsnDecoder.ReadObjectIdentifier(encodedOid, ruleSet, out _, oidTag);
-            return new AsnOid(oidString);
+            return new Oid(oidString);
         }
         catch (Exception ex) when (ex is AsnContentException || ex is ArgumentException || ex is ArgumentOutOfRangeException)
         {
@@ -170,31 +170,31 @@ public readonly partial struct AsnOid : IEquatable<AsnOid>
     }
 
     /// <summary>
-    /// Creates an <see cref="AsnOid"/> instance from a BER-encoded OID value.
+    /// Creates an <see cref="Oid"/> instance from a BER-encoded OID value.
     /// </summary>
     /// <param name="encodedOidValue">The BER-encoded OID value as a <see cref="ReadOnlySpan{T}"/> of bytes.</param>
-    /// <returns>An <see cref="AsnOid"/> instance representing the decoded OID.</returns>
-    public static AsnOid FromBer(ReadOnlySpan<byte> encodedOidValue)
+    /// <returns>An <see cref="Oid"/> instance representing the decoded OID.</returns>
+    public static Oid FromBer(ReadOnlySpan<byte> encodedOidValue)
     {
         return FromEncodedValue(encodedOidValue, AsnEncodingRules.BER);
     }
 
     /// <summary>
-    /// Creates an <see cref="AsnOid"/> instance from a CER-encoded OID value.
+    /// Creates an <see cref="Oid"/> instance from a CER-encoded OID value.
     /// </summary>
     /// <param encodedOidValue="encodedOidValue">The CER-encoded OID value as a <see cref="ReadOnlySpan{T}"/> of bytes.</param>
-    /// <returns>An <see cref="AsnOid"/> instance representing the decoded OID.</returns>
-    public static AsnOid FromCer(ReadOnlySpan<byte> encodedOidValue)
+    /// <returns>An <see cref="Oid"/> instance representing the decoded OID.</returns>
+    public static Oid FromCer(ReadOnlySpan<byte> encodedOidValue)
     {
         return FromEncodedValue(encodedOidValue, AsnEncodingRules.CER);
     }
 
     /// <summary>
-    /// Creates an <see cref="AsnOid"/> instance from a DER-encoded OID value.
+    /// Creates an <see cref="Oid"/> instance from a DER-encoded OID value.
     /// </summary>
     /// <param name="encodedOidValue">The DER-encoded OID value as a <see cref="ReadOnlySpan{T}"/> of bytes.</param>
-    /// <returns>An <see cref="AsnOid"/> instance representing the decoded OID.</returns>
-    public static AsnOid FromDer(ReadOnlySpan<byte> encodedOidValue)
+    /// <returns>An <see cref="Oid"/> instance representing the decoded OID.</returns>
+    public static Oid FromDer(ReadOnlySpan<byte> encodedOidValue)
     {
         return FromEncodedValue(encodedOidValue, AsnEncodingRules.DER);
     }

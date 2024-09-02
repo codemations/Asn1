@@ -7,7 +7,7 @@ namespace Codemations.Asn1;
 /// Represents an Object Identifier (OID) in ASN.1 notation. An OID is a sequence of integers that uniquely identifies a specific object in a globally unique manner.
 /// This struct provides methods for creating, validating, and manipulating OIDs.
 /// </summary>
-public readonly partial struct AsnOid
+public readonly partial struct Oid
 {
     private static readonly ConcurrentDictionary<string, ValidationResult> _validationCache = new();
 

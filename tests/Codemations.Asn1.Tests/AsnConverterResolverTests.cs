@@ -81,26 +81,26 @@ namespace Codemations.Asn1.Tests
 
         private static IEnumerable<TestCaseData> GetTypeSpecificMappingTestCases()
         {
-            yield return new TestCaseData(typeof(AsnBmpString), typeof(AsnBmpStringConverter), typeof(AsnBmpString));
-            yield return new TestCaseData(typeof(AsnBmpString?), typeof(AsnBmpStringConverter), typeof(AsnBmpString));
+            yield return new TestCaseData(typeof(BmpString), typeof(AsnBmpStringConverter), typeof(BmpString));
+            yield return new TestCaseData(typeof(BmpString?), typeof(AsnBmpStringConverter), typeof(BmpString));
 
-            yield return new TestCaseData(typeof(AsnIA5String), typeof(AsnIA5StringConverter), typeof(AsnIA5String));
-            yield return new TestCaseData(typeof(AsnIA5String?), typeof(AsnIA5StringConverter), typeof(AsnIA5String));
+            yield return new TestCaseData(typeof(IA5String), typeof(AsnIA5StringConverter), typeof(IA5String));
+            yield return new TestCaseData(typeof(IA5String?), typeof(AsnIA5StringConverter), typeof(IA5String));
 
-            yield return new TestCaseData(typeof(AsnNumericString), typeof(AsnNumericStringConverter), typeof(AsnNumericString));
-            yield return new TestCaseData(typeof(AsnNumericString?), typeof(AsnNumericStringConverter), typeof(AsnNumericString));
+            yield return new TestCaseData(typeof(NumericString), typeof(AsnNumericStringConverter), typeof(NumericString));
+            yield return new TestCaseData(typeof(NumericString?), typeof(AsnNumericStringConverter), typeof(NumericString));
 
-            yield return new TestCaseData(typeof(AsnPrintableString), typeof(AsnPrintableStringConverter), typeof(AsnPrintableString));
-            yield return new TestCaseData(typeof(AsnPrintableString?), typeof(AsnPrintableStringConverter), typeof(AsnPrintableString));
+            yield return new TestCaseData(typeof(PrintableString), typeof(AsnPrintableStringConverter), typeof(PrintableString));
+            yield return new TestCaseData(typeof(PrintableString?), typeof(AsnPrintableStringConverter), typeof(PrintableString));
 
-            yield return new TestCaseData(typeof(AsnT61String), typeof(AsnT61StringConverter), typeof(AsnT61String));
-            yield return new TestCaseData(typeof(AsnT61String?), typeof(AsnT61StringConverter), typeof(AsnT61String));
+            yield return new TestCaseData(typeof(T61String), typeof(AsnT61StringConverter), typeof(T61String));
+            yield return new TestCaseData(typeof(T61String?), typeof(AsnT61StringConverter), typeof(T61String));
 
-            yield return new TestCaseData(typeof(AsnVisibleString), typeof(AsnVisibleStringConverter), typeof(AsnVisibleString));
-            yield return new TestCaseData(typeof(AsnVisibleString?), typeof(AsnVisibleStringConverter), typeof(AsnVisibleString));
+            yield return new TestCaseData(typeof(VisibleString), typeof(AsnVisibleStringConverter), typeof(VisibleString));
+            yield return new TestCaseData(typeof(VisibleString?), typeof(AsnVisibleStringConverter), typeof(VisibleString));
 
-            yield return new TestCaseData(typeof(AsnOid), typeof(AsnOidConverter), typeof(AsnOid));
-            yield return new TestCaseData(typeof(AsnOid?), typeof(AsnOidConverter), typeof(AsnOid));
+            yield return new TestCaseData(typeof(Oid), typeof(AsnOidConverter), typeof(Oid));
+            yield return new TestCaseData(typeof(Oid?), typeof(AsnOidConverter), typeof(Oid));
         }
 
         private static Type GetNullableType(Type type)

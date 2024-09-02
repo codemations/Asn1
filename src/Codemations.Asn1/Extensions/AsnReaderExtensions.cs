@@ -18,32 +18,32 @@ public static class AsnReaderExtensions
         return reader.ReadCharacterString(UniversalTagNumber.UTF8String, tag);
     }
 
-    public static AsnNumericString ReadNumericString(this AsnReader reader, Asn1Tag? tag = null)
+    public static NumericString ReadNumericString(this AsnReader reader, Asn1Tag? tag = null)
     {
         return reader.ReadCharacterString(UniversalTagNumber.NumericString, tag);
     }
 
-    public static AsnPrintableString ReadPrintableString(this AsnReader reader, Asn1Tag? tag = null)
+    public static PrintableString ReadPrintableString(this AsnReader reader, Asn1Tag? tag = null)
     {
         return reader.ReadCharacterString(UniversalTagNumber.PrintableString, tag);
     }
 
-    public static AsnIA5String ReadIA5String(this AsnReader reader, Asn1Tag? tag = null)
+    public static IA5String ReadIA5String(this AsnReader reader, Asn1Tag? tag = null)
     {
         return reader.ReadCharacterString(UniversalTagNumber.IA5String, tag);
     }
 
-    public static AsnVisibleString ReadVisibleString(this AsnReader reader, Asn1Tag? tag = null)
+    public static VisibleString ReadVisibleString(this AsnReader reader, Asn1Tag? tag = null)
     {
         return reader.ReadCharacterString(UniversalTagNumber.VisibleString, tag);
     }
 
-    public static AsnBmpString ReadBmpString(this AsnReader reader, Asn1Tag? tag = null)
+    public static BmpString ReadBmpString(this AsnReader reader, Asn1Tag? tag = null)
     {
         return reader.ReadCharacterString(UniversalTagNumber.BMPString, tag);
     }
 
-    public static AsnT61String ReadT61String(this AsnReader reader, Asn1Tag? tag = null)
+    public static T61String ReadT61String(this AsnReader reader, Asn1Tag? tag = null)
     {
         return reader.ReadCharacterString(UniversalTagNumber.T61String, tag);
     }

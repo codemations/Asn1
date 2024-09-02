@@ -7,33 +7,33 @@ namespace Codemations.Asn1.Types;
 /// Represents an ASN.1 IA5String type.
 /// </summary>
 [AsnConverter(typeof(AsnIA5StringConverter))]
-public readonly struct AsnIA5String
+public readonly struct IA5String
 {
     private readonly string _value;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AsnIA5String"/> struct.
+    /// Initializes a new instance of the <see cref="IA5String"/> struct.
     /// </summary>
     /// <param name="value">The string value.</param>
-    public AsnIA5String(string value)
+    public IA5String(string value)
     {
         _value = value;
     }
 
     /// <summary>
-    /// Implicitly converts a string to an <see cref="AsnIA5String"/>.
+    /// Implicitly converts a string to an <see cref="IA5String"/>.
     /// </summary>
     /// <param name="s">The string value.</param>
-    public static implicit operator AsnIA5String(string s) => new(s);
+    public static implicit operator IA5String(string s) => new(s);
 
     /// <summary>
-    /// Implicitly converts an <see cref="AsnIA5String"/> to a string.
+    /// Implicitly converts an <see cref="IA5String"/> to a string.
     /// </summary>
-    /// <param name="s">The <see cref="AsnIA5String"/> value.</param>
-    public static implicit operator string(AsnIA5String s) => s._value;
+    /// <param name="s">The <see cref="IA5String"/> value.</param>
+    public static implicit operator string(IA5String s) => s._value;
 
     /// <summary>
-    /// Returns the string representation of the <see cref="AsnIA5String"/>.
+    /// Returns the string representation of the <see cref="IA5String"/>.
     /// </summary>
     public override string ToString() => _value;
 }
