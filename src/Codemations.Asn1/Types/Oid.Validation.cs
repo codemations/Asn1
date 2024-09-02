@@ -107,13 +107,6 @@ public readonly partial struct Oid
         private int _offset = -1;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ComponentParser"/> struct with an empty OID string.
-        /// </summary>
-        public ComponentParser() : this(ReadOnlySpan<char>.Empty)
-        {
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="ComponentParser"/> struct with the specified OID string.
         /// </summary>
         /// <param name="oidStr">The OID string to parse.</param>

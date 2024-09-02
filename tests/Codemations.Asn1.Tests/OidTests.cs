@@ -4,7 +4,7 @@ using System;
 
 namespace Codemations.Asn1.Tests
 {
-    internal class AsnOidTests
+    internal class OidTests
     {
 
         [Test]
@@ -47,6 +47,16 @@ namespace Codemations.Asn1.Tests
 
             // Assert
             Assert.That(oid, Is.EqualTo(expectedOid));
+        }
+
+        [Test]
+        public void FromEncodedValue_InvalidEncodedValued_ShouldThrowFormatException()
+        {
+            // Arrange
+            var invalidEncodedValue = new byte[] { 0x80 };
+
+            // Act & Assert
+            Assert.Throws<FormatException>(() => Oid.FromEncodedValue(invalidEncodedValue, System.Formats.Asn1.AsnEncodingRules.BER));
         }
 
         [TestCase("1.2.840.113549.1", "1.2.840.113549.1", false)]
@@ -98,7 +108,7 @@ namespace Codemations.Asn1.Tests
         }
 
         [TestCase("1.2", "1.2")]
-        public void ShouldBeEqual(string left, string right)
+        public void Equals_SameOid_ShouldReturnTrue(string left, string right)
         {
             // Arrange
             var leftOid = new Oid(left);
@@ -106,6 +116,20 @@ namespace Codemations.Asn1.Tests
 
             // Act
             var areEqual = leftOid == rightOid;
+
+            //
+            Assert.That(areEqual, Is.True);
+        }
+
+        [TestCase("1.2", "1.2")]
+        public void Equals_SameObj_ShouldReturnTrue(string left, string right)
+        {
+            // Arrange
+            var leftOid = new Oid(left);
+            var rightOid = (object)new Oid(right);
+
+            // Act
+            var areEqual = leftOid.Equals(rightOid);
 
             //
             Assert.That(areEqual, Is.True);
