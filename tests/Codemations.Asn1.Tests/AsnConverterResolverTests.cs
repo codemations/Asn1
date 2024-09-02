@@ -25,25 +25,35 @@ namespace Codemations.Asn1.Tests
         {
         }
 
-        private class PropertyIntegerConverter : AsnIntegerConverter
+        private class PropertyIntegerConverter : AsnIntegerConverter.Byte
         {
         }
 
-        private class CustomIntegerConverter : AsnIntegerConverter
+        private class CustomIntegerConverter : AsnIntegerConverter.Byte
         {
         }
 
         private static IEnumerable<TestCaseData> GetBuiltInMappingTestCases()
         {
             // Integer
-            var asnIntegerTypes = new Type[] { 
-                typeof(byte), typeof(sbyte), typeof(short), typeof(ushort), 
-                typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(BigInteger) };
-            foreach (var type in asnIntegerTypes) 
-            {
-                yield return new TestCaseData(type, typeof(AsnIntegerConverter), type);
-                yield return new TestCaseData(GetNullableType(type), typeof(AsnIntegerConverter), type);
-            }
+            yield return new TestCaseData(typeof(byte), typeof(AsnIntegerConverter.Byte), typeof(byte));
+            yield return new TestCaseData(typeof(byte?), typeof(AsnIntegerConverter.Byte), typeof(byte));
+            yield return new TestCaseData(typeof(sbyte), typeof(AsnIntegerConverter.SByte), typeof(sbyte));
+            yield return new TestCaseData(typeof(sbyte?), typeof(AsnIntegerConverter.SByte), typeof(sbyte));
+            yield return new TestCaseData(typeof(short), typeof(AsnIntegerConverter.Short), typeof(short));
+            yield return new TestCaseData(typeof(short?), typeof(AsnIntegerConverter.Short), typeof(short));
+            yield return new TestCaseData(typeof(ushort), typeof(AsnIntegerConverter.UShort), typeof(ushort));
+            yield return new TestCaseData(typeof(ushort?), typeof(AsnIntegerConverter.UShort), typeof(ushort));
+            yield return new TestCaseData(typeof(int), typeof(AsnIntegerConverter.Int32), typeof(int));
+            yield return new TestCaseData(typeof(int?), typeof(AsnIntegerConverter.Int32), typeof(int));
+            yield return new TestCaseData(typeof(uint), typeof(AsnIntegerConverter.UInt32), typeof(uint));
+            yield return new TestCaseData(typeof(uint?), typeof(AsnIntegerConverter.UInt32), typeof(uint));
+            yield return new TestCaseData(typeof(long), typeof(AsnIntegerConverter.Int64), typeof(long));
+            yield return new TestCaseData(typeof(long?), typeof(AsnIntegerConverter.Int64), typeof(long));
+            yield return new TestCaseData(typeof(ulong), typeof(AsnIntegerConverter.UInt64), typeof(ulong));
+            yield return new TestCaseData(typeof(ulong?), typeof(AsnIntegerConverter.UInt64), typeof(ulong));
+            yield return new TestCaseData(typeof(BigInteger), typeof(AsnIntegerConverter.Big), typeof(BigInteger));
+            yield return new TestCaseData(typeof(BigInteger?), typeof(AsnIntegerConverter.Big), typeof(BigInteger));
 
             // Boolean
             yield return new TestCaseData(typeof(bool), typeof(AsnBooleanConverter), typeof(bool));
@@ -151,7 +161,7 @@ namespace Codemations.Asn1.Tests
             var asnPropertyInfo = GetTestPropertyInfo<TestSequenceClass>(nameof(TestSequenceClass.PropertyWithoutConverter));
             var convertersResolver = new AsnConverterResolver();
             var expectedResolvedType = typeof(byte);
-            var expectedConverterType = typeof(AsnIntegerConverter);
+            var expectedConverterType = typeof(AsnIntegerConverter.Byte);
 
             // Act
             var converter = convertersResolver.Resolve(asnPropertyInfo, out var resolvedType);
