@@ -9,7 +9,7 @@ namespace Codemations.Asn1.Tests
         public void Serialize_AsnOid_ShouldPass()
         {
             // Arrange
-            Oid? oid = new Oid("1.2.840.113549.1");
+            string? oid = "1.2.840.113549.1";
             var expectedData = new byte[] { 6, 7, 42, 134, 72, 134, 247, 13, 1 };
 
             // Act
@@ -23,11 +23,11 @@ namespace Codemations.Asn1.Tests
         public void Deserialize_AsnOid_ShouldPass()
         {
             // Arrange
-            var expectedOid = new Oid("1.2.840.113549.1");
+            var expectedOid = "1.2.840.113549.1";
             var encodedData = new byte[] { 6, 7, 42, 134, 72, 134, 247, 13, 1 };
 
             // Act
-            var actualOid = AsnSerializer.Deserialize<Oid>(encodedData, AsnEncodingRules.DER);
+            var actualOid = AsnSerializer.Deserialize<string>(encodedData, AsnEncodingRules.DER);
 
             // Assert
             Assert.That(actualOid, Is.EqualTo(expectedOid));
@@ -37,11 +37,11 @@ namespace Codemations.Asn1.Tests
         public void Deserialize_NullableAsnOid_ShouldPass()
         {
             // Arrange
-            var expectedOid = new Oid("1.2.840.113549.1");
+            var expectedOid = "1.2.840.113549.1";
             var encodedData = new byte[] { 6, 7, 42, 134, 72, 134, 247, 13, 1 };
 
             // Act
-            var actualOid = AsnSerializer.Deserialize<Oid?>(encodedData, AsnEncodingRules.DER);
+            var actualOid = AsnSerializer.Deserialize<string?>(encodedData, AsnEncodingRules.DER);
 
             // Assert
             Assert.That(actualOid, Is.EqualTo(expectedOid));

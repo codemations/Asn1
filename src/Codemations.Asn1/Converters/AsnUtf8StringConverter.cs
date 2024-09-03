@@ -3,7 +3,7 @@ using System.Formats.Asn1;
 
 namespace Codemations.Asn1.Converters;
 
-internal class AsnStringConverter : AsnConverter<string>
+public class AsnUtf8StringConverter : AsnConverter<string>
 {
     public override object Read(AsnReader reader, Asn1Tag? tag, Type type, AsnSerializer serializer)
     {
