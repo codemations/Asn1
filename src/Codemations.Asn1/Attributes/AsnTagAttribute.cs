@@ -8,11 +8,7 @@ namespace Codemations.Asn1.Attributes
     [AttributeUsage(AttributeTargets.Property)]
     public class AsnTagAttribute : AsnAttribute
     {
-        public Asn1Tag? Tag { get; }
-
-        public AsnTagAttribute()
-        {
-        }
+        public Asn1Tag Tag { get; }
 
         public AsnTagAttribute(byte encodedTag)
         {
@@ -24,7 +20,7 @@ namespace Codemations.Asn1.Attributes
             Tag = encodedTag.ToAsn1Tag();
         }
 
-        public AsnTagAttribute(params byte[] encodedTag)
+        public AsnTagAttribute(byte[] encodedTag)
         {
             Tag = encodedTag.ToAsn1Tag();
         }
