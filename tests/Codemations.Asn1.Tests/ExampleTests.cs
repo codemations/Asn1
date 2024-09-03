@@ -1,6 +1,4 @@
 using System.Formats.Asn1;
-using System.Numerics;
-using Codemations.Asn1.Attributes;
 using NUnit.Framework;
 
 namespace Codemations.Asn1.Tests;
@@ -9,9 +7,7 @@ public class ExampleTests
 {
     public class FooQuestion
     {
-        [AsnTag]
-        public BigInteger TrackingNumber { get; set; }
-        [AsnTag]
+        public int TrackingNumber { get; set; }
         public string? Question { get; set; }
     }
 
