@@ -1,6 +1,5 @@
 ﻿using Codemations.Asn1.Attributes;
 using Codemations.Asn1.Converters;
-using Codemations.Asn1.Types;
 using NUnit.Framework;
 using System;
 using System.Collections;
@@ -79,42 +78,12 @@ namespace Codemations.Asn1.Tests
             yield return new TestCaseData(typeof(int[]), typeof(AsnSequenceOfConverter), typeof(int[]));
         }
 
-        private static IEnumerable<TestCaseData> GetTypeSpecificMappingTestCases()
-        {
-            yield return new TestCaseData(typeof(BmpString), typeof(AsnBmpStringConverter), typeof(BmpString));
-            yield return new TestCaseData(typeof(BmpString?), typeof(AsnBmpStringConverter), typeof(BmpString));
-
-            yield return new TestCaseData(typeof(IA5String), typeof(AsnIA5StringConverter), typeof(IA5String));
-            yield return new TestCaseData(typeof(IA5String?), typeof(AsnIA5StringConverter), typeof(IA5String));
-
-            yield return new TestCaseData(typeof(NumericString), typeof(AsnNumericStringConverter), typeof(NumericString));
-            yield return new TestCaseData(typeof(NumericString?), typeof(AsnNumericStringConverter), typeof(NumericString));
-
-            yield return new TestCaseData(typeof(PrintableString), typeof(AsnPrintableStringConverter), typeof(PrintableString));
-            yield return new TestCaseData(typeof(PrintableString?), typeof(AsnPrintableStringConverter), typeof(PrintableString));
-
-            yield return new TestCaseData(typeof(T61String), typeof(AsnT61StringConverter), typeof(T61String));
-            yield return new TestCaseData(typeof(T61String?), typeof(AsnT61StringConverter), typeof(T61String));
-
-            yield return new TestCaseData(typeof(VisibleString), typeof(AsnVisibleStringConverter), typeof(VisibleString));
-            yield return new TestCaseData(typeof(VisibleString?), typeof(AsnVisibleStringConverter), typeof(VisibleString));
-
-            yield return new TestCaseData(typeof(Oid), typeof(AsnOidConverter), typeof(Oid));
-            yield return new TestCaseData(typeof(Oid?), typeof(AsnOidConverter), typeof(Oid));
-        }
-
-        private static Type GetNullableType(Type type)
-        {
-            return typeof(Nullable<>).MakeGenericType(type);
-        }
-
         private static AsnPropertyInfo GetTestPropertyInfo<T>(string propertyName) where T : class
         {
             return typeof(T).GetProperty(propertyName)!;
         }
 
         [TestCaseSource(nameof(GetBuiltInMappingTestCases))]
-        [TestCaseSource(nameof(GetTypeSpecificMappingTestCases))]
         public void Resolve_Type_ShouldReturnExpectedConverter(Type typeToResolve, Type expectedConverterType, Type expectedResolvedType)
         {
             // Arrange

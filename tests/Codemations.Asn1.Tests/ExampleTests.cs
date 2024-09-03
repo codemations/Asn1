@@ -1,4 +1,6 @@
 using System.Formats.Asn1;
+using Codemations.Asn1.Attributes;
+using Codemations.Asn1.Converters;
 using NUnit.Framework;
 
 namespace Codemations.Asn1.Tests;
@@ -8,6 +10,8 @@ public class ExampleTests
     public class FooQuestion
     {
         public int TrackingNumber { get; set; }
+
+        [AsnConverter(typeof(AsnUtf8StringConverter))]
         public string? Question { get; set; }
     }
 

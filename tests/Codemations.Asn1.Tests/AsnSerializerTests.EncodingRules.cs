@@ -7,8 +7,8 @@ internal partial class AsnSerializerTests
 {
     private static IEnumerable<TestCaseData> GetEncodingRulesData()
     {
-        yield return new TestCaseData("dummy-text", 
-            new byte[] { 0x0C, 0x0A, 0x64, 0x75, 0x6D, 0x6D, 0x79, 0x2D, 0x74, 0x65, 0x78, 0x74 });
+        yield return new TestCaseData(123, 
+            new byte[] { 0x02, 0x01, 0x7B });
     }
 
     [TestCaseSource(nameof(GetEncodingRulesData))]
@@ -42,7 +42,7 @@ internal partial class AsnSerializerTests
     public void ShouldDeserializeBer(object expectedValue, byte[] encodedValue)
     {
         // Act
-        var value = AsnSerializer.DeserializeBer(encodedValue, typeof(string));
+        var value = AsnSerializer.DeserializeBer(encodedValue, typeof(int));
 
         // Assert
         Assert.That(value, Is.EqualTo(expectedValue));
@@ -52,7 +52,7 @@ internal partial class AsnSerializerTests
     public void ShouldDeserializeBerGeneric(object expectedValue, byte[] encodedValue)
     {
         // Act
-        var value = AsnSerializer.DeserializeBer<string>(encodedValue);
+        var value = AsnSerializer.DeserializeBer<int>(encodedValue);
 
         // Assert
         Assert.That(value, Is.EqualTo(expectedValue));
@@ -89,7 +89,7 @@ internal partial class AsnSerializerTests
     public void ShouldDeserializeCer(object expectedValue, byte[] encodedValue)
     {
         // Act
-        var value = AsnSerializer.DeserializeCer(encodedValue, typeof(string));
+        var value = AsnSerializer.DeserializeCer(encodedValue, typeof(int));
 
         // Assert
         Assert.That(value, Is.EqualTo(expectedValue));
@@ -99,7 +99,7 @@ internal partial class AsnSerializerTests
     public void ShouldDeserializeCerGeneric(object expectedValue, byte[] encodedValue)
     {
         //Act
-        var value = AsnSerializer.DeserializeCer<string>(encodedValue);
+        var value = AsnSerializer.DeserializeCer<int>(encodedValue);
 
         // Assert
         Assert.That(value, Is.EqualTo(expectedValue));
@@ -136,7 +136,7 @@ internal partial class AsnSerializerTests
     public void ShouldDeserializeDer(object expectedValue, byte[] encodedValue)
     {
         // Act
-        var value = AsnSerializer.DeserializeDer(encodedValue, typeof(string));
+        var value = AsnSerializer.DeserializeDer(encodedValue, typeof(int));
 
         // Assert
         Assert.That(value, Is.EqualTo(expectedValue));
@@ -146,7 +146,7 @@ internal partial class AsnSerializerTests
     public void ShouldDeserializeDerGeneric(object expectedValue, byte[] encodedValue)
     {
         // Act
-        var value = AsnSerializer.DeserializeDer<string>(encodedValue);
+        var value = AsnSerializer.DeserializeDer<int>(encodedValue);
 
         // Arrange
         Assert.That(value, Is.EqualTo(expectedValue));

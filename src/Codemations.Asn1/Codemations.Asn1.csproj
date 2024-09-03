@@ -14,6 +14,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Types\Oid.cs" />
+    <Compile Remove="Types\Oid.Validation.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\..\LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
@@ -22,6 +27,8 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+    <None Include="Types\Oid.cs" />
+    <None Include="Types\Oid.Validation.cs" />
   </ItemGroup>
 
   <ItemGroup>

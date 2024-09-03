@@ -120,7 +120,7 @@ internal class AsnConverterResolver
             new AsnIntegerConverter.UInt64(),
             new AsnIntegerConverter.Big(),
             new AsnOctetStringConverter(),
-            new AsnStringConverter(),
+            new AsnOidConverter(),
             new AsnSequenceOfConverter(),
             new AsnChoiceConverter(),
             new AsnPolymorphicChoiceConverter(),
