@@ -11,7 +11,7 @@ namespace Codemations.Asn1.Tests
         public void ShouldCreateOidFromBerEncodedValued()
         {
             // Arrange
-            var expectedOid = (Oid)"1.2.840.113549.1";
+            var expectedOid = "1.2.840.113549.1";
             var encodedValue = new byte[] { 42, 134, 72, 134, 247, 13, 1 };
 
             // Act
@@ -25,7 +25,7 @@ namespace Codemations.Asn1.Tests
         public void ShouldCreateOidFromCerEncodedValued()
         {
             // Arrange
-            var expectedOid = (Oid)"1.2.840.113549.1";
+            var expectedOid = "1.2.840.113549.1";
             var encodedValue = new byte[] { 42, 134, 72, 134, 247, 13, 1 };
 
             // Act
@@ -39,7 +39,7 @@ namespace Codemations.Asn1.Tests
         public void ShouldCreateOidFromDerEncodedValued()
         {
             // Arrange
-            var expectedOid = (Oid)"1.2.840.113549.1";
+            var expectedOid = "1.2.840.113549.1";
             var encodedValue = new byte[] { 42, 134, 72, 134, 247, 13, 1 };
 
             // Act
@@ -66,7 +66,7 @@ namespace Codemations.Asn1.Tests
         public void ShouldCheckIfIsPrefixOfOtherOid(string oid, string otherOid,  bool expectedIsPrefix)
         {
             // Arrange
-            var asnOid = (Oid)oid;
+            var asnOid = oid;
 
             // Act
             var isPrefix = asnOid.IsPrefixOf(otherOid);
@@ -83,7 +83,7 @@ namespace Codemations.Asn1.Tests
             var expectedOid = "1.2.3";
 
             // Act
-            var oid = new Oid(components);
+            var oid = Oid.FromIntArray(components);
 
             // Assert
             Assert.That(oid.ToString(), Is.EqualTo(expectedOid));
@@ -104,105 +104,7 @@ namespace Codemations.Asn1.Tests
         public void ShouldThrowFormatException(string oid)
         {
             // Act & Assert
-            Assert.Throws<FormatException>(() => new Oid(oid));
-        }
-
-        [TestCase("1.2", "1.2")]
-        public void Equals_SameOid_ShouldReturnTrue(string left, string right)
-        {
-            // Arrange
-            var leftOid = new Oid(left);
-            var rightOid = new Oid(right);
-
-            // Act
-            var areEqual = leftOid == rightOid;
-
-            //
-            Assert.That(areEqual, Is.True);
-        }
-
-        [TestCase("1.2", "1.2")]
-        public void Equals_SameObj_ShouldReturnTrue(string left, string right)
-        {
-            // Arrange
-            var leftOid = new Oid(left);
-            var rightOid = (object)new Oid(right);
-
-            // Act
-            var areEqual = leftOid.Equals(rightOid);
-
-            //
-            Assert.That(areEqual, Is.True);
-        }
-
-        [TestCase("1.2", "1.3")]
-        [TestCase("2.2", "1.2")]
-        [TestCase("1.2", "1.2.3")]
-        public void ShouldNotBeEqual(string left, string right)
-        {
-            // Arrange
-            var leftOid = new Oid(left);
-            var rightOid = new Oid(right);
-
-            // Act
-            var areNotEqual = leftOid != rightOid;
-
-            //
-            Assert.That(areNotEqual, Is.True);
-        }
-
-        [Test]
-        public void GetHashCode_ShouldBeConsistent()
-        {
-            // Arrange
-            var oid = new Oid("1.2.3.4");
-
-            // Act
-            var hash1 = oid.GetHashCode();
-            var hash2 = oid.GetHashCode();
-
-            // Assert
-            Assert.That(hash1, Is.EqualTo(hash2), "GetHashCode should return the same value on multiple invocations for the same object.");
-        }
-
-        [Test]
-        public void GetHashCode_EqualObjects_ShouldHaveSameHashCode()
-        {
-            // Arrange
-            var oid1 = new Oid("1.2.3.4");
-            var oid2 = new Oid("1.2.3.4");
-
-            // Act
-            var hash1 = oid1.GetHashCode();
-            var hash2 = oid2.GetHashCode();
-
-            // Assert
-            Assert.That(hash1, Is.EqualTo(hash2), "Equal Oid objects should return the same hash code.");
-        }
-
-        [Test]
-        public void GetHashCode_DifferentObjects_ShouldHaveDifferentHashCodes()
-        {
-            // Arrange
-            var oid1 = new Oid("1.2.3.4");
-            var oid2 = new Oid("1.2.3.5");
-
-            // Act
-            var hash1 = oid1.GetHashCode();
-            var hash2 = oid2.GetHashCode();
-
-            // Assert
-            Assert.That(hash1, Is.Not.EqualTo(hash2), "Different Oid objects should ideally return different hash codes.");
-        }
-
-        [Test]
-        public void AsnOidCtor_NullOidStr_ShouldThrow()
-        {
-            // Arrange
-            string? oidStr = null;
-
-            // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => new Oid(oidStr!));
+            Assert.Throws<FormatException>(() => Oid.Validate(oid));
         }
     }
 }
