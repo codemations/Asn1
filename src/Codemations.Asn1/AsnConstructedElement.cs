@@ -1,13 +1,15 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Formats.Asn1;
+using System.Linq;
 
 namespace Codemations.Asn1
 {
     /// <summary>
     /// Represents a constructed ASN.1 element, which decorates an underlying list of ASN.1 elements.
     /// </summary>
-    public class AsnConstructedElement : AsnElement, IEnumerable<AsnElement>
+    public sealed class AsnConstructedElement : AsnElement, IEnumerable<AsnElement>
     {
         private readonly IList<AsnElement> _elements;
 
@@ -20,10 +22,27 @@ namespace Codemations.Asn1
             _elements = elements ?? new List<AsnElement>();
         }
 
-        /// <inheritdoc />
         public void Add(AsnElement item)
         {
             _elements.Add(item);
+        }
+
+        public override bool Equals(AsnElement? asnElement)
+        {
+            if(asnElement is AsnConstructedElement asnConstructedElement)
+            {
+                return Equals(asnConstructedElement);
+            }
+            return false;
+        }
+
+        private bool Equals(AsnConstructedElement? asnConstructedElement)
+        {
+            if(asnConstructedElement is null)
+            {  
+                return false; 
+            }
+            return Tag.Equals(asnConstructedElement.Tag) && _elements.SequenceEqual(asnConstructedElement._elements);
         }
 
         /// <inheritdoc />
@@ -36,6 +55,14 @@ namespace Codemations.Asn1
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        internal override void AddHashValues(ref HashCode hash)
+        {
+            foreach (var element in _elements)
+            {
+                hash.Add(element);
+            }
         }
     }
 }
