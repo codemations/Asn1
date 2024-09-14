@@ -10,11 +10,13 @@ namespace Codemations.Asn1.Tests
     {
         private static IEnumerable<TestCaseData> GetAsnElementTestCases()
         {
-            var cafeElement = new AsnElement(0x81u.ToAsn1Tag()) {Value = new byte[] {0xCA, 0xFE}};
-            var deadBeefElement = new AsnElement(0x82u.ToAsn1Tag())
-                {Value = new byte[] {0xDE, 0xAD, 0xBE, 0xEF}};
-            var constructedElement = new AsnElement(0xA0u.ToAsn1Tag(),
-                new [] { cafeElement, deadBeefElement }.ToList());
+            var cafeElement = new AsnPrimitiveElement(0x81u.ToAsn1Tag(), new byte[] { 0xCA, 0xFE });
+            var deadBeefElement = new AsnPrimitiveElement(0x82u.ToAsn1Tag(), new byte[] { 0xDE, 0xAD, 0xBE, 0xEF });
+            var constructedElement = new AsnConstructedElement(0xA0u.ToAsn1Tag())
+            {
+                cafeElement,
+                deadBeefElement
+            };
 
             yield return new TestCaseData(
                 new [] { cafeElement, deadBeefElement },
@@ -45,20 +47,20 @@ namespace Codemations.Asn1.Tests
             AssertAsnElements(expectedAsnElements, actualAsnElements.ToList());
         }
 
-        private static void AssertAsnElements(ICollection<AsnElement> expectedSequence,
-            ICollection<AsnElement> actualSequence)
+        private static void AssertAsnElements(IEnumerable<AsnElement> expectedSequence,
+            IEnumerable<AsnElement> actualSequence)
         {
-            Assert.That(actualSequence, Has.Count.EqualTo(expectedSequence.Count));
+            Assert.That(actualSequence.Count(), Is.EqualTo(expectedSequence.Count()));
             foreach (var (expected, actual) in expectedSequence.Zip(actualSequence, (x, y) => (x, y)))
             {
                 Assert.That(actual.Tag, Is.EqualTo(expected.Tag));
                 if (expected.Tag.IsConstructed)
                 {
-                    AssertAsnElements(expected.Elements.ToList(), actual.Elements.ToList());
+                    AssertAsnElements((AsnConstructedElement)expected, (AsnConstructedElement)actual);
                 }
                 else
                 {
-                    Assert.That(actual.Value?.ToArray(), Is.EqualTo(expected.Value?.ToArray()));
+                    Assert.That(((AsnPrimitiveElement)actual).Value.ToArray(), Is.EqualTo(((AsnPrimitiveElement)expected).Value.ToArray()));
                 }
             }
         }
