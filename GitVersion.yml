@@ -1,1 +1,5 @@
 mode: ContinuousDeployment
+ignore:
+  sha:
+    - e59307f83817e58c9e6df9e343d785615ca7626c
+    - ba75a013b951f88c4e1ffc03a1eeb71299b35a02 

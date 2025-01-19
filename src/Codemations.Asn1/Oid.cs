@@ -1,17 +1,105 @@
 ﻿using System;
 using System.Collections.Concurrent;
-
+using System.Formats.Asn1;
 namespace Codemations.Asn1;
 
 /// <summary>
 /// Represents an Object Identifier (OID) in ASN.1 notation. An OID is a sequence of integers that uniquely identifies a specific object in a globally unique manner.
 /// This struct provides methods for creating, validating, and manipulating OIDs.
 /// </summary>
-public readonly partial struct AsnOid
+public static partial class Oid
 {
     private static readonly ConcurrentDictionary<string, ValidationResult> _validationCache = new();
 
-    private static void Validate(string oidStr)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Oid"/> struct with the specified components.
+    /// </summary>
+    /// <param name="components">The components of the OID.</param>
+    public static string FromIntArray(params int[] components)
+    {
+        var oid = string.Join(".", components);
+        Validate(oid);
+        return oid;
+    }
+
+    /// <summary>
+    /// Determines whether the current <see cref="Oid"/> instance is a prefix of the specified OID string.
+    /// </summary>
+    /// <param name="oid">The OID to check.</param>
+    /// <param name="other">The other OID to compare with.</param>
+    /// <returns><c>true</c> if this OID is a prefix of the other OID; otherwise, <c>false</c>.</returns>
+    public static bool IsPrefixOf(this string oid, string other)
+    {
+        return other.StartsWith(oid + ".");
+    }
+
+    /// <summary>
+    /// Creates an <see cref="Oid"/> instance from an encoded OID value using the specified ASN.1 encoding rules.
+    /// </summary>
+    /// <param name="encodedOidValue">The encoded OID value as a <see cref="ReadOnlySpan{T}"/> of bytes.</param>
+    /// <param name="ruleSet">The ASN.1 encoding rules to use for decoding.</param>
+    /// <returns>An OID string representing the decoded OID.</returns>
+    /// <exception cref="FormatException">Thrown when the OID cannot be decoded.</exception>
+    public static string FromEncodedValue(ReadOnlySpan<byte> encodedOidValue, AsnEncodingRules ruleSet)
+    {
+        // We need to decode the OID value into its dot-delimited string representation.
+        // The method ReadObjectIdentifier can be used for this purpose, but the encoded value must be in TLV (Tag-Length-Value) format.
+        // Since there is no direct method to wrap the encoded value in this format, we can use WriteOctetString for this purpose.
+        // To bypass the universal tag checks, we use a context-specific tag.
+        var oidTag = new Asn1Tag(TagClass.ContextSpecific, 0);
+
+        // Create encoded TLV
+        var writer = new AsnWriter(ruleSet);
+        writer.WriteOctetString(encodedOidValue, oidTag);
+        Span<byte> encodedOid = stackalloc byte[writer.GetEncodedLength()];
+        writer.Encode(encodedOid);
+
+        try
+        {
+            return AsnDecoder.ReadObjectIdentifier(encodedOid, ruleSet, out _, oidTag);
+        }
+        catch (Exception ex) when (ex is AsnContentException || ex is ArgumentException || ex is ArgumentOutOfRangeException)
+        {
+            throw new FormatException("Failed to decode OID from encoded value.", ex);
+        }
+    }
+
+    /// <summary>
+    /// Creates an <see cref="Oid"/> instance from a BER-encoded OID value.
+    /// </summary>
+    /// <param name="encodedOidValue">The BER-encoded OID value as a <see cref="ReadOnlySpan{T}"/> of bytes.</param>
+    /// <returns>An OID string representing the decoded OID.</returns>
+    public static string FromBer(ReadOnlySpan<byte> encodedOidValue)
+    {
+        return FromEncodedValue(encodedOidValue, AsnEncodingRules.BER);
+    }
+
+    /// <summary>
+    /// Creates an <see cref="Oid"/> instance from a CER-encoded OID value.
+    /// </summary>
+    /// <param name="encodedOidValue">The CER-encoded OID value as a <see cref="ReadOnlySpan{T}"/> of bytes.</param>
+    /// <returns>An OID string representing the decoded OID.</returns>
+    public static string FromCer(ReadOnlySpan<byte> encodedOidValue)
+    {
+        return FromEncodedValue(encodedOidValue, AsnEncodingRules.CER);
+    }
+
+    /// <summary>
+    /// Creates an <see cref="Oid"/> instance from a DER-encoded OID value.
+    /// </summary>
+    /// <param name="encodedOidValue">The DER-encoded OID value as a <see cref="ReadOnlySpan{T}"/> of bytes.</param>
+    /// <returns>An OID string representing the decoded OID.</returns>
+    public static string FromDer(ReadOnlySpan<byte> encodedOidValue)
+    {
+        return FromEncodedValue(encodedOidValue, AsnEncodingRules.DER);
+    }
+
+    /// <summary>
+    /// Validates the provided OID string. If the OID is invalid, an exception is thrown.
+    /// </summary>
+    /// <param name="oidStr">The OID string to validate.</param>
+    /// <exception cref="FormatException">Thrown when the OID string is invalid.</exception>
+    public static void Validate(string oidStr)
     {
         if (!_validationCache.TryGetValue(oidStr, out var validationResult))
         {
@@ -27,7 +115,7 @@ public readonly partial struct AsnOid
 
     private static void Validate(ReadOnlySpan<char> oidStr, out ValidationResult validationResult)
     {
-        if (oidStr.Length < 3)
+        if (oidStr.Length< 3)
         {
             validationResult = ValidationResult.TooShort;
             return;
@@ -105,13 +193,6 @@ public readonly partial struct AsnOid
     {
         private readonly ReadOnlySpan<char> _oidStr;
         private int _offset = -1;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ComponentParser"/> struct with an empty OID string.
-        /// </summary>
-        public ComponentParser() : this(ReadOnlySpan<char>.Empty)
-        {
-        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ComponentParser"/> struct with the specified OID string.

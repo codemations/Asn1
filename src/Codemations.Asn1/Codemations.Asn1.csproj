@@ -1,13 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net48;net6.0</TargetFrameworks>
+    <TargetFrameworks>net48;net6.0;net8.0</TargetFrameworks>
     <LangVersion>11</LangVersion>
     <Nullable>enable</Nullable>
     <Authors>Arkadiusz Prochwicz</Authors>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>ASN.1;ASN1;ASN;Codemations</PackageTags>
+	<PackageIcon>icon.png</PackageIcon>
     <RepositoryUrl>https://github.com/codemations/Asn1</RepositoryUrl>
     <PackageProjectUrl>https://github.com/codemations/Asn1</PackageProjectUrl>
     <Description>Provides serialization/deserialization capabilities between .NET objects and ASN.1 encoded values.</Description>
@@ -22,6 +23,10 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+	<None Include="..\..\icon.png">
+		<Pack>True</Pack>
+		<PackagePath></PackagePath>
+	</None>
   </ItemGroup>
 
   <ItemGroup>

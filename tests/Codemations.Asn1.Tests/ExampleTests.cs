@@ -1,6 +1,6 @@
 using System.Formats.Asn1;
-using System.Numerics;
 using Codemations.Asn1.Attributes;
+using Codemations.Asn1.Converters;
 using NUnit.Framework;
 
 namespace Codemations.Asn1.Tests;
@@ -9,9 +9,9 @@ public class ExampleTests
 {
     public class FooQuestion
     {
-        [AsnTag]
-        public BigInteger TrackingNumber { get; set; }
-        [AsnTag]
+        public int TrackingNumber { get; set; }
+
+        [AsnConverter(typeof(AsnUtf8StringConverter))]
         public string? Question { get; set; }
     }
 
@@ -46,14 +46,14 @@ public class ExampleTests
             TrackingNumber = 5,
             Question = "Anybody there?"
         };
-        var data = new byte[] {
+        var encodedData = new byte[] {
             0x30, 0x13, 
                 0x02, 0x01, 0x05, 
                 0x0C, 0x0e, 0x41, 0x6e, 0x79, 0x62, 0x6f, 0x64, 0x79, 0x20, 0x74, 0x68, 0x65, 0x72, 0x65, 0x3f
         };
 
         // Act
-        var actualQuestion = AsnSerializer.Deserialize<FooQuestion>(data, AsnEncodingRules.DER);
+        var actualQuestion = AsnSerializer.Deserialize<FooQuestion>(encodedData, AsnEncodingRules.DER);
 
         // Assert
         Assert.Multiple(() =>

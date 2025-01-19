@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Formats.Asn1;
-using System.Linq;
-using Codemations.Asn1.Extensions;
 
 namespace Codemations.Asn1;
 
@@ -51,7 +48,7 @@ public partial class AsnSerializer
     public void Serialize(AsnWriter writer, object value, Asn1Tag? tag = null)
     {
         var converter = _converterResolver.Resolve(value.GetType(), out _);
-        SerializeCore(writer, value, converter, tag);
+        Serialize(writer, value, converter, tag);
     }
 
     /// <summary>
@@ -63,7 +60,19 @@ public partial class AsnSerializer
     public void Serialize(AsnWriter writer, AsnPropertyInfo asnPropertyInfo, object value)
     {
         var converter = _converterResolver.Resolve(asnPropertyInfo, out _);
-        SerializeCore(writer, value, converter, asnPropertyInfo.Tag);
+        Serialize(writer, value, converter, asnPropertyInfo.Tag);
+    }
+
+    /// <summary>
+    /// Serializes an object to the specified <see cref="AsnWriter"/> with an optional <paramref name="tag"/>.
+    /// </summary>
+    /// <param name="writer">The writer to serialize the object into.</param>
+    /// <param name="value">The object to serialize.</param>
+    /// <param name="converter">Converter to use during serialization.</param>
+    /// <param name="tag">An optional ASN.1 tag to be applied to the serialized object.</param>
+    public void Serialize(AsnWriter writer, object value, IAsnConverter converter, Asn1Tag? tag = null)
+    {
+        converter.Write(writer, tag, value, this);
     }
 
     private static AsnWriter SerializeInternal(object value, AsnEncodingRules ruleSet, Asn1Tag? tag)
@@ -71,11 +80,6 @@ public partial class AsnSerializer
         var writer = new AsnWriter(ruleSet);
         new AsnSerializer().Serialize(writer, value, tag);
         return writer;
-    }
-
-    private void SerializeCore(AsnWriter writer, object value, IAsnConverter converter, Asn1Tag? tag = null)
-    {
-        converter.Write(writer, tag, value, this);
     }
 
     /// <summary>
@@ -197,7 +201,7 @@ public partial class AsnSerializer
     /// <param name="reader">The reader to deserialize from.</param>
     /// <param name="expectedTag">The expected tag for the ASN.1 data.</param>
     /// <param name="type">The type to deserialize into.</param>
-    /// <param name="converter">An optional custom converter to use during deserialization.</param>
+    /// <param name="converter">Converter to use during deserialization.</param>
     /// <returns>The deserialized object.</returns>
     public object Deserialize(AsnReader reader, Type type, IAsnConverter converter, Asn1Tag? expectedTag = null)
     {

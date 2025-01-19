@@ -17,7 +17,6 @@ namespace Codemations.Asn1.Tests
             yield return new TestCaseData(new byte[] { 0xCA, 0xFE }, (byte)0x84, new byte[] { 0x84, 0x02, 0xCA, 0xFE });
             yield return new TestCaseData(TestEnum.Success, (byte)0x85, new byte[] { 0x85, 0x01, 0x7F });
             yield return new TestCaseData(TestEnum.Failure, (byte)0x86, new byte[] { 0x86, 0x02, 0x00, 0x80 });
-            yield return new TestCaseData(@"Arek", (byte)0x87, new byte[] { 0x87, 0x04, 0x41, 0x72, 0x65, 0x6B });
 
             foreach(var testCase in GetIntegerDataTestCases())
             {

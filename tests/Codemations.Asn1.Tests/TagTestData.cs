@@ -6,12 +6,15 @@ namespace Codemations.Asn1.Tests
 {
     public class TagTestData
     {
+        public const int MaxByteEncodedTagValue = 0b0001_1110;
+        public const int MaxUIntEncodedTagValue = 0b0001_1111_1111_1111_1111_1111;
+
         public static IEnumerable<TestCaseData> ByteData()
         {
             yield return new TestCaseData(new Asn1Tag(TagClass.ContextSpecific, 0x00, false), (byte)0x80 );
-            yield return new TestCaseData(new Asn1Tag(TagClass.ContextSpecific, 0x1E, false), (byte)0x9E );
+            yield return new TestCaseData(new Asn1Tag(TagClass.ContextSpecific, MaxByteEncodedTagValue, false), (byte)0x9E );
             yield return new TestCaseData(new Asn1Tag(TagClass.ContextSpecific, 0x00, true), (byte)0xA0 );
-            yield return new TestCaseData(new Asn1Tag(TagClass.ContextSpecific, 0x1E, true), (byte)0xBE);
+            yield return new TestCaseData(new Asn1Tag(TagClass.ContextSpecific, MaxByteEncodedTagValue, true), (byte)0xBE);
             yield return new TestCaseData(new Asn1Tag(TagClass.Universal, 0x00, false), (byte)0x00);
             yield return new TestCaseData(new Asn1Tag(TagClass.Universal, 0x1E, false), (byte)0x1E);
             yield return new TestCaseData(new Asn1Tag(TagClass.Private, 0x00, true), (byte)0xE0);
@@ -27,6 +30,7 @@ namespace Codemations.Asn1.Tests
             yield return new TestCaseData(new Asn1Tag(TagClass.ContextSpecific, 0x80, false), 0x9F8100u);
             yield return new TestCaseData(new Asn1Tag(TagClass.ContextSpecific, 0x3FFF, false), 0x9FFF7Fu);
             yield return new TestCaseData(new Asn1Tag(TagClass.ContextSpecific, 0x4000, false), 0x9F818000u);
+            yield return new TestCaseData(new Asn1Tag(TagClass.ContextSpecific, MaxUIntEncodedTagValue, false), 0x9FFFFF7Fu);
         }
     }
 }

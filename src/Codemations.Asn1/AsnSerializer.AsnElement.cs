@@ -28,19 +28,19 @@ public partial class AsnSerializer
     {
         foreach (var element in items)
         {
-            if (element.Tag.IsConstructed)
+            if (element is AsnConstructedElement constructedElement)
             {
                 writer.PushSequence(element.Tag);
-                Serialize(writer, element.Elements);
+                Serialize(writer, constructedElement);
                 writer.PopSequence(element.Tag);
             }
-            else if (element.Value is null)
+            else if (element is AsnPrimitiveElement primitiveElement)
             {
-                writer.WriteNull(element.Tag);
+                writer.WriteOctetString(primitiveElement.Value.Span, element.Tag);
             }
             else
             {
-                writer.WriteOctetString(element.Value.Value.Span, element.Tag);
+                throw new NotSupportedException();
             }
         }
     }
@@ -65,11 +65,11 @@ public partial class AsnSerializer
             if (tag.IsConstructed)
             {
                 var elements = Deserialize(value, ruleSet, options).ToList();
-                yield return new AsnElement(tag, elements);
+                yield return new AsnConstructedElement(tag, elements);
             }
             else
             {
-                yield return new AsnElement(tag) { Value = value };
+                yield return new AsnPrimitiveElement(tag, value);
             }
         }
     }

@@ -1,5 +1,4 @@
-﻿using Codemations.Asn1.Types;
-using System;
+﻿using System;
 using System.Formats.Asn1;
 
 namespace Codemations.Asn1.Extensions;
@@ -13,37 +12,37 @@ public static class AsnReaderExtensions
         return contentBytes.Slice(contentOffset, contentLength);
     }
 
-    public static AsnUtf8String ReadUtf8String(this AsnReader reader, Asn1Tag? tag = null)
+    public static string ReadUtf8String(this AsnReader reader, Asn1Tag? tag = null)
     {
         return reader.ReadCharacterString(UniversalTagNumber.UTF8String, tag);
     }
 
-    public static AsnNumericString ReadNumericString(this AsnReader reader, Asn1Tag? tag = null)
+    public static string ReadNumericString(this AsnReader reader, Asn1Tag? tag = null)
     {
         return reader.ReadCharacterString(UniversalTagNumber.NumericString, tag);
     }
 
-    public static AsnPrintableString ReadPrintableString(this AsnReader reader, Asn1Tag? tag = null)
+    public static string ReadPrintableString(this AsnReader reader, Asn1Tag? tag = null)
     {
         return reader.ReadCharacterString(UniversalTagNumber.PrintableString, tag);
     }
 
-    public static AsnIA5String ReadIA5String(this AsnReader reader, Asn1Tag? tag = null)
+    public static string ReadIA5String(this AsnReader reader, Asn1Tag? tag = null)
     {
         return reader.ReadCharacterString(UniversalTagNumber.IA5String, tag);
     }
 
-    public static AsnVisibleString ReadVisibleString(this AsnReader reader, Asn1Tag? tag = null)
+    public static string ReadVisibleString(this AsnReader reader, Asn1Tag? tag = null)
     {
         return reader.ReadCharacterString(UniversalTagNumber.VisibleString, tag);
     }
 
-    public static AsnBmpString ReadBmpString(this AsnReader reader, Asn1Tag? tag = null)
+    public static string ReadBmpString(this AsnReader reader, Asn1Tag? tag = null)
     {
         return reader.ReadCharacterString(UniversalTagNumber.BMPString, tag);
     }
 
-    public static AsnT61String ReadT61String(this AsnReader reader, Asn1Tag? tag = null)
+    public static string ReadT61String(this AsnReader reader, Asn1Tag? tag = null)
     {
         return reader.ReadCharacterString(UniversalTagNumber.T61String, tag);
     }

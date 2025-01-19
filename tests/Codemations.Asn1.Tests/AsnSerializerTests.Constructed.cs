@@ -192,7 +192,6 @@ namespace Codemations.Asn1.Tests
         [AsnSequence]
         public class UniversalSequence
         {
-            [AsnTag]
             public BigInteger Integer { get; set; }
         }
 
