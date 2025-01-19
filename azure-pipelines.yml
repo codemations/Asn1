@@ -14,7 +14,7 @@ variables:
 steps:
 - task: gitversion/setup@3
   inputs:
-    versionSpec: '6.x'
+    versionSpec: '>=5.2.0 <=6.1.0'
 
 - task: gitversion/execute@3
   inputs:
