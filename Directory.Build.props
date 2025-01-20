@@ -1,0 +1,6 @@
+﻿<Project>
+   <PropertyGroup>
+	  <AssemblyOriginatorKeyFile>..\..\Codemations.snk</AssemblyOriginatorKeyFile>
+	  <SignAssembly>true</SignAssembly>
+   </PropertyGroup>
+</Project>
