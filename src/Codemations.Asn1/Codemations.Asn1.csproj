@@ -33,4 +33,7 @@
     <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Codemations.Asn1.Tests" Key="002400000480000094000000060200000024000052534131000400000100010059db3a729e1668de760a0f0d0ae356e40837d6af58f8f1bd6a7937e23d681475eaa05b81c38e0634f9527279358f98c9b6fcf20297f713668e7458838ff71f9836499b5a41adb65b417ce7e49c947567f73e42fd7de05c0c285433b3abeb01de021df1d30316b249e97a7d28eb84b5f6cc39bacb14b9d433651ab50743a8dfc6" />
+  </ItemGroup>
 </Project>
