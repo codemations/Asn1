@@ -40,6 +40,8 @@ steps:
     command: 'build'
     projects: '**/*.csproj'
     arguments: '--configuration $(buildConfiguration)'
+    versioningScheme: 'byEnvVar'
+    versionEnvVar: 'GitVersion.FullSemVer'
 
 - task: DotNetCoreCLI@2
   inputs:
@@ -65,8 +67,18 @@ steps:
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet push internal'
+  condition: eq(variables['Build.SourceBranchName'], 'main')
   inputs:
     command: 'push'
     packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    nuGetFeedType: 'internal'
+    publishVstsFeed: '73ab56f3-41d3-43aa-b445-6c2591ea0149/39973489-c2cb-4fdf-97f7-17ca9ef2c262'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet push internal (snupkg)'
+  condition: eq(variables['Build.SourceBranchName'], 'main')
+  inputs:
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.snupkg'
     nuGetFeedType: 'internal'
     publishVstsFeed: '73ab56f3-41d3-43aa-b445-6c2591ea0149/39973489-c2cb-4fdf-97f7-17ca9ef2c262'

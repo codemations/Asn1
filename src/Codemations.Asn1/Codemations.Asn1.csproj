@@ -8,8 +8,14 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>ASN.1;ASN1;ASN;Codemations</PackageTags>
-	<PackageIcon>icon.png</PackageIcon>
-    <RepositoryUrl>https://github.com/codemations/Asn1</RepositoryUrl>
+    <PackageIcon>icon.png</PackageIcon>
+    <DebugType>portable</DebugType>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryBranch>main</RepositoryBranch>
+    <RepositoryUrl>https://github.com/codemations/Asn1.git</RepositoryUrl>
     <PackageProjectUrl>https://github.com/codemations/Asn1</PackageProjectUrl>
     <Description>Provides serialization/deserialization capabilities between .NET objects and ASN.1 encoded values.</Description>
   </PropertyGroup>
