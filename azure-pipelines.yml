@@ -60,6 +60,7 @@ steps:
   displayName: 'dotnet pack'
   inputs:
     command: 'pack'
+    arguments: '--include-symbols -p:ContinuousIntegrationBuild=true'
     packagesToPack: 'src/**/*.csproj'
     nobuild: true
     versioningScheme: 'byEnvVar'
