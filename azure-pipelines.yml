@@ -60,11 +60,12 @@ steps:
   displayName: 'dotnet pack'
   inputs:
     command: 'pack'
-    arguments: '--include-symbols -p:ContinuousIntegrationBuild=true'
     packagesToPack: 'src/**/*.csproj'
     nobuild: true
+    includesymbols: true
     versioningScheme: 'byEnvVar'
     versionEnvVar: 'GitVersion.FullSemVer'
+    buildProperties: 'ContinuousIntegrationBuild=true'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet push internal'

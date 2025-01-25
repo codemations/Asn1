@@ -18,6 +18,7 @@
     <RepositoryUrl>https://github.com/codemations/Asn1.git</RepositoryUrl>
     <PackageProjectUrl>https://github.com/codemations/Asn1</PackageProjectUrl>
     <Description>Provides serialization/deserialization capabilities between .NET objects and ASN.1 encoded values.</Description>
+    <PackageReleaseNotes>Fixed source link.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
