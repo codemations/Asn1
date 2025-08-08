@@ -95,7 +95,7 @@ namespace Codemations.Asn1.Tests
         [TestCase("1.2.")]
         [TestCase("...")]
         [TestCase(".1.2")]
-        [TestCase("...")]
+        [TestCase("1..2")]
         [TestCase("A.B")]
         [TestCase("1.B")]
         [TestCase("3.1")]
