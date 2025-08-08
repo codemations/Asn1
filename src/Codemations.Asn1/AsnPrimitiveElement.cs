@@ -9,7 +9,7 @@ namespace Codemations.Asn1
     public sealed class AsnPrimitiveElement : AsnElement
     {
         /// <summary>
-        /// Gets or sets the content encoded value.
+        /// Gets the content encoded value.
         /// </summary>
         public ReadOnlyMemory<byte> Value { get; }
 
