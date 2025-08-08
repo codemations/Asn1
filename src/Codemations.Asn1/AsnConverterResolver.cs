@@ -88,7 +88,7 @@ internal class AsnConverterResolver
 
     private IAsnConverter ResolveInternal(Type type)
     {
-        return _cache.GetOrAdd(type, ResolveConverter(type));
+        return _cache.GetOrAdd(type, ResolveConverter);
     }
 
     private IAsnConverter ResolveConverter(Type type)
